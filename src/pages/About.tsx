@@ -36,7 +36,7 @@ const About = () => {
             About <span className="text-primary">Lucky Nakola</span>
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Junior Software Developer | Tech Educator | Community Builder
+            Fullstack Software Developer | Tech Educator | Community Builder
           </p>
         </motion.div>
 

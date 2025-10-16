@@ -50,7 +50,7 @@ const Contact = () => {
       icon: MessageCircle,
       title: "WhatsApp",
       value: "+254 123 456 789",
-      link: "https://wa.me/254123456789",
+      link: "https://wa.me/254715674828",
     },
     {
       icon: MapPin,
@@ -61,8 +61,8 @@ const Contact = () => {
     {
       icon: Phone,
       title: "Phone",
-      value: "+254 123 456 789",
-      link: "tel:+254123456789",
+      value: "+254 715674828",
+      link: "tel:+254715674828",
     },
   ];
 

@@ -49,7 +49,7 @@ const Webinars = () => {
     },
     {
       title: "Digital Marketing for Tech Startups",
-      date: "February 10, 2026",
+      date: "February 18, 2026",
       time: "2:00 PM - 4:30 PM EAT",
       duration: "2.5 hours",
       type: "free",
@@ -59,7 +59,7 @@ const Webinars = () => {
     },
     {
       title: "Blockchain & Cryptocurrency Masterclass",
-      date: "February 15, 2026",
+      date: "March 25, 2026",
       time: "1:00 PM - 6:00 PM EAT",
       duration: "5 hours",
       type: "paid",

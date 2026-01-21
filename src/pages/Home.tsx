@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { BookOpen, Users, Video, Sparkles, Target, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import TipCard from "@/components/TipCard";
-import heroImage from "@/assets/hero-image.jpg";
+import heroVideo from "@/assets/hero-video.mp4";
 
 const Home = () => {
   const latestTips = [
@@ -104,9 +104,11 @@ const Home = () => {
               className="relative"
             >
               <div className="relative rounded-3xl overflow-hidden shadow-2xl">
-                <img
-                  src={heroImage}
-                  alt="Tech education community"
+                <video
+                  src={heroVideo}
+                  autoPlay
+                  muted
+                  loop
                   className="w-full h-auto"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent" />

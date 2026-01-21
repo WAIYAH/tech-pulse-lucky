@@ -2,7 +2,7 @@ import { MessageCircle } from "lucide-react";
 import { motion } from "framer-motion";
 
 const WhatsAppButton = () => {
-  const whatsappNumber = "254123456789"; // Replace with actual number
+  const whatsappNumber = "254715674828"; // Lucky Nakola's WhatsApp number
   const message = "Hi! I'm interested in joining the Tech Pulse Insider community!";
 
   return (

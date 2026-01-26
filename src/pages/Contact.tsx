@@ -49,7 +49,7 @@ const Contact = () => {
     {
       icon: MessageCircle,
       title: "WhatsApp",
-      value: "+254 123 456 789",
+      value: "+254 715 674 828",
       link: "https://wa.me/254715674828",
     },
     {
@@ -241,7 +241,7 @@ const Contact = () => {
                   </div>
                   <Button variant="accent" asChild>
                     <a
-                      href="https://wa.me/254123456789"
+                      href="https://wa.me/254715674828"
                       target="_blank"
                       rel="noopener noreferrer"
                     >

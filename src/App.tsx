@@ -8,7 +8,11 @@ import Footer from "./components/Footer";
 import WhatsAppButton from "./components/WhatsAppButton";
 import Home from "./pages/Home";
 import Tips from "./pages/Tips";
+import Articles from "./pages/Articles";
+import ArticleDetail from "./pages/ArticleDetail";
 import Webinars from "./pages/Webinars";
+import EventDetails from "./pages/EventDetails";
+import CustomTraining from "./pages/CustomTraining";
 import Community from "./pages/Community";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
@@ -31,7 +35,11 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/tips" element={<Tips />} />
+              <Route path="/articles" element={<Articles />} />
+              <Route path="/articles/:slug" element={<ArticleDetail />} />
               <Route path="/webinars" element={<Webinars />} />
+              <Route path="/events/:eventSlug" element={<EventDetails />} />
+              <Route path="/custom-training" element={<CustomTraining />} />
               <Route path="/community" element={<Community />} />
               <Route path="/about" element={<About />} />
               <Route path="/contact" element={<Contact />} />

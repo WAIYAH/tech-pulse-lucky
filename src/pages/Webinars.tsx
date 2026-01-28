@@ -1,72 +1,93 @@
 import { motion } from "framer-motion";
-import { Calendar, Clock, Users, Video, DollarSign, CheckCircle2 } from "lucide-react";
+import { Calendar, Clock, Users, Video, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import { useNavigate } from "react-router-dom";
 
 const Webinars = () => {
+  const navigate = useNavigate();
+
   const upcomingWebinars = [
     {
-      title: "Cybersecurity Essentials for Small Businesses",
-      date: "January 20, 2026",
-      time: "2:00 PM - 4:00 PM EAT",
-      duration: "2 hours",
-      type: "free",
-      spots: 50,
-      description: "Learn how to protect your business from cyber threats. Covers password management, data encryption, and incident response.",
-      topics: ["Password Security", "Data Protection", "Threat Prevention"],
-    },
-    {
-      title: "Web Development Bootcamp: React & TypeScript",
-      date: "January 25, 2026",
-      time: "10:00 AM - 5:00 PM EAT",
-      duration: "Full Day",
-      type: "paid",
-      price: "KES 200",
-      spots: 30,
-      description: "Intensive hands-on workshop building modern web applications. Perfect for beginners looking to start their development career.",
-      topics: ["React Basics", "TypeScript", "API Integration", "Deployment"],
-    },
-    {
-      title: "AI & Machine Learning: Getting Started",
-      date: "January 30, 2026",
-      time: "3:00 PM - 5:00 PM EAT",
+      id: 1,
+      title: "Basics of IT & Safe Internet Browsing",
+      slug: "basics-of-it-safe-internet-browsing",
+      date: "February 10, 2026",
+      time: "10:00 AM - 12:00 PM EAT",
       duration: "2 hours",
       type: "free",
       spots: 100,
-      description: "Introduction to AI concepts and practical applications. No coding experience required - perfect for curious beginners!",
-      topics: ["AI Basics", "ML Applications", "AI Tools", "Future Trends"],
+      description: "Computer basics, smartphones, internet fundamentals, online safety, scams, and digital hygiene.",
+      topics: ["Internet Fundamentals", "Online Safety", "Avoiding Scams", "Digital Hygiene"],
+      bookingLink: "https://forms.gle/nvioKLZqe4dN3ZTK8",
     },
     {
-      title: "Advanced Python Programming Masterclass",
-      date: "February 5, 2026",
+      id: 2,
+      title: "Web Development Using HTML, CSS & JavaScript",
+      slug: "web-development-html-css-javascript",
+      date: "February 24, 2026",
+      time: "9:00 AM - 5:00 PM EAT",
+      duration: "Full Day",
+      type: "paid",
+      price: "KES 250",
+      spots: 30,
+      description: "Practical frontend web development from scratch with real projects.",
+      topics: ["HTML Essentials", "CSS Styling", "JavaScript Fundamentals", "Real Projects"],
+      bookingLink: "https://forms.gle/nvioKLZqe4dN3ZTK8",
+    },
+    {
+      id: 3,
+      title: "AI & Machine Learning: Getting Started",
+      slug: "ai-machine-learning-getting-started",
+      date: "March 18, 2026",
+      time: "2:00 PM - 4:00 PM EAT",
+      duration: "2 hours",
+      type: "free",
+      spots: 75,
+      description: "Introduction to AI, ML concepts, real-world use cases, and beginner tools.",
+      topics: ["AI Basics", "ML Concepts", "Real-World Applications", "ML Tools"],
+      bookingLink: "https://forms.gle/nvioKLZqe4dN3ZTK8",
+    },
+    {
+      id: 4,
+      title: "Advanced Software Engineering (JavaScript + XAMPP & MySQL)",
+      slug: "advanced-software-engineering-javascript-xampp-mysql",
+      date: "April 22, 2026",
       time: "9:00 AM - 6:00 PM EAT",
       duration: "Full Day",
       type: "paid",
-      price: "KES 300",
+      price: "KES 350",
       spots: 25,
-      description: "Deep dive into Python for data science and automation. Includes real-world projects and certification.",
-      topics: ["Data Analysis", "Automation", "APIs", "Best Practices"],
+      description: "Backend development, databases, APIs, and full-stack workflows.",
+      topics: ["Backend Development", "Database Design", "API Development", "Full-Stack Workflows"],
+      bookingLink: "https://forms.gle/nvioKLZqe4dN3ZTK8",
     },
     {
+      id: 5,
       title: "Digital Marketing for Tech Startups",
-      date: "February 18, 2026",
-      time: "2:00 PM - 4:30 PM EAT",
-      duration: "2.5 hours",
+      slug: "digital-marketing-for-tech-startups",
+      date: "May 20, 2026",
+      time: "3:00 PM - 5:00 PM EAT",
+      duration: "2 hours",
       type: "free",
-      spots: 75,
-      description: "Learn how to market your tech product effectively. SEO, social media, and content marketing strategies.",
-      topics: ["SEO", "Social Media", "Content Strategy", "Analytics"],
+      spots: 80,
+      description: "Branding, online growth, social media, and customer acquisition for tech products.",
+      topics: ["Tech Branding", "Social Media Strategy", "Customer Acquisition", "Growth Hacking"],
+      bookingLink: "https://forms.gle/nvioKLZqe4dN3ZTK8",
     },
     {
-      title: "Blockchain & Cryptocurrency Masterclass",
-      date: "March 25, 2026",
-      time: "1:00 PM - 6:00 PM EAT",
-      duration: "5 hours",
+      id: 6,
+      title: "DevOps & Cloud Computing",
+      slug: "devops-cloud-computing",
+      date: "July 29, 2026",
+      time: "10:00 AM - 5:00 PM EAT",
+      duration: "Full Day",
       type: "paid",
-      price: "KES 500",
+      price: "KES 400",
       spots: 20,
-      description: "Comprehensive guide to blockchain technology and cryptocurrency. Learn to build smart contracts and DApps.",
-      topics: ["Blockchain Basics", "Smart Contracts", "DeFi", "NFTs"],
+      description: "CI/CD, cloud fundamentals, deployment, and modern DevOps practices.",
+      topics: ["CI/CD Pipelines", "Cloud Fundamentals", "Deployment Strategies", "DevOps Tools"],
+      bookingLink: "https://forms.gle/nvioKLZqe4dN3ZTK8",
     },
   ];
 
@@ -85,6 +106,9 @@ const Webinars = () => {
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Join live interactive sessions with Lucky Nakola. Learn from industry experts and 
             accelerate your tech career with hands-on training.
+          </p>
+          <p className="text-sm text-accent font-semibold mt-4">
+            Booking & payment via embedded Google Form
           </p>
         </motion.div>
 
@@ -150,12 +174,23 @@ const Webinars = () => {
                 </CardContent>
 
                 <CardFooter>
-                  <Button 
-                    variant={webinar.type === 'free' ? 'hero' : 'accent'} 
-                    className="w-full"
-                  >
-                    {webinar.type === 'free' ? 'Register Now' : 'Book Your Spot'}
-                  </Button>
+                  {webinar.type === 'free' ? (
+                    <Button 
+                      variant="hero"
+                      className="w-full"
+                      onClick={() => window.open(webinar.bookingLink, "_blank")}
+                    >
+                      Register Now
+                    </Button>
+                  ) : (
+                    <Button 
+                      variant="accent"
+                      className="w-full"
+                      onClick={() => navigate(`/events/${webinar.slug}`)}
+                    >
+                      Book Your Spot
+                    </Button>
+                  )}
                 </CardFooter>
               </Card>
             </motion.div>
@@ -175,7 +210,7 @@ const Webinars = () => {
             your specific needs and get a personalized learning experience.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button variant="hero" size="lg">
+            <Button variant="hero" size="lg" onClick={() => navigate("/custom-training")}>
               Request Custom Training
             </Button>
             <Button variant="outline" size="lg">

@@ -68,8 +68,122 @@ export const aiToolsArticle: ArticleMetadata = {
     "https://images.unsplash.com/photo-1677442d019cecf8d88aef2e34aaf1f7?w=1200&q=80",
 };
 
+// Article 4: Cloud Computing Fundamentals
+import cloudComputingContent from "./cloud-computing-fundamentals.md?raw";
+
+export const cloudComputingArticle: ArticleMetadata = {
+  id: "cloud-computing-fundamentals",
+  slug: "cloud-computing-fundamentals",
+  title: "Cloud Computing Fundamentals: AWS, Azure, and Google Cloud",
+  description:
+    "Complete guide to cloud computing basics, major platforms (AWS, Azure, GCP), deployment models, and getting started with cloud services.",
+  publishDate: "2025-01-24",
+  author: "Lucky Nakola",
+  tags: ["Cloud Computing", "AWS", "Azure", "GCP", "Infrastructure"],
+  readingTime: 16,
+  content: cloudComputingContent,
+  coverImage:
+    "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1200&q=80",
+};
+
+// Article 5: Data Science for Beginners
+import dataScienceContent from "./data-science-beginners-guide.md?raw";
+
+export const dataScienceArticle: ArticleMetadata = {
+  id: "data-science-beginners",
+  slug: "data-science-beginners-guide",
+  title: "Data Science for Beginners: Tools, Techniques, and Career Path",
+  description:
+    "Comprehensive introduction to data science covering skills, workflow, tools, learning pathways, and career opportunities in the field.",
+  publishDate: "2025-01-25",
+  author: "Lucky Nakola",
+  tags: ["Data Science", "Machine Learning", "Python", "Analytics"],
+  readingTime: 17,
+  content: dataScienceContent,
+  coverImage:
+    "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&q=80",
+};
+
+// Article 6: Mobile App Development
+import mobileAppContent from "./mobile-app-development-ios-android.md?raw";
+
+export const mobileAppArticle: ArticleMetadata = {
+  id: "mobile-app-development",
+  slug: "mobile-app-development-ios-android",
+  title: "Mobile App Development: Building iOS and Android Apps",
+  description:
+    "Guide to mobile development covering native iOS/Android development, cross-platform frameworks, and best practices for app development.",
+  publishDate: "2025-01-26",
+  author: "Lucky Nakola",
+  tags: ["Mobile Development", "iOS", "Android", "React Native", "Flutter"],
+  readingTime: 16,
+  content: mobileAppContent,
+  coverImage:
+    "https://images.unsplash.com/photo-1512941691920-25bda36fe0c9?w=1200&q=80",
+};
+
+// Article 7: DevOps and CI/CD
+import devopsContent from "./devops-ci-cd-pipelines.md?raw";
+
+export const devopsArticle: ArticleMetadata = {
+  id: "devops-ci-cd",
+  slug: "devops-ci-cd-pipelines",
+  title: "DevOps and CI/CD Pipelines: Automate Your Deployments",
+  description:
+    "Master DevOps practices, CI/CD pipelines, automation tools, infrastructure as code, and modern deployment strategies.",
+  publishDate: "2025-01-27",
+  author: "Lucky Nakola",
+  tags: ["DevOps", "CI/CD", "Automation", "Infrastructure", "Docker", "Kubernetes"],
+  readingTime: 18,
+  content: devopsContent,
+  coverImage:
+    "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1200&q=80",
+};
+
+// Article 8: Database Design and SQL
+import databaseContent from "./database-design-sql.md?raw";
+
+export const databaseArticle: ArticleMetadata = {
+  id: "database-design-sql",
+  slug: "database-design-sql",
+  title: "Database Design and SQL: Building Efficient Data Systems",
+  description:
+    "Comprehensive guide to relational databases, normalization, SQL queries, optimization, and best practices for data system design.",
+  publishDate: "2025-01-28",
+  author: "Lucky Nakola",
+  tags: ["Database", "SQL", "PostgreSQL", "Data Design", "Performance"],
+  readingTime: 17,
+  content: databaseContent,
+  coverImage:
+    "https://images.unsplash.com/photo-1516321318423-f06f70504c8a?w=1200&q=80",
+};
+
+// Article 9: REST APIs
+import restApisContent from "./rest-apis-development.md?raw";
+
+export const restApisArticle: ArticleMetadata = {
+  id: "rest-apis-development",
+  slug: "rest-apis-development",
+  title: "REST APIs: Building Robust Web Services",
+  description:
+    "Complete guide to REST API design, HTTP methods, status codes, authentication, documentation, and best practices for API development.",
+  publishDate: "2025-01-28",
+  author: "Lucky Nakola",
+  tags: ["API", "REST", "Web Services", "Backend", "Node.js"],
+  readingTime: 15,
+  content: restApisContent,
+  coverImage:
+    "https://images.unsplash.com/photo-1552664730-d307ca884978?w=1200&q=80",
+};
+
 // All articles array
 export const allArticles: ArticleMetadata[] = [
+  restApisArticle,
+  databaseArticle,
+  devopsArticle,
+  mobileAppArticle,
+  dataScienceArticle,
+  cloudComputingArticle,
   aiToolsArticle,
   webDevelopmentArticle,
   essentialCybersecurityArticle,

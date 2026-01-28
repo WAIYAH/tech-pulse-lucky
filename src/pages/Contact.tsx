@@ -49,7 +49,7 @@ const Contact = () => {
     {
       icon: MessageCircle,
       title: "WhatsApp",
-      value: "+254 715 674 828",
+      value: "+254 715674828",
       link: "https://wa.me/254715674828",
     },
     {

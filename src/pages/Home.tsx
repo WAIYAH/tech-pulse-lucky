@@ -4,28 +4,22 @@ import { BookOpen, Users, Video, Sparkles, Target, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import TipCard from "@/components/TipCard";
 import heroVideo from "@/assets/hero-video.mp4";
+import { getSortedArticles } from "@/content/articles";
 
 const Home = () => {
-  const latestTips = [
-    {
-      title: "Essential Cybersecurity Tips for Remote Workers",
-      summary: "Learn how to protect your data and privacy while working from home. Discover VPN usage, strong passwords, and 2FA authentication.",
-      date: "May 15, 2025",
-      tags: ["Cybersecurity", "Remote Work", "Privacy"],
-    },
-    {
-      title: "Getting Started with Web Development in 2025",
-      summary: "A beginner's guide to modern web development tools and frameworks. Start your coding journey today!",
-      date: "May 10, 2025",
-      tags: ["Web Dev", "Beginners", "Career"],
-    },
-    {
-      title: "AI Tools Every Professional Should Know",
-      summary: "Boost your productivity with these essential AI tools. From ChatGPT to automation software.",
-      date: "May 5, 2025",
-      tags: ["AI", "Productivity", "Tools"],
-    },
-  ];
+  // Get the 3 latest articles for the tips section
+  const latestArticles = getSortedArticles().slice(0, 3);
+  
+  const latestTips = latestArticles.map((article) => ({
+    title: article.title,
+    summary: article.description,
+    date: new Date(article.publishDate).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    }),
+    tags: article.tags,
+  }));
 
   const features = [
     {

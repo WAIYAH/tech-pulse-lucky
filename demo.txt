@@ -1,0 +1,11 @@
+Hello this is a demo for git and github.
+
+git add .
+git commit -m "message"
+git push origin main
+git push origin branch branch
+
+
+
+bjhdkguskgk.jgkxjkh
+hgvhjvj,ccjgcchnc

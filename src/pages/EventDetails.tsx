@@ -42,7 +42,7 @@ const EventDetails = () => {
       time: "9:00 AM - 5:00 PM EAT",
       duration: "Full Day",
       type: "paid",
-      price: "KES 250",
+      price: "KES 300",
       spots: {
         total: 30,
         available: 12,
@@ -98,7 +98,7 @@ const EventDetails = () => {
       time: "9:00 AM - 6:00 PM EAT",
       duration: "Full Day",
       type: "paid",
-      price: "KES 350",
+      price: "KES 500",
       spots: {
         total: 25,
         available: 8,
@@ -154,7 +154,7 @@ const EventDetails = () => {
       time: "10:00 AM - 5:00 PM EAT",
       duration: "Full Day",
       type: "paid",
-      price: "KES 400",
+      price: "KES 800",
       spots: {
         total: 20,
         available: 3,

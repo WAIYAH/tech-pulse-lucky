@@ -12,8 +12,8 @@ const EventDetails = () => {
   const eventsData: Record<string, any> = {
     "basics-of-it-safe-internet-browsing": {
       title: "Basics of IT & Safe Internet Browsing",
-      date: "February 10, 2026",
-      time: "10:00 AM - 12:00 PM EAT",
+      date: "February 13, 2026",
+      time: "07:00 PM - 09:00 PM EAT",
       duration: "2 hours",
       type: "free",
       spots: {
@@ -38,9 +38,9 @@ const EventDetails = () => {
     },
     "web-development-html-css-javascript": {
       title: "Web Development Using HTML, CSS & JavaScript",
-      date: "February 24, 2026",
-      time: "9:00 AM - 5:00 PM EAT",
-      duration: "Full Day",
+      date: "March 20, 2026",
+      time: "7:00 PM - 9:00 PM EAT",
+      duration: "3 Days, Friday to Sunday",
       type: "paid",
       price: "KES 300",
       spots: {
@@ -67,8 +67,8 @@ const EventDetails = () => {
     },
     "ai-machine-learning-getting-started": {
       title: "AI & Machine Learning: Getting Started",
-      date: "March 18, 2026",
-      time: "2:00 PM - 4:00 PM EAT",
+      date: "March 27, 2026",
+      time: "7:00 PM - 9:00 PM EAT",
       duration: "2 hours",
       type: "free",
       spots: {
@@ -95,7 +95,7 @@ const EventDetails = () => {
     "advanced-software-engineering-javascript-xampp-mysql": {
       title: "Advanced Software Engineering (JavaScript + XAMPP & MySQL)",
       date: "April 22, 2026",
-      time: "9:00 AM - 6:00 PM EAT",
+      time: "7:00 PM - 9:00 PM EAT",
       duration: "Full Day",
       type: "paid",
       price: "KES 500",
@@ -124,7 +124,7 @@ const EventDetails = () => {
     "digital-marketing-for-tech-startups": {
       title: "Digital Marketing for Tech Startups",
       date: "May 20, 2026",
-      time: "3:00 PM - 5:00 PM EAT",
+      time: "7:00 PM - 9:00 PM EAT",
       duration: "2 hours",
       type: "free",
       spots: {
@@ -151,7 +151,7 @@ const EventDetails = () => {
     "devops-cloud-computing": {
       title: "DevOps & Cloud Computing",
       date: "July 29, 2026",
-      time: "10:00 AM - 5:00 PM EAT",
+      time: "7:00 PM - 9:00 PM EAT",
       duration: "Full Day",
       type: "paid",
       price: "KES 800",

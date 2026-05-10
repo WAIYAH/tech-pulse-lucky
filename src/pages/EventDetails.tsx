@@ -1,15 +1,44 @@
 import { motion } from "framer-motion";
 import { useParams, useNavigate } from "react-router-dom";
-import { Calendar, Clock, Users, ArrowLeft, Mail } from "lucide-react";
+import { Calendar, Clock, ArrowLeft, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+
+interface BaseEventDetails {
+  title: string;
+  date: string;
+  time: string;
+  duration: string;
+  spots: {
+    total: number;
+    available: number;
+  };
+  description: string;
+  longDescription: string;
+  targetAudience: string;
+  topics: string[];
+  trainer: string;
+  bookingLink: string;
+}
+
+interface FreeEventDetails extends BaseEventDetails {
+  type: "free";
+}
+
+interface PaidEventDetails extends BaseEventDetails {
+  type: "paid";
+  price: string;
+  paymentMethods: string[];
+}
+
+type EventDetailsRecord = FreeEventDetails | PaidEventDetails;
 
 const EventDetails = () => {
   const { eventSlug } = useParams<{ eventSlug: string }>();
   const navigate = useNavigate();
 
   // Event data mapping - centralized data
-  const eventsData: Record<string, any> = {
+  const eventsData: Record<string, EventDetailsRecord> = {
     "basics-of-it-safe-internet-browsing": {
       title: "Basics of IT & Safe Internet Browsing",
       date: "February 13, 2026",
@@ -287,7 +316,7 @@ const EventDetails = () => {
             <div className="mb-8">
               <h2 className="text-2xl font-bold mb-6">What You'll Learn</h2>
               <div className="grid md:grid-cols-2 gap-4">
-                {event.topics.map((topic: string, idx: number) => (
+                {event.topics.map((topic, idx) => (
                   <motion.div
                     key={idx}
                     initial={{ opacity: 0, x: -20 }}
@@ -366,7 +395,7 @@ const EventDetails = () => {
                   <h3 className="text-lg font-bold">Payment Methods</h3>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  {event.paymentMethods?.map((method: string, idx: number) => (
+                  {event.paymentMethods.map((method, idx) => (
                     <div
                       key={idx}
                       className="flex items-center gap-2 p-2 bg-accent/10 rounded-lg"

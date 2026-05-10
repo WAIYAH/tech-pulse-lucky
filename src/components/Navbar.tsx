@@ -3,14 +3,19 @@ import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const { isAuthenticated, user, logout } = useAuth();
+
+  const dashboardPath = user?.role === "admin" ? "/admin" : "/dashboard";
 
   const navLinks = [
     { name: "Home", path: "/" },
     { name: "Tips & Articles", path: "/tips" },
+    { name: "LMS", path: "/lms" },
     { name: "Webinars", path: "/webinars" },
     { name: "Community", path: "/community" },
     { name: "About", path: "/about" },
@@ -56,9 +61,20 @@ const Navbar = () => {
                 )}
               </Link>
             ))}
-            <Button variant="hero" size="sm" asChild>
-              <Link to="/community">Join Community</Link>
-            </Button>
+            {isAuthenticated ? (
+              <>
+                <Button variant="outline" size="sm" asChild>
+                  <Link to={dashboardPath}>My Dashboard</Link>
+                </Button>
+                <Button variant="hero" size="sm" onClick={logout}>
+                  Logout
+                </Button>
+              </>
+            ) : (
+              <Button variant="hero" size="sm" asChild>
+                <Link to="/register">Join LMS</Link>
+              </Button>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -96,11 +112,31 @@ const Navbar = () => {
                     {link.name}
                   </Link>
                 ))}
-                <Button variant="hero" className="w-full" asChild>
-                  <Link to="/community" onClick={() => setIsOpen(false)}>
-                    Join Community
-                  </Link>
-                </Button>
+                {isAuthenticated ? (
+                  <>
+                    <Button variant="outline" className="w-full" asChild>
+                      <Link to={dashboardPath} onClick={() => setIsOpen(false)}>
+                        My Dashboard
+                      </Link>
+                    </Button>
+                    <Button
+                      variant="hero"
+                      className="w-full"
+                      onClick={() => {
+                        setIsOpen(false);
+                        logout();
+                      }}
+                    >
+                      Logout
+                    </Button>
+                  </>
+                ) : (
+                  <Button variant="hero" className="w-full" asChild>
+                    <Link to="/register" onClick={() => setIsOpen(false)}>
+                      Join LMS
+                    </Link>
+                  </Button>
+                )}
               </div>
             </motion.div>
           )}

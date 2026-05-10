@@ -1,0 +1,457 @@
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import type { ReactNode } from "react";
+import type { User } from "@supabase/supabase-js";
+import { supabase } from "@/integrations/supabase/client";
+import type { LmsProfile, LmsRole } from "@/types/lms";
+
+interface RegisterInput {
+  fullName: string;
+  email: string;
+  phone: string;
+  password: string;
+}
+
+interface LoginInput {
+  email: string;
+  password: string;
+}
+
+interface AuthActionResult {
+  success: boolean;
+  message: string;
+  user?: LmsProfile | null;
+}
+
+interface AuthContextValue {
+  user: LmsProfile | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  authMode: "supabase" | "local";
+  register: (input: RegisterInput) => Promise<AuthActionResult>;
+  login: (input: LoginInput) => Promise<AuthActionResult>;
+  logout: () => Promise<void>;
+  sendPasswordReset: (email: string) => Promise<AuthActionResult>;
+  hasRole: (...roles: LmsRole[]) => boolean;
+}
+
+interface LocalAuthUserRecord {
+  id: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  role: Exclude<LmsRole, "guest">;
+  dateJoined: string;
+  passwordHash: string;
+}
+
+interface LocalSessionRecord {
+  userId: string;
+}
+
+const LOCAL_USERS_KEY = "lms_auth_users";
+const LOCAL_SESSION_KEY = "lms_auth_session";
+
+const LOCAL_BOOTSTRAP_ADMIN: LocalAuthUserRecord = {
+  id: "local-admin-bootstrap",
+  fullName: "Lucky LMS Admin",
+  email: "admin@techpulseinsider.com",
+  phone: "+254715674828",
+  role: "admin",
+  dateJoined: "2026-05-09T00:00:00.000Z",
+  // SHA-256("tech-pulse-insider-local-auth-v1:LuckyAdmin@2026!")
+  passwordHash: "8aeb41ca6bb2b346d4737956e001876f4de2f1dbe5acaa904fb5519bd35b8692",
+};
+
+const SUPPORTED_ROLES: LmsRole[] = ["guest", "student", "admin"];
+
+const AUTH_MODE: "supabase" | "local" =
+  import.meta.env.VITE_ENABLE_SUPABASE_AUTH === "true" ? "supabase" : "local";
+
+const adminEmails = (import.meta.env.VITE_ADMIN_EMAILS ?? "")
+  .split(",")
+  .map((email: string) => email.trim().toLowerCase())
+  .filter(Boolean);
+
+const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+
+const normalizeEmail = (email: string): string => email.trim().toLowerCase();
+
+const isAdminEmail = (email: string): boolean =>
+  adminEmails.includes(normalizeEmail(email));
+
+const resolveUserRole = (roleCandidate: unknown, email: string): LmsRole => {
+  if (
+    typeof roleCandidate === "string" &&
+    SUPPORTED_ROLES.includes(roleCandidate as LmsRole)
+  ) {
+    return roleCandidate as LmsRole;
+  }
+
+  return isAdminEmail(email) ? "admin" : "student";
+};
+
+const userToProfile = (user: User): LmsProfile => {
+  const email = user.email ?? "";
+  const metadata = user.user_metadata ?? {};
+  const fullName =
+    metadata.full_name ??
+    metadata.name ??
+    email.split("@")[0] ??
+    "Learner";
+
+  return {
+    id: user.id,
+    fullName,
+    email,
+    phone: metadata.phone ?? "",
+    role: resolveUserRole(metadata.role, email),
+    dateJoined: user.created_at ?? new Date().toISOString(),
+  };
+};
+
+const safeJsonParse = <T,>(raw: string | null, fallback: T): T => {
+  if (!raw) return fallback;
+
+  try {
+    return JSON.parse(raw) as T;
+  } catch {
+    return fallback;
+  }
+};
+
+const loadLocalUsers = (): LocalAuthUserRecord[] => {
+  const raw = window.localStorage.getItem(LOCAL_USERS_KEY);
+  return safeJsonParse<LocalAuthUserRecord[]>(raw, []);
+};
+
+const saveLocalUsers = (users: LocalAuthUserRecord[]): void => {
+  window.localStorage.setItem(LOCAL_USERS_KEY, JSON.stringify(users));
+};
+
+const loadLocalSession = (): LocalSessionRecord | null => {
+  const raw = window.localStorage.getItem(LOCAL_SESSION_KEY);
+  return safeJsonParse<LocalSessionRecord | null>(raw, null);
+};
+
+const saveLocalSession = (session: LocalSessionRecord): void => {
+  window.localStorage.setItem(LOCAL_SESSION_KEY, JSON.stringify(session));
+};
+
+const clearLocalSession = (): void => {
+  window.localStorage.removeItem(LOCAL_SESSION_KEY);
+};
+
+const ensureLocalBootstrapAdmin = (): void => {
+  const users = loadLocalUsers();
+  const hasBootstrapAdmin = users.some(
+    (item) => item.email === LOCAL_BOOTSTRAP_ADMIN.email,
+  );
+
+  if (hasBootstrapAdmin) {
+    return;
+  }
+
+  users.push(LOCAL_BOOTSTRAP_ADMIN);
+  saveLocalUsers(users);
+};
+
+const randomId = (): string => {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+
+  return `user-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+};
+
+const passwordToHash = async (password: string): Promise<string> => {
+  const salt = "tech-pulse-insider-local-auth-v1";
+
+  if (typeof window !== "undefined" && window.crypto?.subtle) {
+    const bytes = new TextEncoder().encode(`${salt}:${password}`);
+    const digest = await window.crypto.subtle.digest("SHA-256", bytes);
+    const hashArray = Array.from(new Uint8Array(digest));
+    return hashArray.map((byte) => byte.toString(16).padStart(2, "0")).join("");
+  }
+
+  return btoa(`${salt}:${password}`);
+};
+
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const [user, setUser] = useState<LmsProfile | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (AUTH_MODE === "supabase") {
+      const initSupabaseSession = async () => {
+        const { data } = await supabase.auth.getSession();
+        setUser(data.session?.user ? userToProfile(data.session.user) : null);
+        setIsLoading(false);
+      };
+
+      initSupabaseSession();
+
+      const {
+        data: { subscription },
+      } = supabase.auth.onAuthStateChange((_event, session) => {
+        setUser(session?.user ? userToProfile(session.user) : null);
+      });
+
+      return () => {
+        subscription.unsubscribe();
+      };
+    }
+
+    const session = loadLocalSession();
+    ensureLocalBootstrapAdmin();
+    if (!session) {
+      setUser(null);
+      setIsLoading(false);
+      return;
+    }
+
+    const localUsers = loadLocalUsers();
+    const localUser = localUsers.find((item) => item.id === session.userId);
+    if (!localUser) {
+      clearLocalSession();
+      setUser(null);
+      setIsLoading(false);
+      return;
+    }
+
+    setUser({
+      id: localUser.id,
+      fullName: localUser.fullName,
+      email: localUser.email,
+      phone: localUser.phone,
+      role: localUser.role,
+      dateJoined: localUser.dateJoined,
+    });
+    setIsLoading(false);
+  }, []);
+
+  const register = async (input: RegisterInput): Promise<AuthActionResult> => {
+    const normalizedEmail = normalizeEmail(input.email);
+    const role = resolveUserRole("student", normalizedEmail);
+
+    if (AUTH_MODE === "supabase") {
+      const { data, error } = await supabase.auth.signUp({
+        email: normalizedEmail,
+        password: input.password,
+        options: {
+          data: {
+            full_name: input.fullName,
+            phone: input.phone,
+            role,
+          },
+        },
+      });
+
+      if (error) {
+        return { success: false, message: error.message };
+      }
+
+      if (data.session?.user) {
+        const profile = userToProfile(data.session.user);
+        setUser(profile);
+        return {
+          success: true,
+          message: "Account created successfully.",
+          user: profile,
+        };
+      }
+
+      return {
+        success: true,
+        message:
+          "Account created. Please check your email to confirm your account before logging in.",
+        user: null,
+      };
+    }
+
+    const users = loadLocalUsers();
+    const existing = users.find((item) => item.email === normalizedEmail);
+    if (existing) {
+      return {
+        success: false,
+        message: "An account with this email already exists.",
+      };
+    }
+
+    const passwordHash = await passwordToHash(input.password);
+    const localUser: LocalAuthUserRecord = {
+      id: randomId(),
+      fullName: input.fullName.trim(),
+      email: normalizedEmail,
+      phone: input.phone.trim(),
+      role: role === "guest" ? "student" : role,
+      dateJoined: new Date().toISOString(),
+      passwordHash,
+    };
+
+    users.push(localUser);
+    saveLocalUsers(users);
+    saveLocalSession({ userId: localUser.id });
+
+    const profile: LmsProfile = {
+      id: localUser.id,
+      fullName: localUser.fullName,
+      email: localUser.email,
+      phone: localUser.phone,
+      role: localUser.role,
+      dateJoined: localUser.dateJoined,
+    };
+
+    setUser(profile);
+    return {
+      success: true,
+      message: "Account created successfully.",
+      user: profile,
+    };
+  };
+
+  const login = async (input: LoginInput): Promise<AuthActionResult> => {
+    const normalizedEmail = normalizeEmail(input.email);
+
+    if (AUTH_MODE === "supabase") {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: normalizedEmail,
+        password: input.password,
+      });
+
+      if (error) {
+        return { success: false, message: error.message };
+      }
+
+      if (!data.user) {
+        return {
+          success: false,
+          message: "Unable to start your session. Please try again.",
+        };
+      }
+
+      const profile = userToProfile(data.user);
+      setUser(profile);
+      return {
+        success: true,
+        message: "Logged in successfully.",
+        user: profile,
+      };
+    }
+
+    const users = loadLocalUsers();
+    const localUser = users.find((item) => item.email === normalizedEmail);
+
+    if (!localUser) {
+      return { success: false, message: "Invalid email or password." };
+    }
+
+    const passwordHash = await passwordToHash(input.password);
+    if (passwordHash !== localUser.passwordHash) {
+      return { success: false, message: "Invalid email or password." };
+    }
+
+    saveLocalSession({ userId: localUser.id });
+    const profile: LmsProfile = {
+      id: localUser.id,
+      fullName: localUser.fullName,
+      email: localUser.email,
+      phone: localUser.phone,
+      role: localUser.role,
+      dateJoined: localUser.dateJoined,
+    };
+
+    setUser(profile);
+    return {
+      success: true,
+      message: "Logged in successfully.",
+      user: profile,
+    };
+  };
+
+  const logout = async () => {
+    if (AUTH_MODE === "supabase") {
+      await supabase.auth.signOut();
+      setUser(null);
+      return;
+    }
+
+    clearLocalSession();
+    setUser(null);
+  };
+
+  const sendPasswordReset = async (email: string): Promise<AuthActionResult> => {
+    const normalizedEmail = normalizeEmail(email);
+
+    if (AUTH_MODE === "supabase") {
+      const { error } = await supabase.auth.resetPasswordForEmail(normalizedEmail, {
+        redirectTo: `${window.location.origin}/login`,
+      });
+
+      if (error) {
+        return { success: false, message: error.message };
+      }
+
+      return {
+        success: true,
+        message:
+          "Password reset link sent. Check your inbox and follow the instructions.",
+      };
+    }
+
+    const users = loadLocalUsers();
+    const exists = users.some((item) => item.email === normalizedEmail);
+    if (!exists) {
+      return {
+        success: false,
+        message: "No account was found with that email address.",
+      };
+    }
+
+    return {
+      success: true,
+      message:
+        "Local auth mode does not send automatic reset emails. Contact support to reset your password.",
+    };
+  };
+
+  const hasRole = useCallback(
+    (...roles: LmsRole[]): boolean => {
+      if (!user) return roles.includes("guest");
+      return roles.includes(user.role);
+    },
+    [user],
+  );
+
+  const value = useMemo<AuthContextValue>(
+    () => ({
+      user,
+      isAuthenticated: Boolean(user),
+      isLoading,
+      authMode: AUTH_MODE,
+      register,
+      login,
+      logout,
+      sendPasswordReset,
+      hasRole,
+    }),
+    [user, isLoading, hasRole],
+  );
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};
+
+export const useAuth = (): AuthContextValue => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used inside AuthProvider.");
+  }
+
+  return context;
+};

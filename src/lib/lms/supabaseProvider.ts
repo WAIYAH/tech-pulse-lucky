@@ -1,6 +1,5 @@
 import { lmsConfig } from "@/data/lmsConfig";
-import { supabase } from "@/integrations/supabase/client";
-import type { Tables } from "@/integrations/supabase/types";
+import { supabase as _supabase } from "@/integrations/supabase/client";
 import type {
   AdminCourseUpsertInput,
   AdminPaymentUpdateInput,
@@ -18,12 +17,14 @@ import type {
 import { MockLmsProvider } from "./mockProvider";
 import type { LmsDataProvider } from "./service";
 
-type CourseRow = Tables<"courses">;
-type LessonRow = Tables<"lessons">;
-type EnrollmentRow = Tables<"enrollments">;
-type PaymentRow = Tables<"payments">;
-type LessonProgressRow = Tables<"lesson_progress">;
-type ProfileRow = Tables<"profiles">;
+// LMS tables are managed externally; use loose typing until generated types are available.
+const supabase = _supabase as any;
+type CourseRow = any;
+type LessonRow = any;
+type EnrollmentRow = any;
+type PaymentRow = any;
+type LessonProgressRow = any;
+type ProfileRow = any;
 
 const COURSE_STORAGE_KEY = "lms_courses";
 

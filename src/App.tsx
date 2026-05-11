@@ -8,6 +8,10 @@ import Footer from "./components/Footer";
 import WhatsAppButton from "./components/WhatsAppButton";
 import GlobalPageBackground from "./components/GlobalPageBackground";
 import GlobalShowcaseSection from "./components/GlobalShowcaseSection";
+import ScrollToTopOnNavigate from "./components/ScrollToTopOnNavigate";
+import BackToTopButton from "./components/BackToTopButton";
+import CookieConsentBanner from "./components/CookieConsentBanner";
+import ContentProtection from "./components/ContentProtection";
 import AuthRoute from "./components/lms/AuthRoute";
 import ProtectedRoute from "./components/lms/ProtectedRoute";
 import AdminRoute from "./components/lms/AdminRoute";
@@ -168,14 +172,24 @@ const AppShell = () => {
 
   return (
     <div className="relative z-0 flex flex-col min-h-screen overflow-x-clip">
+      <ScrollToTopOnNavigate />
       <GlobalPageBackground />
+      <ContentProtection />
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[80] focus:rounded-lg focus:bg-card focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-foreground focus:shadow-lg"
+      >
+        Skip to main content
+      </a>
       <Navbar />
-      <main className="relative z-10 flex-grow">
+      <main id="main-content" className="relative z-10 flex-grow">
         <AppRoutes />
       </main>
       {!hideShowcaseSection && <GlobalShowcaseSection />}
       <Footer />
+      <BackToTopButton />
       <WhatsAppButton />
+      <CookieConsentBanner />
     </div>
   );
 };

@@ -50,6 +50,16 @@ const AdminPayments = () => {
     setUpdatingId(payment.id);
     const adminNote = noteByPaymentId[payment.id]?.trim() || undefined;
 
+    if (status === "rejected" && !adminNote) {
+      toast({
+        title: "Admin Note Required",
+        description: "Please add a reason before rejecting this payment.",
+        variant: "destructive",
+      });
+      setUpdatingId(null);
+      return;
+    }
+
     try {
       const updated = await lmsProvider.updatePaymentStatus({
         paymentId: payment.id,
@@ -229,4 +239,3 @@ const AdminPayments = () => {
 };
 
 export default AdminPayments;
-

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -24,9 +24,13 @@ const Navbar = () => {
 
   const isActive = (path: string) => location.pathname === path;
 
+  useEffect(() => {
+    setIsOpen(false);
+  }, [location.pathname]);
+
   return (
     <nav className="sticky top-0 z-50 bg-card/95 backdrop-blur-md border-b border-border shadow-md">
-      <div className="container mx-auto px-4 py-4">
+      <div className="container mx-auto px-4 py-3">
         <div className="flex justify-between items-center">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
@@ -79,9 +83,12 @@ const Navbar = () => {
 
           {/* Mobile Menu Button */}
           <button
-            className="md:hidden text-foreground"
+            type="button"
+            className="md:hidden text-foreground rounded-lg p-2 hover:bg-secondary focus-visible:ring-2 focus-visible:ring-primary"
             onClick={() => setIsOpen(!isOpen)}
             aria-label="Toggle menu"
+            aria-expanded={isOpen}
+            aria-controls="mobile-nav-menu"
           >
             {isOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
@@ -91,13 +98,14 @@ const Navbar = () => {
         <AnimatePresence>
           {isOpen && (
             <motion.div
+              id="mobile-nav-menu"
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.3 }}
               className="md:hidden mt-4 pb-4"
             >
-              <div className="flex flex-col space-y-3">
+              <div className="flex flex-col space-y-3 rounded-2xl border border-border bg-card p-3">
                 {navLinks.map((link) => (
                   <Link
                     key={link.path}

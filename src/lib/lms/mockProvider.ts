@@ -495,6 +495,26 @@ export class MockLmsProvider implements LmsDataProvider {
       throw new Error("Lesson not found in this course.");
     }
 
+    const enrollments = this.readArrayFromStorage<LmsEnrollment>(
+      STORAGE_KEYS.enrollments,
+      this.memoryState.enrollments,
+    );
+    const enrollment = enrollments.find(
+      (row) => row.userId === userId && row.courseId === course.id,
+    );
+
+    const hasAccess = course.isFree
+      ? enrollment?.accessStatus === "free" || enrollment?.accessStatus === "approved"
+      : enrollment?.accessStatus === "approved";
+
+    if (!hasAccess) {
+      if (course.isFree) {
+        throw new Error("Please enroll in this free course first.");
+      }
+
+      throw new Error("This course requires payment approval.");
+    }
+
     const lessonProgress = this.readArrayFromStorage<LmsLessonProgress>(
       STORAGE_KEYS.lessonProgress,
       this.memoryState.lessonProgress,
@@ -525,14 +545,6 @@ export class MockLmsProvider implements LmsDataProvider {
       STORAGE_KEYS.lessonProgress,
       lessonProgress,
       "lessonProgress",
-    );
-
-    const enrollments = this.readArrayFromStorage<LmsEnrollment>(
-      STORAGE_KEYS.enrollments,
-      this.memoryState.enrollments,
-    );
-    const enrollment = enrollments.find(
-      (row) => row.userId === userId && row.courseId === course.id,
     );
 
     if (enrollment) {

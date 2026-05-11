@@ -78,6 +78,8 @@ const ForgotPassword = () => {
                     id="email"
                     type="email"
                     value={email}
+                    maxLength={120}
+                    autoComplete="email"
                     onChange={(event) => setEmail(event.target.value)}
                     placeholder="you@example.com"
                     required
@@ -104,4 +106,3 @@ const ForgotPassword = () => {
 };
 
 export default ForgotPassword;
-

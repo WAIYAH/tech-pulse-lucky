@@ -31,6 +31,8 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { lmsConfig } from "@/data/lmsConfig";
+import { z } from "zod";
+import { emailSchema, transactionCodeSchema } from "@/lib/validation";
 
 type Webinar = {
   id: number;
@@ -86,6 +88,8 @@ const Webinars = () => {
   const [activeWebinar, setActiveWebinar] = useState<Webinar | null>(null);
   const [waitlistEmail, setWaitlistEmail] = useState("");
   const [txCode, setTxCode] = useState("");
+  const [isSubmittingPayment, setIsSubmittingPayment] = useState(false);
+  const [isSubmittingWaitlist, setIsSubmittingWaitlist] = useState(false);
 
   const upcomingWebinars: Webinar[] = [
     {
@@ -216,34 +220,49 @@ const Webinars = () => {
   };
 
   const submitPayment = () => {
-    if (txCode.trim().length < 5) {
+    const validation = transactionCodeSchema.safeParse(txCode);
+    if (!validation.success) {
       toast({
         title: "Enter a valid M-Pesa code",
-        description: "The transaction code looks too short.",
+        description: validation.error.issues[0]?.message ?? "Invalid input.",
         variant: "destructive",
       });
       return;
     }
-    toast({
-      title: "Payment submitted",
-      description: `We received code ${txCode.trim().toUpperCase()}. You'll get confirmation on WhatsApp shortly.`,
-    });
-    setCheckoutOpen(false);
+
+    setIsSubmittingPayment(true);
+    window.setTimeout(() => {
+      setIsSubmittingPayment(false);
+      setCheckoutOpen(false);
+
+      toast({
+        title: "Payment submitted",
+        description: `We received code ${validation.data}. You'll get confirmation on WhatsApp shortly.`,
+      });
+    }, 450);
   };
 
   const submitWaitlist = () => {
-    if (!/^\S+@\S+\.\S+$/.test(waitlistEmail)) {
+    const validation = emailSchema.safeParse(waitlistEmail);
+    if (!validation.success) {
       toast({
         title: "Enter a valid email",
+        description: validation.error.issues[0]?.message ?? "Invalid input.",
         variant: "destructive",
       });
       return;
     }
-    toast({
-      title: "You're on the waitlist",
-      description: `We'll notify ${waitlistEmail} as soon as a spot opens.`,
-    });
-    setWaitlistOpen(false);
+
+    setIsSubmittingWaitlist(true);
+    window.setTimeout(() => {
+      setIsSubmittingWaitlist(false);
+      setWaitlistOpen(false);
+
+      toast({
+        title: "You're on the waitlist",
+        description: `We'll notify ${validation.data} as soon as a spot opens.`,
+      });
+    }, 350);
   };
 
   return (
@@ -433,7 +452,7 @@ const Webinars = () => {
             <Button variant="hero" size="lg" onClick={() => navigate("/custom-training")}>
               Request Custom Training
             </Button>
-            <Button variant="outline" size="lg">
+            <Button variant="outline" size="lg" onClick={() => openWaitlist(featured)}>
               Join Waitlist
             </Button>
           </div>
@@ -531,8 +550,10 @@ const Webinars = () => {
                 id="txCode"
                 placeholder="e.g. SK1A2B3C4D"
                 value={txCode}
-                onChange={(e) => setTxCode(e.target.value)}
+                onChange={(e) => setTxCode(e.target.value.toUpperCase())}
                 className="uppercase tracking-wider"
+                maxLength={16}
+                autoComplete="off"
               />
             </div>
 
@@ -546,8 +567,8 @@ const Webinars = () => {
             <Button variant="outline" onClick={() => setCheckoutOpen(false)}>
               Cancel
             </Button>
-            <Button variant="hero" onClick={submitPayment}>
-              Confirm Payment
+            <Button variant="hero" onClick={submitPayment} disabled={isSubmittingPayment}>
+              {isSubmittingPayment ? "Submitting..." : "Confirm Payment"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -570,14 +591,16 @@ const Webinars = () => {
               placeholder="you@example.com"
               value={waitlistEmail}
               onChange={(e) => setWaitlistEmail(e.target.value)}
+              maxLength={120}
+              autoComplete="email"
             />
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setWaitlistOpen(false)}>
               Cancel
             </Button>
-            <Button variant="hero" onClick={submitWaitlist}>
-              Notify Me
+            <Button variant="hero" onClick={submitWaitlist} disabled={isSubmittingWaitlist}>
+              {isSubmittingWaitlist ? "Saving..." : "Notify Me"}
             </Button>
           </DialogFooter>
         </DialogContent>

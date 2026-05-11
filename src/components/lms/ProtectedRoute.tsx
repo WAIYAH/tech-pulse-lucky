@@ -32,7 +32,10 @@ const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) => {
       <Navigate
         to="/login"
         replace
-        state={{ from: `${location.pathname}${location.search}` }}
+        state={{
+          from: `${location.pathname}${location.search}`,
+          reason: "login_required",
+        }}
       />
     );
   }
@@ -46,4 +49,3 @@ const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) => {
 };
 
 export default ProtectedRoute;
-

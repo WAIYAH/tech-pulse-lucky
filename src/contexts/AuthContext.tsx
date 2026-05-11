@@ -29,6 +29,8 @@ interface AuthActionResult {
   user?: LmsProfile | null;
 }
 
+type OAuthProvider = "google" | "github";
+
 interface AuthContextValue {
   user: LmsProfile | null;
   isAuthenticated: boolean;
@@ -36,6 +38,10 @@ interface AuthContextValue {
   authMode: "supabase" | "local";
   register: (input: RegisterInput) => Promise<AuthActionResult>;
   login: (input: LoginInput) => Promise<AuthActionResult>;
+  signInWithOAuth: (
+    provider: OAuthProvider,
+    redirectPath?: string,
+  ) => Promise<AuthActionResult>;
   logout: () => Promise<void>;
   sendPasswordReset: (email: string) => Promise<AuthActionResult>;
   hasRole: (...roles: LmsRole[]) => boolean;
@@ -375,6 +381,45 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
   };
 
+  const signInWithOAuth = async (
+    provider: OAuthProvider,
+    redirectPath = "/login",
+  ): Promise<AuthActionResult> => {
+    if (AUTH_MODE !== "supabase") {
+      return {
+        success: false,
+        message:
+          "Social sign-in is only available when Supabase auth mode is enabled.",
+      };
+    }
+
+    const normalizedPath = redirectPath.startsWith("/")
+      ? redirectPath
+      : `/${redirectPath}`;
+    const redirectTo = `${window.location.origin}${normalizedPath}`;
+
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo,
+      },
+    });
+
+    if (error) {
+      return {
+        success: false,
+        message: error.message,
+      };
+    }
+
+    return {
+      success: true,
+      message: `Redirecting to ${
+        provider === "google" ? "Google" : "GitHub"
+      }...`,
+    };
+  };
+
   const logout = async () => {
     if (AUTH_MODE === "supabase") {
       await supabase.auth.signOut();
@@ -437,11 +482,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       authMode: AUTH_MODE,
       register,
       login,
+      signInWithOAuth,
       logout,
       sendPasswordReset,
       hasRole,
     }),
-    [user, isLoading, hasRole],
+    [
+      user,
+      isLoading,
+      register,
+      login,
+      signInWithOAuth,
+      logout,
+      sendPasswordReset,
+      hasRole,
+    ],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

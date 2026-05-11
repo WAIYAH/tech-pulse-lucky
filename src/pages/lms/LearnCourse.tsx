@@ -218,12 +218,25 @@ const LearnCourse = () => {
 
               {isPaidWithoutApproval && (
                 <div className="space-y-3">
+                  <p className="text-sm font-medium text-foreground">
+                    This course requires payment approval.
+                  </p>
                   <p className="text-sm">
                     Price: <span className="font-semibold">{formatKesAmount(course.price)}</span>
                   </p>
                   <p className="text-sm text-muted-foreground">
                     Status: <Badge variant="secondary">{accessStatus ?? "not_started"}</Badge>
                   </p>
+                  {accessStatus === "pending_payment" && (
+                    <p className="text-sm text-muted-foreground">
+                      Your payment is pending review.
+                    </p>
+                  )}
+                  {accessStatus === "approved" && (
+                    <p className="text-sm text-muted-foreground">
+                      Access approved. Continue learning.
+                    </p>
+                  )}
                   {latestPayment?.adminNote && (
                     <p className="text-sm text-muted-foreground">
                       Admin note: {latestPayment.adminNote}

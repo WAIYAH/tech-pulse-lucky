@@ -1,5 +1,7 @@
 # Tech Pulse Insider – Product Strategy & Growth Advisory
 
+> Historical strategy reference. Validate current product behavior against `README.md` and live source code.
+
 **Strategic Review & Recommendations**  
 *January 28, 2026*
 

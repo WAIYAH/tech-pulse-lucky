@@ -178,6 +178,30 @@ const PrivacyPolicy = () => {
             </p>
           </Card>
 
+          <Card className="p-6">
+            <h2 className="text-2xl font-bold mb-4">4.1 LMS and Payment Data Handling</h2>
+            <div className="space-y-4 text-foreground">
+              <p>
+                For registered learners, we store account profile details, course enrollments,
+                learning progress, and lesson completion status to deliver dashboard and LMS features.
+              </p>
+              <p>
+                For paid courses, we collect payment confirmation details such as payer name, phone,
+                email, transaction code, payment date, and optional proof link. These records are used
+                only for verification, fraud prevention, support, and access approval workflows.
+              </p>
+              <p>
+                Course access is controlled using status values such as{" "}
+                <strong>Pending</strong>, <strong>Approved</strong>, and{" "}
+                <strong>Rejected</strong>. Learners cannot self-approve access from the frontend.
+              </p>
+              <p>
+                Payment confirmation records are retained only as long as required for compliance,
+                dispute handling, and operational reporting.
+              </p>
+            </div>
+          </Card>
+
           {/* 5. Your Privacy Rights */}
           <Card className="p-6">
             <h2 className="text-2xl font-bold mb-4">5. Your Privacy Rights</h2>
@@ -249,7 +273,11 @@ const PrivacyPolicy = () => {
               
               <div>
                 <h3 className="font-semibold mb-2">Managing Cookies:</h3>
-                <p className="text-foreground">You can control cookies through your browser settings. Most browsers allow you to refuse cookies or alert you when cookies are being sent. However, blocking cookies may affect functionality.</p>
+                <p className="text-foreground">
+                  You can manage cookie preferences from our cookie consent banner by selecting
+                  Accept or Decline. You can also control cookies through your browser settings.
+                  Blocking cookies may affect certain LMS and personalization features.
+                </p>
               </div>
             </div>
           </Card>

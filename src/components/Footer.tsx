@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Facebook, Instagram, Mail, MessageCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -124,11 +125,11 @@ const Footer = () => {
             <p className="text-sm text-muted-foreground mb-4">
               Get weekly tech tips and updates delivered to your inbox.
             </p>
-            <Link to="/contact">
-              <button className="w-full bg-primary text-primary-foreground px-4 py-2 rounded-xl font-semibold hover:bg-primary/90 transition-colors">
+            <Button className="w-full" asChild>
+              <Link to="/contact">
                 Subscribe Now
-              </button>
-            </Link>
+              </Link>
+            </Button>
           </div>
         </div>
 

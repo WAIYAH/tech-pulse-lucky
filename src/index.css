@@ -119,8 +119,49 @@ All colors MUST be HSL.
     @apply border-border;
   }
 
+  html,
+  body,
+  #root {
+    @apply min-h-full;
+  }
+
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
+  }
+
+  img,
+  video,
+  canvas,
+  svg {
+    @apply max-w-full;
+  }
+
+  button,
+  [role="button"],
+  a,
+  input,
+  select,
+  textarea {
+    @apply touch-manipulation;
+  }
+
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+
+  @media (max-width: 768px) {
+    html,
+    body {
+      overflow-x: hidden;
+    }
+  }
+
+  body.has-cookie-consent-banner .js-floating-action {
+    margin-bottom: 78px;
   }
 }
 

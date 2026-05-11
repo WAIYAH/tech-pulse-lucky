@@ -1,5 +1,7 @@
 # Tech Pulse Insider – 90-Day Implementation Guide
 
+> Historical execution guide. Validate current product behavior against `README.md` and live source code.
+
 **Quick Reference for Growth & Monetization**
 
 ---

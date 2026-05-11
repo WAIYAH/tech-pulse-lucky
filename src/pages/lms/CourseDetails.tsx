@@ -74,7 +74,7 @@ const CourseDetails = () => {
 
   const handleEnrollFree = async () => {
     if (!isAuthenticated || !user) {
-      navigate("/register", { state: { from: `/courses/${course.slug}` } });
+      navigate("/login", { state: { from: `/courses/${course.slug}` } });
       return;
     }
 
@@ -100,7 +100,7 @@ const CourseDetails = () => {
 
   const handlePaidCTA = () => {
     if (!isAuthenticated) {
-      navigate("/register", { state: { from: `/courses/${course.slug}` } });
+      navigate("/login", { state: { from: `/courses/${course.slug}` } });
       return;
     }
 
@@ -242,13 +242,13 @@ const CourseDetails = () => {
                   ) : accessStatus === "approved" ? (
                     <div className="space-y-2">
                       <Button variant="hero" className="w-full" asChild>
-                        <Link to="/dashboard">Access Approved • Open Dashboard</Link>
+                        <Link to="/dashboard">Access approved. Continue learning.</Link>
                       </Button>
                     </div>
                   ) : accessStatus === "pending_payment" ? (
                     <div className="space-y-2">
                       <Button className="w-full" disabled>
-                        Payment Pending Approval
+                        Your payment is pending review.
                       </Button>
                       <Button variant="outline" className="w-full" asChild>
                         <Link to={`/payment/${course.slug}`}>View Submission</Link>
@@ -260,6 +260,12 @@ const CourseDetails = () => {
                         ? "Resubmit Payment Request"
                         : "Pay & Request Access"}
                     </Button>
+                  )}
+
+                  {!isAuthenticated && (
+                    <p className="text-xs text-muted-foreground">
+                      Please login to continue.
+                    </p>
                   )}
 
                   {latestPayment?.adminNote && (

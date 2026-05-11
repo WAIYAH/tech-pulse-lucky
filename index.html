@@ -3,6 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="color-scheme" content="light" />
+    <meta name="application-name" content="Tech Pulse Insider" />
+    <meta name="apple-mobile-web-app-title" content="Tech Pulse Insider" />
 
     <title>Tech Pulse Insider – Get Techy with Lucky | Digital Learning Platform</title>
     <meta
@@ -17,6 +22,7 @@
 
     <!-- Canonical -->
     <link rel="canonical" href="https://techpulseinsider.com/" />
+    <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml" />
 
     <!-- Robots -->
     <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
@@ -32,19 +38,20 @@
     />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://techpulseinsider.com/" />
-    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <meta property="og:image" content="https://techpulseinsider.com/og-cover.webp" />
+    <meta property="og:image:alt" content="Tech Pulse Insider learning platform hero visual" />
     <meta property="og:site_name" content="Tech Pulse Insider" />
     <meta property="og:locale" content="en_KE" />
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@lovable_dev" />
     <meta name="twitter:title" content="Tech Pulse Insider – Get Techy with Lucky" />
     <meta
       name="twitter:description"
       content="Expert tech education, cybersecurity tips, and community-driven learning across Africa."
     />
-    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <meta name="twitter:image" content="https://techpulseinsider.com/og-cover.webp" />
+    <meta name="twitter:image:alt" content="Tech Pulse Insider learning platform hero visual" />
 
     <!-- Geo -->
     <meta name="geo.region" content="KE-30" />
@@ -54,29 +61,34 @@
 
     <!-- Favicons -->
     <link rel="icon" href="/favicon.ico" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
     <!-- Structured Data -->
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
-        "@type": "EducationalOrganization",
-        "name": "Tech Pulse Insider",
-        "url": "https://techpulseinsider.com/",
-        "logo": "https://lovable.dev/opengraph-image-p98pqg.png",
-        "description": "Tech Pulse Insider provides expert tech education, cybersecurity tips, webinars, and community-driven learning across Africa.",
-        "address": {
-          "@type": "PostalAddress",
-          "addressLocality": "Nairobi",
-          "addressRegion": "Nairobi County",
-          "addressCountry": "KE"
-        },
-        "founder": {
-          "@type": "Person",
-          "name": "Lucky Nakola"
-        },
-        "sameAs": [
-          "https://twitter.com/lovable_dev"
+        "@graph": [
+          {
+            "@type": "EducationalOrganization",
+            "name": "Tech Pulse Insider",
+            "url": "https://techpulseinsider.com/",
+            "logo": "https://techpulseinsider.com/og-cover.webp",
+            "description": "Tech Pulse Insider provides expert tech education, cybersecurity tips, webinars, and community-driven learning across Africa.",
+            "address": {
+              "@type": "PostalAddress",
+              "addressLocality": "Nairobi",
+              "addressRegion": "Nairobi County",
+              "addressCountry": "KE"
+            },
+            "founder": {
+              "@type": "Person",
+              "name": "Lucky Nakola"
+            }
+          },
+          {
+            "@type": "WebSite",
+            "name": "Tech Pulse Insider",
+            "url": "https://techpulseinsider.com/"
+          }
         ]
       }
     </script>

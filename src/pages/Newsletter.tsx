@@ -6,12 +6,22 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
+import {
+  createSafeTextSchema,
+  emailSchema,
+  honeypotSchema,
+} from "@/lib/validation";
 
-const emailSchema = z.string().email("Please enter a valid email address");
+const subscriptionSchema = z.object({
+  name: createSafeTextSchema("Name", 2, 80),
+  email: emailSchema,
+  website: honeypotSchema.optional().or(z.literal("")),
+});
 
 const Newsletter = () => {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
+  const [website, setWebsite] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
   const { toast } = useToast();
@@ -59,22 +69,12 @@ const Newsletter = () => {
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    try {
-      emailSchema.parse(email);
-    } catch {
-      toast({
-        title: "Invalid Email",
-        description: "Please enter a valid email address.",
-        variant: "destructive",
-      });
-      return;
-    }
 
-    if (!name.trim()) {
+    const validation = subscriptionSchema.safeParse({ name, email, website });
+    if (!validation.success) {
       toast({
-        title: "Name Required",
-        description: "Please enter your name.",
+        title: "Validation Error",
+        description: validation.error.issues[0]?.message ?? "Invalid input.",
         variant: "destructive",
       });
       return;
@@ -85,7 +85,12 @@ const Newsletter = () => {
     try {
       const { error } = await (supabase as any)
         .from("newsletter_subscribers")
-        .insert([{ email: email.trim().toLowerCase(), name: name.trim() }]);
+        .insert([
+          {
+            email: validation.data.email.trim().toLowerCase(),
+            name: validation.data.name.trim(),
+          },
+        ]);
 
       if (error) {
         if (error.code === "23505") {
@@ -176,7 +181,10 @@ const Newsletter = () => {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="h-12 rounded-xl"
+                  maxLength={80}
+                  autoComplete="name"
                   disabled={isLoading}
+                  required
                 />
               </div>
               <div>
@@ -186,9 +194,20 @@ const Newsletter = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="h-12 rounded-xl"
+                  maxLength={120}
+                  autoComplete="email"
                   disabled={isLoading}
+                  required
                 />
               </div>
+              <input
+                type="text"
+                tabIndex={-1}
+                autoComplete="off"
+                value={website}
+                onChange={(e) => setWebsite(e.target.value)}
+                className="hidden"
+              />
               <Button 
                 type="submit" 
                 variant="hero" 

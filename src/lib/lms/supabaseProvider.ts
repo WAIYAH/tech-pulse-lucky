@@ -742,6 +742,27 @@ export class SupabaseLmsProvider implements LmsDataProvider {
         const lesson = course.lessons.find((row) => row.id === lessonId);
         if (!lesson) throw new Error("Lesson not found in this course.");
 
+        const { data: enrollmentRow, error: enrollmentError } = await supabase
+          .from("enrollments")
+          .select("access_status")
+          .eq("user_id", userId)
+          .eq("course_id", course.id)
+          .maybeSingle();
+        if (enrollmentError) throw enrollmentError;
+
+        const accessStatus = enrollmentRow?.access_status;
+        const hasAccess = course.isFree
+          ? accessStatus === "free" || accessStatus === "approved"
+          : accessStatus === "approved";
+
+        if (!hasAccess) {
+          if (course.isFree) {
+            throw new Error("Please enroll in this free course first.");
+          }
+
+          throw new Error("This course requires payment approval.");
+        }
+
         const completedAt = completed ? new Date().toISOString() : null;
         const { error: progressError } = await supabase
           .from("lesson_progress")
@@ -759,12 +780,12 @@ export class SupabaseLmsProvider implements LmsDataProvider {
         if (progressError) throw progressError;
 
         const progress = await this.getCourseProgress(userId, courseSlug);
-        const { error: enrollmentError } = await supabase
+        const { error: enrollmentUpdateError } = await supabase
           .from("enrollments")
           .update({ progress, updated_at: new Date().toISOString() })
           .eq("user_id", userId)
           .eq("course_id", course.id);
-        if (enrollmentError) throw enrollmentError;
+        if (enrollmentUpdateError) throw enrollmentUpdateError;
       },
       () => this.fallback.markLessonComplete(userId, courseSlug, lessonId, completed),
     );

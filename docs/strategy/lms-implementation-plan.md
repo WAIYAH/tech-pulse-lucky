@@ -1,5 +1,7 @@
 # Tech Pulse Insider LMS Implementation Plan
 
+> Historical planning document. Validate current product behavior against `README.md` and live source code.
+
 ## 1) Vision and Product Direction
 
 Build a practical, modern, and secure Learning Management System (LMS) inside the current Tech Pulse Insider platform so that:

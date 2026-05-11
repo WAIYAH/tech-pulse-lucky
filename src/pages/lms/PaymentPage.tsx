@@ -13,14 +13,24 @@ import { getCourseBySlug } from "@/data/courses";
 import { formatKesAmount, lmsConfig } from "@/data/lmsConfig";
 import { lmsProvider } from "@/lib/lms";
 import type { EnrollmentAccessStatus, LmsPayment } from "@/types/lms";
+import {
+  createSafeTextSchema,
+  dateNotFutureSchema,
+  emailSchema,
+  honeypotSchema,
+  optionalUrlSchema,
+  phoneSchema,
+  transactionCodeSchema,
+} from "@/lib/validation";
 
 const paymentSchema = z.object({
-  fullName: z.string().min(2, "Please enter your full name."),
-  email: z.string().email("Enter a valid email."),
-  phone: z.string().min(10, "Enter a valid phone number."),
-  transactionCode: z.string().min(5, "Enter a valid transaction code."),
-  paymentDate: z.string().min(1, "Please select a payment date."),
-  screenshotUrl: z.string().optional(),
+  fullName: createSafeTextSchema("Full name", 2, 80),
+  email: emailSchema,
+  phone: phoneSchema,
+  transactionCode: transactionCodeSchema,
+  paymentDate: dateNotFutureSchema,
+  screenshotUrl: optionalUrlSchema,
+  website: honeypotSchema.optional().or(z.literal("")),
 });
 
 const PaymentPage = () => {
@@ -31,6 +41,7 @@ const PaymentPage = () => {
   const [accessStatus, setAccessStatus] = useState<EnrollmentAccessStatus | null>(null);
   const [latestPayment, setLatestPayment] = useState<LmsPayment | null>(null);
   const [isStatusLoading, setIsStatusLoading] = useState(true);
+  const maxPaymentDate = new Date().toISOString().split("T")[0];
 
   const course = useMemo(
     () => (courseSlug ? getCourseBySlug(courseSlug) : undefined),
@@ -44,6 +55,7 @@ const PaymentPage = () => {
     transactionCode: "",
     paymentDate: "",
     screenshotUrl: "",
+    website: "",
   });
 
   useEffect(() => {
@@ -158,12 +170,13 @@ const PaymentPage = () => {
           "Your access request is now pending review. You will be approved shortly after verification.",
       });
 
-      setFormData((prev) => ({
-        ...prev,
-        transactionCode: "",
-        paymentDate: "",
-        screenshotUrl: "",
-      }));
+        setFormData((prev) => ({
+          ...prev,
+          transactionCode: "",
+          paymentDate: "",
+          screenshotUrl: "",
+          website: "",
+        }));
     } catch (error) {
       toast({
         title: "Submission Failed",
@@ -234,17 +247,22 @@ const PaymentPage = () => {
                     </div>
                     {accessStatus === "approved" && (
                       <p className="text-xs text-muted-foreground mt-2">
-                        Your payment has been approved. No further submission is required.
+                        Access approved. Continue learning.
                       </p>
                     )}
                     {accessStatus === "pending_payment" && (
                       <p className="text-xs text-muted-foreground mt-2">
-                        Your payment request is under review. Please wait for admin approval.
+                        Your payment is pending review.
                       </p>
                     )}
                     {accessStatus === "rejected" && (
                       <p className="text-xs text-muted-foreground mt-2">
-                        Your previous request was rejected. You can submit new payment details below.
+                        This course requires payment approval. Your previous request was rejected, so please submit updated payment details.
+                      </p>
+                    )}
+                    {!accessStatus && (
+                      <p className="text-xs text-muted-foreground mt-2">
+                        This course requires payment approval.
                       </p>
                     )}
                     {latestPayment?.adminNote && (
@@ -256,11 +274,27 @@ const PaymentPage = () => {
                 )}
 
                 <form className="space-y-4" onSubmit={handleSubmit}>
+                  <input
+                    type="text"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    className="hidden"
+                    value={formData.website}
+                    onChange={(event) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        website: event.target.value,
+                      }))
+                    }
+                  />
                   <div className="space-y-2">
                     <Label htmlFor="fullName">Full Name</Label>
                     <Input
                       id="fullName"
                       value={formData.fullName}
+                      maxLength={80}
+                      autoComplete="name"
+                      required
                       disabled={isFormLocked}
                       onChange={(event) =>
                         setFormData((prev) => ({ ...prev, fullName: event.target.value }))
@@ -275,6 +309,9 @@ const PaymentPage = () => {
                         id="email"
                         type="email"
                         value={formData.email}
+                        maxLength={120}
+                        autoComplete="email"
+                        required
                         disabled={isFormLocked}
                         onChange={(event) =>
                           setFormData((prev) => ({ ...prev, email: event.target.value }))
@@ -286,6 +323,9 @@ const PaymentPage = () => {
                       <Input
                         id="phone"
                         value={formData.phone}
+                        maxLength={20}
+                        autoComplete="tel"
+                        required
                         disabled={isFormLocked}
                         onChange={(event) =>
                           setFormData((prev) => ({ ...prev, phone: event.target.value }))
@@ -310,6 +350,8 @@ const PaymentPage = () => {
                         id="paymentDate"
                         type="date"
                         value={formData.paymentDate}
+                        max={maxPaymentDate}
+                        required
                         disabled={isFormLocked}
                         onChange={(event) =>
                           setFormData((prev) => ({ ...prev, paymentDate: event.target.value }))
@@ -323,14 +365,16 @@ const PaymentPage = () => {
                     <Input
                       id="transactionCode"
                       value={formData.transactionCode}
+                      maxLength={16}
+                      required
                       disabled={isFormLocked}
-                      onChange={(event) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          transactionCode: event.target.value,
-                        }))
-                      }
-                      placeholder="e.g. QWE123ABC"
+                        onChange={(event) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            transactionCode: event.target.value.toUpperCase(),
+                          }))
+                        }
+                        placeholder="e.g. QWE123ABC"
                     />
                   </div>
 
@@ -363,6 +407,10 @@ const PaymentPage = () => {
                         : "Submit Payment Confirmation"}
                   </Button>
                 </form>
+                <p className="mt-3 text-xs text-muted-foreground">
+                  Payment verification is manual. If approved, your status will change to{" "}
+                  <span className="font-semibold">Access approved. Continue learning.</span>
+                </p>
               </CardContent>
             </Card>
           </div>

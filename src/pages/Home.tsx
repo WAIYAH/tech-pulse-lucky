@@ -1,4 +1,5 @@
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   BookOpen,
@@ -35,6 +36,12 @@ import openSourceInitiativeLogo from "@/assets/logos/open-source-initiative.svg"
 import reactLogo from "@/assets/logos/react.svg";
 import supabaseLogo from "@/assets/logos/supabase.svg";
 import vercelLogo from "@/assets/logos/vercel.svg";
+import learnerEsther from "@/assets/learner-esther.svg";
+import learnerBrian from "@/assets/learner-brian.svg";
+import learnerGrace from "@/assets/learner-grace.svg";
+import learnerDavid from "@/assets/learner-david.svg";
+import learnerFaith from "@/assets/learner-faith.svg";
+import learnerKevin from "@/assets/learner-kevin.svg";
 import { getSortedArticles } from "@/content/articles";
 
 const Home = () => {
@@ -235,20 +242,63 @@ const Home = () => {
         "I came for one webinar and stayed for the full learning path. The lessons are practical and easy to apply immediately.",
       name: "Esther W.",
       role: "Frontend Learner",
+      image: learnerEsther,
     },
     {
       quote:
         "The platform combines courses, community, and accountability in one place. That made my transition into tech much faster.",
       name: "Brian K.",
       role: "Career Switcher",
+      image: learnerBrian,
     },
     {
       quote:
-        "Our team requested custom training and the sessions were tailored to our exact workflow challenges.",
-      name: "Operations Lead",
-      role: "SME Team Training",
+        "From zero confidence in coding to building my first responsive portfolio, the guidance was clear and practical.",
+      name: "Grace M.",
+      role: "Junior Developer",
+      image: learnerGrace,
+    },
+    {
+      quote:
+        "The mentorship and assignments helped me apply concepts at work immediately instead of just watching tutorials.",
+      name: "David O.",
+      role: "IT Support Specialist",
+      image: learnerDavid,
+    },
+    {
+      quote:
+        "I loved the structure. Every week had clear milestones, and the community kept me consistent and motivated.",
+      name: "Faith N.",
+      role: "University Student",
+      image: learnerFaith,
+    },
+    {
+      quote:
+        "The training gave me direction, practical projects, and confidence to apply for internships in tech.",
+      name: "Kevin M.",
+      role: "Internship Candidate",
+      image: learnerKevin,
     },
   ];
+
+  const testimonialsPerSlide = 3;
+  const totalTestimonialSlides = Math.ceil(testimonials.length / testimonialsPerSlide);
+  const [activeTestimonialSlide, setActiveTestimonialSlide] = useState(0);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setActiveTestimonialSlide((current) => (current + 1) % totalTestimonialSlides);
+    }, 3000);
+
+    return () => {
+      window.clearInterval(timer);
+    };
+  }, [totalTestimonialSlides]);
+
+  const visibleTestimonials = testimonials.slice(
+    activeTestimonialSlide * testimonialsPerSlide,
+    activeTestimonialSlide * testimonialsPerSlide + testimonialsPerSlide,
+  );
 
   return (
     <div className="min-h-screen bg-background">
@@ -617,24 +667,54 @@ const Home = () => {
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {testimonials.map((item, index) => (
-              <motion.figure
-                key={item.name}
-                initial={{ opacity: 0, y: 18 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.06 }}
-                className="rounded-2xl border border-border bg-card p-6 shadow-sm"
-              >
-                <blockquote className="text-foreground leading-relaxed">
-                  "{item.quote}"
-                </blockquote>
-                <figcaption className="mt-5 border-t border-border pt-4">
-                  <p className="font-semibold">{item.name}</p>
-                  <p className="text-sm text-muted-foreground">{item.role}</p>
-                </figcaption>
-              </motion.figure>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={`voices-slide-${activeTestimonialSlide}`}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -16 }}
+              transition={{ duration: 0.35 }}
+              className="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
+            >
+              {visibleTestimonials.map((item) => (
+                <motion.figure
+                  key={item.name}
+                  className="rounded-2xl border border-border bg-card p-6 shadow-sm"
+                >
+                  <div className="flex items-center gap-3 mb-4">
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      width={80}
+                      height={80}
+                      loading="lazy"
+                      decoding="async"
+                      className="h-14 w-14 rounded-full object-cover border border-border/70"
+                    />
+                    <div>
+                      <p className="font-semibold">{item.name}</p>
+                      <p className="text-sm text-muted-foreground">{item.role}</p>
+                    </div>
+                  </div>
+                  <blockquote className="text-foreground leading-relaxed text-sm">
+                    "{item.quote}"
+                  </blockquote>
+                </motion.figure>
+              ))}
+            </motion.div>
+          </AnimatePresence>
+
+          <div className="mt-8 flex justify-center gap-2">
+            {Array.from({ length: totalTestimonialSlides }).map((_, index) => (
+              <button
+                key={index}
+                type="button"
+                onClick={() => setActiveTestimonialSlide(index)}
+                className={`h-2.5 rounded-full transition-all ${
+                  activeTestimonialSlide === index ? "w-8 bg-primary" : "w-2.5 bg-border"
+                }`}
+                aria-label={`Show learner voices slide ${index + 1}`}
+              />
             ))}
           </div>
         </div>

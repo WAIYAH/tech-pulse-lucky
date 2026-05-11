@@ -126,6 +126,20 @@ src/
 supabase/
   migrations/
     20260509190000_phase7_lms_schema_and_rls.sql
+
+docs/
+  strategy/
+    README.md
+    strategy-summary.md
+    product-strategy.md
+    implementation-guide.md
+    lms-implementation-plan.md
+  seo/
+    README.md
+
+public/
+  robots.txt
+  sitemap.xml
 ```
 
 ## Setup Instructions
@@ -138,7 +152,7 @@ npm install
 
 ### 2) Configure environment
 
-Create `.env` with:
+Copy `.env.example` to `.env`, then update values:
 
 ```bash
 VITE_SUPABASE_URL=...
@@ -254,6 +268,72 @@ Completed:
 - Approve payment as admin
 - Confirm paid lessons unlock
 
+## Mobile, UX, and Security Hardening
+
+Recent frontend hardening updates include:
+- Mobile-first responsiveness improvements across auth pages, course pages, dashboard cards, forms, and navigation interactions
+- Improved tap targets and focus-visible states for accessibility and touch devices
+- Back-to-top and route scroll behavior for cleaner navigation context
+
+Security and privacy additions:
+- Route protection for authenticated learner and admin paths
+- Course access enforcement for paid content (approval required before lesson progress can be updated)
+- Stronger frontend validation on contact, custom training, newsletter, webinar waitlist, and payment confirmation forms
+- Basic content protection layer:
+  - Disables right-click and selected inspect/save shortcuts outside editable form fields
+  - Shows a friendly platform protection message
+  - Note: this is deterrence only; real protection still relies on auth, authorization, and backend rules
+- Cookie consent banner with Accept / Decline / Learn More preference handling
+- Updated privacy disclosures for LMS progress data and payment verification records
+
+Deployment security recommendations:
+- `vercel.json` includes practical production headers:
+  - `X-Content-Type-Options: nosniff`
+  - `X-Frame-Options: DENY`
+  - `Referrer-Policy: strict-origin-when-cross-origin`
+  - `Permissions-Policy: camera=(), microphone=(), geolocation=()`
+  - `Strict-Transport-Security`
+  - Baseline `Content-Security-Policy` tuned for common embeds (YouTube/Google Forms/Meet)
+
+SEO baseline updates:
+- Canonical URL and social meta tags configured in `index.html`
+- XML sitemap available at `/sitemap.xml`
+- Crawl rules configured in `/robots.txt` with private route exclusions
+- Open Graph image served from `/og-cover.webp`
+
+## Environment Variables
+
+Use `.env.example` as the source template:
+
+```bash
+cp .env.example .env
+```
+
+Required variables:
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_PUBLISHABLE_KEY`
+- `VITE_SUPABASE_PROJECT_ID`
+- `VITE_ENABLE_SUPABASE_AUTH`
+- `VITE_LMS_DATA_PROVIDER`
+- `VITE_ADMIN_EMAILS`
+
+Important:
+- Never commit `.env` to source control.
+- Keep admin/service credentials only in secure deployment environment settings.
+
+## Payment Access Security Notes
+
+- Paid lessons stay locked until admin sets payment status to `approved`.
+- Learner payment states are visible as `pending`, `approved`, or `rejected`.
+- Learners cannot change payment approval status from the frontend.
+- If rejected, learners can resubmit payment evidence with a new transaction code.
+
+## Admin Access Notes
+
+- `/admin`, `/admin/payments`, `/admin/courses`, and `/admin/users` are admin-only routes.
+- Non-admin authenticated users are redirected to learner dashboards.
+- Unauthenticated users are redirected to login with route-intent preserved.
+
 ## Future Improvements
 
 - Real M-Pesa/KCB API integration
@@ -267,6 +347,25 @@ Completed:
 
 A step-by-step operations checklist is available here:
 - `supabase/DEPLOYMENT_CHECKLIST.md`
+
+## Strategy Documents
+
+Planning and advisory docs are grouped under:
+- `docs/strategy/README.md`
+- `docs/strategy/strategy-summary.md`
+- `docs/strategy/product-strategy.md`
+- `docs/strategy/implementation-guide.md`
+- `docs/strategy/lms-implementation-plan.md`
+
+## SEO and Sitemap Maintenance
+
+- `public/sitemap.xml` contains public pages and detail routes (articles, webinars, courses).
+- `public/robots.txt` allows public crawl and blocks private/authenticated routes.
+- `docs/seo/README.md` contains maintenance guidance for SEO metadata, crawl policy, and domain updates.
+- If your production domain changes, update these locations:
+  - `index.html` canonical and social URLs
+  - `public/robots.txt` sitemap URL
+  - `public/sitemap.xml` base URL
 
 ---
 

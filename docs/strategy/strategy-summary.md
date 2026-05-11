@@ -1,5 +1,7 @@
 # Tech Pulse Insider – Strategic Summary (1 Page)
 
+> Historical strategy reference. Validate current product behavior against `README.md` and live source code.
+
 **Status:** Product-Market Fit ✅ | Ready to Scale  
 **Opportunity:** 10x growth in 12 months  
 **Risk Level:** Low (clear focus, sustainable model)

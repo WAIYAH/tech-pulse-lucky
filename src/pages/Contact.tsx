@@ -6,6 +6,29 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { z } from "zod";
+import {
+  containsUnsafeContent,
+  createSafeTextSchema,
+  emailSchema,
+  honeypotSchema,
+} from "@/lib/validation";
+
+const contactSchema = z.object({
+  name: createSafeTextSchema("Name", 2, 80),
+  email: emailSchema,
+  subject: z
+    .string()
+    .trim()
+    .max(120, "Subject must be 120 characters or less.")
+    .refine((value) => !containsUnsafeContent(value), {
+      message: "Subject contains unsupported characters.",
+    })
+    .optional()
+    .or(z.literal("")),
+  message: createSafeTextSchema("Message", 10, 1500),
+  website: honeypotSchema.optional().or(z.literal("")),
+});
 
 const Contact = () => {
   const { toast } = useToast();
@@ -14,29 +37,65 @@ const Contact = () => {
     email: "",
     subject: "",
     message: "",
+    website: "",
   });
+  const [newsletterEmail, setNewsletterEmail] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isNewsletterSubmitting, setIsNewsletterSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Basic validation
-    if (!formData.name || !formData.email || !formData.message) {
+
+    const validation = contactSchema.safeParse(formData);
+    if (!validation.success) {
       toast({
-        title: "Missing Information",
-        description: "Please fill in all required fields.",
+        title: "Validation Error",
+        description: validation.error.issues[0]?.message ?? "Invalid input.",
         variant: "destructive",
       });
       return;
     }
 
-    // In a real app, this would send to a backend
+    setIsSubmitting(true);
+    await new Promise((resolve) => window.setTimeout(resolve, 500));
+
     toast({
-      title: "Message Sent! 🎉",
+      title: "Message Sent",
       description: "We'll get back to you within 24 hours.",
     });
 
-    // Reset form
-    setFormData({ name: "", email: "", subject: "", message: "" });
+    setFormData({
+      name: "",
+      email: "",
+      subject: "",
+      message: "",
+      website: "",
+    });
+    setIsSubmitting(false);
+  };
+
+  const handleNewsletterSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const validation = emailSchema.safeParse(newsletterEmail);
+    if (!validation.success) {
+      toast({
+        title: "Invalid Email",
+        description: validation.error.issues[0]?.message ?? "Invalid input.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsNewsletterSubmitting(true);
+    await new Promise((resolve) => window.setTimeout(resolve, 350));
+    setIsNewsletterSubmitting(false);
+    setNewsletterEmail("");
+
+    toast({
+      title: "Subscribed",
+      description: "You have joined the newsletter updates list.",
+    });
   };
 
   const contactInfo = [
@@ -98,58 +157,83 @@ const Contact = () => {
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-4">
+                  <input
+                    type="text"
+                    name="website"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    className="hidden"
+                    value={formData.website}
+                    onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+                  />
                   <div>
-                    <label className="block text-sm font-medium mb-2">
+                    <label htmlFor="contact-name" className="block text-sm font-medium mb-2">
                       Name <span className="text-destructive">*</span>
                     </label>
                     <Input
+                      id="contact-name"
                       type="text"
                       placeholder="Your name"
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      maxLength={80}
+                      autoComplete="name"
                       required
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-2">
+                    <label htmlFor="contact-email" className="block text-sm font-medium mb-2">
                       Email <span className="text-destructive">*</span>
                     </label>
                     <Input
+                      id="contact-email"
                       type="email"
                       placeholder="your.email@example.com"
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      maxLength={120}
+                      autoComplete="email"
                       required
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-2">Subject</label>
+                    <label htmlFor="contact-subject" className="block text-sm font-medium mb-2">Subject</label>
                     <Input
+                      id="contact-subject"
                       type="text"
                       placeholder="What's this about?"
                       value={formData.subject}
                       onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                      maxLength={120}
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-2">
+                    <label htmlFor="contact-message" className="block text-sm font-medium mb-2">
                       Message <span className="text-destructive">*</span>
                     </label>
                     <Textarea
+                      id="contact-message"
                       placeholder="Tell us more..."
                       rows={6}
                       value={formData.message}
                       onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                      maxLength={1500}
                       required
                     />
                   </div>
 
-                  <Button type="submit" variant="hero" className="w-full" size="lg">
+                  <Button
+                    type="submit"
+                    variant="hero"
+                    className="w-full"
+                    size="lg"
+                    disabled={isSubmitting}
+                  >
                     <Send size={18} />
-                    Send Message
+                    {isSubmitting ? "Sending..." : "Send Message"}
                   </Button>
                 </form>
               </CardContent>
@@ -215,16 +299,21 @@ const Contact = () => {
                 <p className="text-white/90">Get weekly tech tips and updates!</p>
               </CardHeader>
               <CardContent>
-                <div className="flex gap-2">
+                <form onSubmit={handleNewsletterSubmit} className="flex gap-2">
                   <Input
                     type="email"
                     placeholder="your@email.com"
+                    value={newsletterEmail}
+                    onChange={(event) => setNewsletterEmail(event.target.value)}
                     className="bg-white/10 border-white/20 text-white placeholder:text-white/60"
+                    autoComplete="email"
+                    maxLength={120}
+                    required
                   />
-                  <Button variant="accent">
-                    Subscribe
+                  <Button variant="accent" type="submit" disabled={isNewsletterSubmitting}>
+                    {isNewsletterSubmitting ? "Saving..." : "Subscribe"}
                   </Button>
-                </div>
+                </form>
               </CardContent>
             </Card>
 

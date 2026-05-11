@@ -1,4 +1,4 @@
-import globalBgLandscape from "@/assets/global-bg-landscape.webp";
+import heroImageAlt from "@/assets/hero-image-alt.webp";
 import globalOrb3d from "@/assets/global-orb-3d.webp";
 
 const GlobalPageBackground = () => {
@@ -7,14 +7,14 @@ const GlobalPageBackground = () => {
       <div className="absolute inset-0 bg-[radial-gradient(1200px_580px_at_0%_0%,hsl(var(--primary)/0.12),transparent_56%),radial-gradient(900px_520px_at_100%_12%,hsl(var(--accent)/0.14),transparent_62%),linear-gradient(to_bottom,hsl(var(--background)),hsl(var(--secondary)/0.3),hsl(var(--background)))]" />
 
       <img
-        src={globalBgLandscape}
+        src={heroImageAlt}
         alt=""
-        width={1024}
-        height={1024}
+        width={1600}
+        height={900}
         loading="eager"
         fetchPriority="low"
         decoding="async"
-        className="absolute left-1/2 top-0 h-[60vh] w-[72vw] -translate-x-1/2 object-cover opacity-20 blur-[1px]"
+        className="absolute left-1/2 top-0 h-[62vh] w-[78vw] -translate-x-1/2 object-cover opacity-25 blur-[1px]"
       />
 
       <img

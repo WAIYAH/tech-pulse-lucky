@@ -313,7 +313,7 @@ export class SupabaseLmsProvider implements LmsDataProvider {
       async () => {
         const { data, error } = await supabase.from("courses").select("category");
         if (error) throw error;
-        return Array.from(new Set((data ?? []).map((row) => row.category))).sort();
+        return Array.from(new Set((data ?? []).map((row: any) => row.category as string))).sort();
       },
       () => this.fallback.getCourseCategories(),
     );

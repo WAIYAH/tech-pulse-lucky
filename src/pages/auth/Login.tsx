@@ -43,7 +43,7 @@ const Login = () => {
     }
 
     setIsSubmitting(true);
-    const result = await login(validation.data);
+    const result = await login(validation.data as { email: string; password: string });
     setIsSubmitting(false);
 
     if (!result.success) {

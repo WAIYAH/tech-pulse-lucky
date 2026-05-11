@@ -64,8 +64,13 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/tips" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  Tips & Articles
+                <Link to="/courses" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  Courses
+                </Link>
+              </li>
+              <li>
+                <Link to="/lms" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  LMS
                 </Link>
               </li>
               <li>
@@ -74,8 +79,13 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/community" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  Community
+                <Link to="/tips" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  Tech Tips
+                </Link>
+              </li>
+              <li>
+                <Link to="/custom-training" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  Custom Training
                 </Link>
               </li>
             </ul>

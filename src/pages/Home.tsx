@@ -1,6 +1,26 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { BookOpen, Users, Video, Sparkles, Target, Award } from "lucide-react";
+import {
+  BookOpen,
+  Users,
+  Video,
+  Sparkles,
+  Target,
+  Award,
+  Shield,
+  Code2,
+  Brain,
+  Database,
+  Cloud,
+  Megaphone,
+  Github,
+  MonitorSmartphone,
+  UserPlus,
+  CreditCard,
+  GraduationCap,
+  TrendingUp,
+  CheckCircle2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import TipCard from "@/components/TipCard";
 import heroVideo from "@/assets/hero-video.mp4";
@@ -42,6 +62,34 @@ const Home = () => {
       title: "Vision 2030 Aligned",
       description: "Supporting Kenya's digital transformation and UN SDG goals.",
     },
+  ];
+
+  const whyLearn = [
+    { icon: BookOpen, title: "Beginner-Friendly Lessons", description: "Practical, jargon-free lessons designed for first-time learners." },
+    { icon: Award, title: "Africa-Relevant Skills", description: "Curriculum tailored for Kenyan and African tech opportunities." },
+    { icon: Sparkles, title: "Free & Paid Paths", description: "Start free and upgrade to premium masterclasses when you're ready." },
+    { icon: Users, title: "Active Community", description: "Get help and motivation from a supportive WhatsApp community." },
+    { icon: Code2, title: "Real-World Projects", description: "Build a portfolio with hands-on projects, not just theory." },
+    { icon: TrendingUp, title: "Career-Focused", description: "Skills that lead to jobs, freelancing, and tech entrepreneurship." },
+  ];
+
+  const learningPaths = [
+    { icon: MonitorSmartphone, title: "Computer & Internet Basics", description: "Master devices, files, and the web with confidence." },
+    { icon: Shield, title: "Safe Browsing & Cybersecurity", description: "Protect yourself and your data online." },
+    { icon: Code2, title: "HTML, CSS & JavaScript", description: "Build modern, responsive websites from scratch." },
+    { icon: Github, title: "Git & GitHub", description: "Version control essentials every developer needs." },
+    { icon: Brain, title: "AI & Machine Learning", description: "Understand AI fundamentals and start using AI tools." },
+    { icon: Database, title: "PHP, MySQL & Backend", description: "Build dynamic apps with databases and server logic." },
+    { icon: Cloud, title: "DevOps & Cloud Intro", description: "Deploy, automate, and scale modern applications." },
+    { icon: Megaphone, title: "Digital Marketing for Startups", description: "Grow your tech brand and reach customers online." },
+  ];
+
+  const steps = [
+    { icon: BookOpen, title: "Choose a Course", description: "Browse free and premium courses or upcoming webinars." },
+    { icon: UserPlus, title: "Create Your Account", description: "Register in seconds to unlock the LMS dashboard." },
+    { icon: CreditCard, title: "Access or Pay", description: "Start free instantly or unlock premium with a simple payment." },
+    { icon: GraduationCap, title: "Learn & Build", description: "Follow lessons, complete projects, and download resources." },
+    { icon: CheckCircle2, title: "Track & Grow", description: "Monitor your progress and grow your tech career." },
   ];
 
   return (
@@ -156,6 +204,133 @@ const Home = () => {
                 <p className="text-muted-foreground">{feature.description}</p>
               </motion.div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Why Learn With Us */}
+      <section className="py-20 bg-background">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              Why Learn With <span className="text-primary">Get Techy With Lucky</span>
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              A trusted learning home for African beginners and aspiring tech professionals.
+            </p>
+          </motion.div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {whyLearn.map((item, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.05 }}
+                className="p-6 bg-card border border-border rounded-2xl hover:shadow-lg hover:border-primary/50 transition-all"
+              >
+                <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-4">
+                  <item.icon className="text-primary" size={24} />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">{item.title}</h3>
+                <p className="text-muted-foreground">{item.description}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Learning Paths */}
+      <section className="py-20 bg-secondary/30">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              What You Can <span className="text-primary">Learn</span>
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Pick a learning path and start building real skills today.
+            </p>
+          </motion.div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {learningPaths.map((path, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.05 }}
+                className="p-6 bg-card border border-border rounded-2xl hover:shadow-lg hover:border-primary/50 transition-all flex flex-col"
+              >
+                <div className="w-12 h-12 bg-accent/20 rounded-xl flex items-center justify-center mb-4">
+                  <path.icon className="text-primary" size={24} />
+                </div>
+                <h3 className="text-lg font-semibold mb-2">{path.title}</h3>
+                <p className="text-sm text-muted-foreground mb-4 flex-1">{path.description}</p>
+                <Link to="/courses" className="text-sm font-semibold text-primary hover:underline">
+                  Explore →
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+          <div className="text-center mt-10">
+            <Button variant="hero" size="lg" asChild>
+              <Link to="/courses">View All Courses</Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works */}
+      <section className="py-20 bg-background">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              How the <span className="text-primary">Platform Works</span>
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Five simple steps from sign-up to your first tech win.
+            </p>
+          </motion.div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-6">
+            {steps.map((step, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.08 }}
+                className="relative p-6 bg-card border border-border rounded-2xl text-center"
+              >
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold">
+                  {index + 1}
+                </div>
+                <div className="w-12 h-12 mx-auto bg-primary/10 rounded-xl flex items-center justify-center mb-4 mt-2">
+                  <step.icon className="text-primary" size={24} />
+                </div>
+                <h3 className="font-semibold mb-2">{step.title}</h3>
+                <p className="text-sm text-muted-foreground">{step.description}</p>
+              </motion.div>
+            ))}
+          </div>
+          <div className="text-center mt-10">
+            <Button variant="hero" size="lg" asChild>
+              <Link to="/register">Start Learning Free</Link>
+            </Button>
           </div>
         </div>
       </section>

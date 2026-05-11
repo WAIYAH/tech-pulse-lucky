@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Target, Globe, Lightbulb, Award, BookOpen, Users } from "lucide-react";
-import luckyProfile from "@/assets/lucky-profile.jpg";
+import luckyProfile from "@/assets/lucky-profile-full.webp";
 
 const About = () => {
   const achievements = [

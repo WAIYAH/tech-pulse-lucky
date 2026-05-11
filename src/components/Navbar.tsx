@@ -15,7 +15,6 @@ const Navbar = () => {
   const navLinks = [
     { name: "Home", path: "/" },
     { name: "Courses", path: "/courses" },
-    { name: "LMS", path: "/lms" },
     { name: "Webinars", path: "/webinars" },
     { name: "Tech Tips", path: "/tips" },
     { name: "Custom Training", path: "/custom-training" },
@@ -73,7 +72,7 @@ const Navbar = () => {
               </>
             ) : (
               <Button variant="hero" size="sm" asChild>
-                <Link to="/register">Join LMS</Link>
+                <Link to="/register">Get Started</Link>
               </Button>
             )}
           </div>
@@ -134,7 +133,7 @@ const Navbar = () => {
                 ) : (
                   <Button variant="hero" className="w-full" asChild>
                     <Link to="/register" onClick={() => setIsOpen(false)}>
-                      Join LMS
+                      Get Started
                     </Link>
                   </Button>
                 )}

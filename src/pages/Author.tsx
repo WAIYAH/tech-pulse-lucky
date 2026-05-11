@@ -6,7 +6,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import TipCard from "@/components/TipCard";
-import luckyProfile from "@/assets/lucky-profile.jpg";
+import luckyProfile from "@/assets/lucky-profile-full.webp";
 
 // Author data - in a real app, this would come from a database
 const authors: Record<string, {

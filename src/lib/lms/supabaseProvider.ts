@@ -308,12 +308,13 @@ export class SupabaseLmsProvider implements LmsDataProvider {
   }
 
   async getCourseCategories(): Promise<string[]> {
-    return this.withFallback(
+    return this.withFallback<string[]>(
       "getCourseCategories",
       async () => {
         const { data, error } = await supabase.from("courses").select("category");
         if (error) throw error;
-        return Array.from(new Set((data ?? []).map((row: any) => row.category as string))).sort();
+        const cats = (data ?? []).map((row: any) => String(row.category));
+        return Array.from(new Set(cats)).sort();
       },
       () => this.fallback.getCourseCategories(),
     );

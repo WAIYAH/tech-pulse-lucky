@@ -14,10 +14,11 @@ const Navbar = () => {
 
   const navLinks = [
     { name: "Home", path: "/" },
-    { name: "Tips & Articles", path: "/tips" },
+    { name: "Courses", path: "/courses" },
     { name: "LMS", path: "/lms" },
     { name: "Webinars", path: "/webinars" },
-    { name: "Community", path: "/community" },
+    { name: "Tech Tips", path: "/tips" },
+    { name: "Custom Training", path: "/custom-training" },
     { name: "About", path: "/about" },
     { name: "Contact", path: "/contact" },
   ];

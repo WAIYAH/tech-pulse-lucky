@@ -7,12 +7,14 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
+import SEO from "@/components/common/SEO";
 import {
   containsUnsafeContent,
   createSafeTextSchema,
   emailSchema,
   honeypotSchema,
 } from "@/lib/validation";
+import { routes } from "@/routes/routeConfig";
 
 const contactSchema = z.object({
   name: createSafeTextSchema("Name", 2, 80),
@@ -127,6 +129,12 @@ const Contact = () => {
 
   return (
     <div className="min-h-screen py-20">
+      <SEO
+        title="Contact | Tech Pulse Insider"
+        description="Contact Tech Pulse Insider for course guidance, custom training requests, webinar questions, and beginner-friendly tech support."
+        canonicalPath={routes.public.contact}
+        keywords="contact Tech Pulse Insider, custom training Kenya, tech courses support, get techy with lucky contact"
+      />
       <div className="container mx-auto px-4">
         {/* Header */}
         <motion.div

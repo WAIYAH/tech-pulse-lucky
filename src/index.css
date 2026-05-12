@@ -163,6 +163,13 @@ All colors MUST be HSL.
   body.has-cookie-consent-banner .js-floating-action {
     margin-bottom: 78px;
   }
+
+  body.student-high-contrast {
+    --foreground: 216 36% 8%;
+    --muted-foreground: 216 26% 24%;
+    --border: 216 28% 32%;
+    --input: 216 28% 32%;
+  }
 }
 
 @layer utilities {

@@ -4,6 +4,8 @@ import type {
   AdminCourseUpsertInput,
   AdminPaymentUpdateInput,
   AdminUserOverview,
+  CourseLevel,
+  EnrollmentAccessStatus,
   LmsConfig,
   LmsCourse,
   LmsCourseFaq,
@@ -12,19 +14,131 @@ import type {
   LmsLesson,
   LmsLessonProgress,
   LmsPayment,
+  LmsRole,
+  PaymentStatus,
   PaymentSubmissionInput,
 } from "@/types/lms";
 import { MockLmsProvider } from "./mockProvider";
 import type { LmsDataProvider } from "./service";
 
-// LMS tables are managed externally; use loose typing until generated types are available.
-const supabase = _supabase as any;
-type CourseRow = any;
-type LessonRow = any;
-type EnrollmentRow = any;
-type PaymentRow = any;
-type LessonProgressRow = any;
-type ProfileRow = any;
+interface QueryError {
+  message?: string;
+}
+
+interface QueryResult<T> {
+  data: T | null;
+  error: QueryError | null;
+  count?: number | null;
+}
+
+interface QueryBuilder<Row> extends PromiseLike<QueryResult<Row[]>> {
+  select(columns?: string, options?: { count?: "exact"; head?: boolean }): QueryBuilder<Row>;
+  eq(column: string, value: unknown): QueryBuilder<Row>;
+  in(column: string, values: unknown[]): QueryBuilder<Row>;
+  or(filters: string): QueryBuilder<Row>;
+  order(column: string, options?: { ascending?: boolean }): QueryBuilder<Row>;
+  limit(count: number): QueryBuilder<Row>;
+  insert(values: unknown): QueryBuilder<Row>;
+  update(values: unknown): QueryBuilder<Row>;
+  upsert(values: unknown, options?: { onConflict?: string }): QueryBuilder<Row>;
+  delete(): QueryBuilder<Row>;
+  single(): Promise<QueryResult<Row>>;
+  maybeSingle(): Promise<QueryResult<Row>>;
+}
+
+interface SupabaseLikeClient {
+  from<Row extends Record<string, unknown> = Record<string, unknown>>(
+    table: string,
+  ): QueryBuilder<Row>;
+}
+
+interface CourseRow extends Record<string, unknown> {
+  id: string;
+  title: string;
+  slug: string;
+  short_description: string;
+  description: string;
+  category: string;
+  level: CourseLevel;
+  duration: string;
+  price: number | string | null;
+  currency: string;
+  is_free: boolean;
+  image_url: string;
+  instructor: string;
+  learning_outcomes?: string[] | null;
+  requirements?: string[] | null;
+  target_audience?: string[] | null;
+  faqs?: unknown;
+  created_at: string;
+  updated_at: string;
+}
+
+interface LessonRow extends Record<string, unknown> {
+  id: string;
+  course_id: string;
+  title: string;
+  lesson_order: number;
+  lesson_type: LmsLesson["lessonType"];
+  content: string;
+  video_url?: string | null;
+  resource_downloads?: unknown;
+  quiz?: unknown;
+  assignment?: unknown;
+}
+
+interface EnrollmentRow extends Record<string, unknown> {
+  id: string;
+  user_id: string;
+  course_id: string;
+  access_status: EnrollmentAccessStatus;
+  progress: number;
+  created_at: string;
+  updated_at: string;
+}
+
+interface PaymentRow extends Record<string, unknown> {
+  id: string;
+  user_id: string;
+  course_id: string;
+  full_name: string;
+  email: string;
+  phone: string;
+  amount: number | string | null;
+  currency: string;
+  transaction_code: string;
+  payment_date: string;
+  status: PaymentStatus;
+  admin_note?: string | null;
+  screenshot_url?: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+interface LessonProgressRow extends Record<string, unknown> {
+  id: string;
+  user_id: string;
+  lesson_id: string;
+  course_id: string;
+  completed: boolean;
+  completed_at?: string | null;
+}
+
+interface ProfileRow extends Record<string, unknown> {
+  id: string;
+  full_name: string;
+  email: string;
+  phone: string;
+  role: LmsRole;
+  created_at: string;
+}
+
+interface CategoryRow extends Record<string, unknown> {
+  category: string;
+}
+
+// LMS tables are managed externally; use a permissive adapter until generated types are available.
+const supabase = _supabase as unknown as SupabaseLikeClient;
 
 const COURSE_STORAGE_KEY = "lms_courses";
 
@@ -311,9 +425,11 @@ export class SupabaseLmsProvider implements LmsDataProvider {
     return this.withFallback<string[]>(
       "getCourseCategories",
       async () => {
-        const { data, error } = await supabase.from("courses").select("category");
+        const { data, error } = await supabase
+          .from<CategoryRow>("courses")
+          .select("category");
         if (error) throw error;
-        const cats: string[] = ((data ?? []) as any[]).map((row) => String(row.category));
+        const cats = (data ?? []).map((row) => String(row.category));
         return Array.from(new Set<string>(cats)).sort();
       },
       () => this.fallback.getCourseCategories(),

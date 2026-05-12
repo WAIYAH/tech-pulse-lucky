@@ -1,9 +1,16 @@
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import SEO from "@/components/common/SEO";
+import { routes } from "@/routes/routeConfig";
 
 const PrivacyPolicy = () => {
   return (
     <div className="min-h-screen bg-background py-12">
+      <SEO
+        title="Privacy Policy | Tech Pulse Insider"
+        description="Review how Tech Pulse Insider collects, uses, and protects personal information across website, LMS, webinars, and related services."
+        canonicalPath={routes.public.privacyPolicy}
+      />
       <div className="container mx-auto px-4 max-w-4xl">
         {/* Header */}
         <div className="mb-12">
@@ -369,7 +376,7 @@ const PrivacyPolicy = () => {
             <div className="bg-muted p-4 rounded-lg space-y-2 text-foreground">
               <p><strong>Tech Pulse Insider</strong></p>
               <p>📧 Email: <a href="mailto:privacy@techpulseinsider.com" className="text-primary hover:underline">privacy@techpulseinsider.com</a></p>
-              <p>💬 WhatsApp: <a href="https://wa.me/254715674828" className="text-primary hover:underline">+254 715 674 828</a></p>
+              <p>💬 WhatsApp: <a href="https://wa.me/254715674828" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">+254 715 674 828</a></p>
               <p>📍 Kenya</p>
               <p className="text-sm">Response time: We aim to respond to privacy inquiries within 14 days.</p>
             </div>

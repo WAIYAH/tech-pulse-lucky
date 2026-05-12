@@ -4,9 +4,11 @@ import { motion } from "framer-motion";
 import { BookOpen, GraduationCap, Layers3, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import SEO from "@/components/common/SEO";
 import CourseCard from "@/components/lms/CourseCard";
 import { getCourseStats } from "@/data/courses";
 import { lmsProvider } from "@/lib/lms";
+import { routes } from "@/routes/routeConfig";
 import type { LmsCourse } from "@/types/lms";
 
 const LMSLanding = () => {
@@ -25,6 +27,12 @@ const LMSLanding = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-primary/5">
+      <SEO
+        title="LMS | Tech Pulse Insider"
+        description="Start learning on the Tech Pulse Insider LMS with structured pathways, featured beginner courses, and practical tech training."
+        canonicalPath={routes.public.lms}
+        keywords="LMS for beginner tech learners, online tech courses in Kenya, digital skills training platform"
+      />
       <section className="py-20">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
@@ -48,15 +56,15 @@ const LMSLanding = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button variant="hero" size="lg" asChild>
-                <Link to="/courses">Browse Courses</Link>
+                <Link to={routes.public.courses}>Browse Courses</Link>
               </Button>
               <Button variant="accent" size="lg" asChild>
-                <Link to="/courses/basics-of-computers-phones-internet-101">
+                <Link to={routes.public.course("basics-of-computers-phones-internet-101")}>
                   Start Free Course
                 </Link>
               </Button>
               <Button variant="outline" size="lg" asChild>
-                <Link to="/login">Login</Link>
+                <Link to={routes.auth.login}>Login</Link>
               </Button>
             </div>
           </div>
@@ -99,7 +107,7 @@ const LMSLanding = () => {
           <div className="flex items-center justify-between flex-wrap gap-4 mb-8">
             <h2 className="text-3xl font-bold">Featured Courses</h2>
             <Button variant="outline" asChild>
-              <Link to="/courses">View All Courses</Link>
+              <Link to={routes.public.courses}>View All Courses</Link>
             </Button>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -206,4 +214,3 @@ const LMSLanding = () => {
 };
 
 export default LMSLanding;
-

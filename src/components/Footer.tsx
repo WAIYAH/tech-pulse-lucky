@@ -1,6 +1,11 @@
 import { Link } from "react-router-dom";
 import { Facebook, Instagram, Mail, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  footerQuickLinks,
+  footerResourceLinks,
+  routes,
+} from "@/routes/routeConfig";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -59,31 +64,16 @@ const Footer = () => {
           <div>
             <h4 className="font-semibold text-foreground mb-4">Quick Links</h4>
             <ul className="space-y-2">
-              <li>
-                <Link to="/" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  Home
-                </Link>
-              </li>
-              <li>
-                <Link to="/courses" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  Courses
-                </Link>
-              </li>
-              <li>
-                <Link to="/webinars" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  Webinars
-                </Link>
-              </li>
-              <li>
-                <Link to="/tips" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  Tech Tips
-                </Link>
-              </li>
-              <li>
-                <Link to="/custom-training" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  Custom Training
-                </Link>
-              </li>
+              {footerQuickLinks.map((item) => (
+                <li key={item.path}>
+                  <Link
+                    to={item.path}
+                    className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
@@ -91,31 +81,16 @@ const Footer = () => {
           <div>
             <h4 className="font-semibold text-foreground mb-4">Resources</h4>
             <ul className="space-y-2">
-              <li>
-                <Link to="/about" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  About Lucky
-                </Link>
-              </li>
-              <li>
-                <Link to="/contact" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  Contact Us
-                </Link>
-              </li>
-              <li>
-                <Link to="/privacy-policy" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  Privacy Policy
-                </Link>
-              </li>
-              <li>
-                <Link to="/terms-of-service" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  Terms of Service
-                </Link>
-              </li>
-              <li>
-                <Link to="/editorial-policy" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  Editorial Policy
-                </Link>
-              </li>
+              {footerResourceLinks.map((item) => (
+                <li key={item.path}>
+                  <Link
+                    to={item.path}
+                    className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
@@ -126,7 +101,7 @@ const Footer = () => {
               Get weekly tech tips and updates delivered to your inbox.
             </p>
             <Button className="w-full" asChild>
-              <Link to="/contact">
+              <Link to={routes.public.contact}>
                 Subscribe Now
               </Link>
             </Button>

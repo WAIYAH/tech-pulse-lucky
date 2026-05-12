@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Mail, CheckCircle2, Zap, Shield, BookOpen, Users, Star, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -6,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
+import { routes } from "@/routes/routeConfig";
 import {
   createSafeTextSchema,
   emailSchema,
@@ -83,14 +85,14 @@ const Newsletter = () => {
     setIsLoading(true);
 
     try {
-      const { error } = await (supabase as any)
-        .from("newsletter_subscribers")
+      const { error } = await supabase
+        .from("newsletter_subscribers" as never)
         .insert([
           {
             email: validation.data.email.trim().toLowerCase(),
             name: validation.data.name.trim(),
           },
-        ]);
+        ] as never);
 
       if (error) {
         if (error.code === "23505") {
@@ -138,7 +140,7 @@ const Newsletter = () => {
             and get ready for weekly tech insights.
           </p>
           <Button variant="hero" asChild>
-            <a href="/">Back to Home</a>
+            <Link to={routes.public.home}>Back to Home</Link>
           </Button>
         </motion.div>
       </div>
@@ -221,7 +223,9 @@ const Newsletter = () => {
             </div>
             <p className="text-xs text-muted-foreground mt-4">
               By subscribing, you agree to our{" "}
-              <a href="/privacy-policy" className="text-primary hover:underline">Privacy Policy</a>.
+              <Link to={routes.public.privacyPolicy} className="text-primary hover:underline">
+                Privacy Policy
+              </Link>.
               We respect your privacy and will never spam you.
             </p>
           </motion.form>

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { routes } from "@/routes/routeConfig";
 
 const forgotPasswordSchema = z.object({
   email: z.string().email("Enter a valid email address."),
@@ -93,7 +94,7 @@ const ForgotPassword = () => {
 
               <p className="mt-6 text-sm text-muted-foreground">
                 Remembered your password?{" "}
-                <Link to="/login" className="text-primary font-semibold hover:underline">
+                <Link to={routes.auth.login} className="text-primary font-semibold hover:underline">
                   Back to login
                 </Link>
               </p>

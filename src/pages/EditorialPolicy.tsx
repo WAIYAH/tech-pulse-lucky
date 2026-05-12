@@ -1,10 +1,17 @@
 import { Card } from "@/components/ui/card";
 import { CheckCircle2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import SEO from "@/components/common/SEO";
+import { routes } from "@/routes/routeConfig";
 
 const EditorialPolicy = () => {
   return (
     <div className="min-h-screen bg-background py-12">
+      <SEO
+        title="Editorial Policy | Tech Pulse Insider"
+        description="Understand Tech Pulse Insider editorial standards, fact-checking practices, and content responsibility guidelines."
+        canonicalPath={routes.public.editorialPolicy}
+      />
       <div className="container mx-auto px-4 max-w-4xl">
         {/* Header */}
         <div className="mb-12">
@@ -409,7 +416,7 @@ const EditorialPolicy = () => {
             <div className="bg-muted p-4 rounded-lg space-y-2 text-foreground">
               <p><strong>Editorial Team</strong></p>
               <p>📧 Email: <a href="mailto:editorial@techpulseinsider.com" className="text-primary hover:underline">editorial@techpulseinsider.com</a></p>
-              <p>💬 WhatsApp: <a href="https://wa.me/254715674828" className="text-primary hover:underline">+254 715 674 828</a></p>
+              <p>💬 WhatsApp: <a href="https://wa.me/254715674828" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">+254 715 674 828</a></p>
               <p>📍 Kenya</p>
               <p className="text-sm">Response time: We aim to respond within 7 business days</p>
             </div>

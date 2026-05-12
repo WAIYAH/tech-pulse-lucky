@@ -1,376 +1,290 @@
-# Tech Pulse Insider LMS (Get Techy With Lucky)
+# Tech Pulse Insider / Get Techy With Lucky LMS
 
-This repository powers the Tech Pulse Insider website and now includes a full LMS extension for free and paid learning programs.
+Production-ready React + TypeScript platform for:
+- Public marketing website
+- LMS course experience
+- Student portal
+- Admin operations dashboard
 
-Live site: https://tech-pulse-lucky.vercel.app/
+Live domain target: `https://techpulseinsider.com`
 
-## LMS Overview
+## Platform Overview
 
-The LMS is built as a native extension of the existing brand, routes, and UX patterns.
+This project is structured as one integrated system:
+- Public pages for discovery, content, webinars, and lead capture.
+- LMS flows for free and paid courses.
+- Private student portal at `/dashboard/*`.
+- Private admin console at `/admin/*`.
 
 Core goals:
-- Support free and paid courses
-- Gate paid lessons until admin payment approval
-- Provide learner dashboard and progress tracking
-- Provide admin tools for courses, payments, and users
-- Stay mobile-first and production-ready
+- Keep routes predictable and scalable.
+- Centralize navigation and route definitions.
+- Improve technical SEO and on-page metadata.
+- Preserve mobile usability and existing UI patterns.
 
-## LMS Features
+## Route Structure
 
-### Public
-- `/lms` landing page
-- `/courses` searchable/filterable course catalog
-- `/courses/:slug` course details with curriculum, outcomes, requirements, FAQ
+Canonical route map:
 
-### Auth
-- `/register`
+Public:
+- `/`
+- `/about`
+- `/courses`
+- `/courses/:slug`
+- `/lms`
+- `/webinars`
+- `/events/:eventSlug`
+- `/articles`
+- `/articles/:slug`
+- `/custom-training`
+- `/community`
+- `/contact`
+- `/privacy-policy`
+- `/terms`
+- `/editorial-policy`
+
+Auth:
 - `/login`
+- `/register`
 - `/forgot-password`
-- Local auth mode and Supabase auth mode support
 
-### Student
+Student:
 - `/dashboard`
-- `/my-courses`
-- `/learn/:courseSlug`
-- `/payment/:courseSlug`
+- `/dashboard/overview`
+- `/dashboard/progress`
+- `/dashboard/my-courses`
+- `/dashboard/learn/:courseSlug`
+- `/dashboard/payments`
+- `/dashboard/assignments`
+- `/dashboard/certificates`
+- `/dashboard/webinars`
+- `/dashboard/resources`
+- `/dashboard/support`
+- `/dashboard/profile`
+- `/dashboard/settings`
 
-Student capabilities:
-- Enroll in free courses
-- Submit paid-course payment confirmation
-- View payment status (`pending`, `approved`, `rejected`)
-- Track lesson completion and course progress
-- Access locked-course guidance when approval is missing
-
-### Admin
+Admin:
 - `/admin`
+- `/admin/dashboard` (redirects to `/admin`)
+- `/admin/students`
 - `/admin/courses`
 - `/admin/payments`
-- `/admin/users`
+- `/admin/finance`
+- `/admin/webinars`
+- `/admin/articles`
+- `/admin/content`
+- `/admin/lms-control`
+- `/admin/settings`
 
-Admin capabilities:
-- Create/update/delete courses and lessons
-- Review payment confirmations
-- Approve/reject payments with notes
-- Manage learner access status for paid content
+Legacy redirects:
+- `/tips` -> `/articles`
+- `/terms-of-service` -> `/terms`
+- `/my-courses` -> `/dashboard/my-courses`
+- `/dashboard/courses` -> `/dashboard/my-courses`
 
-## Payment Workflow (KCB Paybill)
+## Navigation System
 
-Configured method:
-- Paybill Number: `522522`
-- Account Number: `1315657899`
-- Account Name: set in `src/data/lmsConfig.ts`
+Navigation is centralized in:
+- `src/routes/routeConfig.ts`
 
-Student flow:
-1. Student opens paid course.
-2. Student follows KCB Paybill instructions.
-3. Student submits payment form with M-Pesa transaction code.
-4. Status becomes `pending`.
-5. Admin reviews in `/admin/payments`.
-6. Admin approves or rejects.
-7. Course unlocks only after approval.
+This file defines:
+- Canonical route constants (`routes.public`, `routes.auth`, `routes.student`, `routes.admin`).
+- Public navbar links.
+- Footer quick/resource links.
 
-Security note: paid lessons are not unlocked automatically by submission; approval is mandatory.
+If you need to update menus or destination paths, update this file first.
 
-## Tech Stack
+## SEO Setup
 
-- React 18 + TypeScript + Vite
-- React Router
-- Tailwind CSS + shadcn/ui
-- Framer Motion
-- Supabase (Auth + Postgres + RLS-ready schema)
+SEO is implemented in layers:
+- Base global metadata in `index.html`.
+- Page-level SEO with reusable component:
+  - `src/components/common/SEO.tsx`
+  - `src/hooks/useSEO.ts`
+- Crawl control and discovery files:
+  - `public/robots.txt`
+  - `public/sitemap.xml`
+  - `public/manifest.json`
 
-## Project Structure (LMS)
+Current SEO behavior:
+- Unique title/description/canonical applied on key public pages.
+- Open Graph + Twitter tags managed per page.
+- Structured data supported through `<SEO structuredData={...} />`.
+- Private routes are excluded from crawl intent via `robots.txt`.
+
+## Content and Data Sources
+
+Courses:
+- `src/data/courses.ts`
+
+Webinars:
+- `src/data/webinars.ts`
+
+Articles:
+- Markdown content in `src/content/articles/*.md`
+- Metadata/index in `src/content/articles/index.ts`
+
+LMS config:
+- `src/data/lmsConfig.ts`
+
+## Project Structure
 
 ```txt
 src/
   components/
+    common/
+      SEO.tsx
     lms/
-      AdminRoute.tsx
-      AuthRoute.tsx
-      CourseCard.tsx
-      CourseProgress.tsx
-      LessonSidebar.tsx
-      ProtectedRoute.tsx
+    ui/
+    Navbar.tsx
+    Footer.tsx
   contexts/
     AuthContext.tsx
+  content/
+    articles/
   data/
     courses.ts
+    webinars.ts
     lmsConfig.ts
+  hooks/
+    useSEO.ts
   lib/
+    admin/
+    student/
     lms/
-      index.ts
-      mockProvider.ts
-      service.ts
-      supabaseProvider.ts
   pages/
     auth/
-      Login.tsx
-      Register.tsx
-      ForgotPassword.tsx
+    admin/system/
+    student/system/
     lms/
-      LMSLanding.tsx
-      Courses.tsx
-      CourseDetails.tsx
-      StudentDashboard.tsx
-      MyCourses.tsx
-      LearnCourse.tsx
-      PaymentPage.tsx
-    admin/
-      AdminDashboard.tsx
-      AdminCourses.tsx
-      AdminPayments.tsx
-      AdminUsers.tsx
+    (public pages)
+  routes/
+    routeConfig.ts
   types/
     lms.ts
-
-supabase/
-  migrations/
-    20260509190000_phase7_lms_schema_and_rls.sql
-
-docs/
-  strategy/
-    README.md
-    strategy-summary.md
-    product-strategy.md
-    implementation-guide.md
-    lms-implementation-plan.md
-  seo/
-    README.md
 
 public/
   robots.txt
   sitemap.xml
+  manifest.json
+  favicon.ico
 ```
 
-## Setup Instructions
+## Auth and Protected Routes
 
-### 1) Install
+Guards:
+- `src/components/lms/AuthRoute.tsx`
+- `src/components/lms/ProtectedRoute.tsx`
+- `src/components/lms/AdminRoute.tsx`
+
+Behavior:
+- Unauthenticated users are redirected to `/login`.
+- Admin-only routes are restricted to role `admin`.
+- Auth pages redirect logged-in users to role-appropriate dashboards.
+
+## Local Development
+
+Install:
 
 ```bash
 npm install
 ```
 
-### 2) Configure environment
-
-Copy `.env.example` to `.env`, then update values:
-
-```bash
-VITE_SUPABASE_URL=...
-VITE_SUPABASE_PUBLISHABLE_KEY=...
-VITE_SUPABASE_PROJECT_ID=...
-
-# LMS/auth behavior
-VITE_ENABLE_SUPABASE_AUTH=true
-VITE_LMS_DATA_PROVIDER=supabase
-
-# Comma-separated admin emails
-VITE_ADMIN_EMAILS=admin@example.com
-```
-
-Notes:
-- `VITE_LMS_DATA_PROVIDER` supports `supabase` or `mock`.
-- If Supabase config is missing/unavailable, the LMS provider falls back to mock storage mode.
-
-### 3) Run locally
+Run:
 
 ```bash
 npm run dev
 ```
 
-### 4) Validate
+Quality checks:
 
 ```bash
 npm run lint
 npm run build
 ```
 
-## Supabase Setup Instructions
-
-### 1) Link project
-
-```bash
-supabase login
-supabase link --project-ref <YOUR_PROJECT_REF>
-```
-
-### 2) Apply migrations
-
-```bash
-supabase db push
-```
-
-This creates LMS tables, enums, triggers, and RLS policies from:
-- `supabase/migrations/20260509190000_phase7_lms_schema_and_rls.sql`
-
-### 3) Promote first admin user
-
-After the first admin account signs up, set role to admin:
-
-```sql
-update public.profiles
-set role = 'admin'
-where email = 'admin@example.com';
-```
-
-### 4) Verify RLS-sensitive flows
-
-- Student can read only own payments/enrollments/progress.
-- Student cannot approve own payment.
-- Paid lessons stay locked until enrollment is `approved`.
-
-## QA Hardening Summary (Phase 8)
-
-Completed:
-- Lint blockers fixed (TypeScript/ESLint errors)
-- Build verified
-- Payment hardening:
-  - client submits canonical course price
-  - provider rejects underpayments
-- Access hardening:
-  - free-course access logic aligned with RLS-accepted statuses
-- Data safety improvements:
-  - removed unsafe `any` usage in LMS mock provider
-  - fixed lesson sort mutation on course details page
-
-## User Workflow
-
-1. Register/Login.
-2. Browse courses.
-3. Enroll directly for free courses.
-4. For paid courses, submit payment confirmation.
-5. Wait for admin approval.
-6. Learn through lessons and track progress.
-
-## Admin Workflow
-
-1. Login as admin.
-2. Manage courses in `/admin/courses`.
-3. Review payment requests in `/admin/payments`.
-4. Approve/reject with notes.
-5. Monitor users and enrollments in `/admin/users`.
-
-## Deployment Instructions
-
-### Vercel (recommended)
-1. Connect repository to Vercel.
-2. Set environment variables in project settings.
-3. Ensure Supabase migration has been applied before production traffic.
-4. Deploy and validate key routes:
-   - `/lms`
-   - `/courses`
-   - `/dashboard`
-   - `/admin`
-
-### Post-deploy smoke test
-- Register student account
-- Enroll in a free course
-- Submit paid-course payment request
-- Approve payment as admin
-- Confirm paid lessons unlock
-
-## Mobile, UX, and Security Hardening
-
-Recent frontend hardening updates include:
-- Mobile-first responsiveness improvements across auth pages, course pages, dashboard cards, forms, and navigation interactions
-- Improved tap targets and focus-visible states for accessibility and touch devices
-- Back-to-top and route scroll behavior for cleaner navigation context
-
-Security and privacy additions:
-- Route protection for authenticated learner and admin paths
-- Course access enforcement for paid content (approval required before lesson progress can be updated)
-- Stronger frontend validation on contact, custom training, newsletter, webinar waitlist, and payment confirmation forms
-- Basic content protection layer:
-  - Disables right-click and selected inspect/save shortcuts outside editable form fields
-  - Shows a friendly platform protection message
-  - Note: this is deterrence only; real protection still relies on auth, authorization, and backend rules
-- Cookie consent banner with Accept / Decline / Learn More preference handling
-- Updated privacy disclosures for LMS progress data and payment verification records
-
-Deployment security recommendations:
-- `vercel.json` includes practical production headers:
-  - `X-Content-Type-Options: nosniff`
-  - `X-Frame-Options: DENY`
-  - `Referrer-Policy: strict-origin-when-cross-origin`
-  - `Permissions-Policy: camera=(), microphone=(), geolocation=()`
-  - `Strict-Transport-Security`
-  - Baseline `Content-Security-Policy` tuned for common embeds (YouTube/Google Forms/Meet)
-
-SEO baseline updates:
-- Canonical URL and social meta tags configured in `index.html`
-- XML sitemap available at `/sitemap.xml`
-- Crawl rules configured in `/robots.txt` with private route exclusions
-- Open Graph image served from `/og-cover.webp`
-
 ## Environment Variables
 
-Use `.env.example` as the source template:
+Create `.env` from `.env.example` and configure:
 
 ```bash
-cp .env.example .env
+VITE_SUPABASE_URL=...
+VITE_SUPABASE_PUBLISHABLE_KEY=...
+VITE_SUPABASE_PROJECT_ID=...
+
+VITE_ENABLE_SUPABASE_AUTH=true
+VITE_LMS_DATA_PROVIDER=supabase
+VITE_ADMIN_EMAILS=admin@example.com
+VITE_SITE_URL=https://techpulseinsider.com
 ```
 
-Required variables:
-- `VITE_SUPABASE_URL`
-- `VITE_SUPABASE_PUBLISHABLE_KEY`
-- `VITE_SUPABASE_PROJECT_ID`
-- `VITE_ENABLE_SUPABASE_AUTH`
-- `VITE_LMS_DATA_PROVIDER`
-- `VITE_ADMIN_EMAILS`
+Notes:
+- `VITE_ENABLE_SUPABASE_AUTH=false` enables local auth mode.
+- LMS provider falls back to mock/local data if Supabase is unavailable.
 
-Important:
-- Never commit `.env` to source control.
-- Keep admin/service credentials only in secure deployment environment settings.
+## Test Accounts (Local Auth Mode)
 
-## Payment Access Security Notes
+When `VITE_ENABLE_SUPABASE_AUTH=false`, bootstrap users are created for testing:
+- Admin email is seeded from configured admin bootstrap logic.
+- Student test account:
+  - Email: `student@techpulseinsider.com`
+  - Password: `LuckyStudent@2026!`
 
-- Paid lessons stay locked until admin sets payment status to `approved`.
-- Learner payment states are visible as `pending`, `approved`, or `rejected`.
-- Learners cannot change payment approval status from the frontend.
-- If rejected, learners can resubmit payment evidence with a new transaction code.
+## How To Add New Pages
 
-## Admin Access Notes
+1. Create the page component under the relevant feature folder.
+2. Add route constant in `src/routes/routeConfig.ts` when needed.
+3. Register route in `src/App.tsx`.
+4. Add nav link in route config arrays if it should appear in menus.
+5. Add `<SEO />` metadata for public pages.
 
-- `/admin`, `/admin/payments`, `/admin/courses`, and `/admin/users` are admin-only routes.
-- Non-admin authenticated users are redirected to learner dashboards.
-- Unauthenticated users are redirected to login with route-intent preserved.
+## How To Add New Courses
 
-## Future Improvements
+1. Add/modify records in `src/data/courses.ts`.
+2. Ensure each course has:
+   - Unique `slug`
+   - Valid `lessons`
+   - Clear pricing (`isFree`, `price`, `currency`)
+3. Verify:
+   - `/courses/:slug` renders properly
+   - Enrollment/payment flow works
+   - Student portal reflects status
 
-- Real M-Pesa/KCB API integration
-- Email notifications for payment approvals/rejections
-- Certificate issuance
-- Assignment and quiz submission endpoints
-- Live class links and session attendance
-- Reporting and analytics dashboard
+## How To Add New Articles
 
-## Supabase Deployment Checklist
+1. Add markdown file under `src/content/articles/`.
+2. Register metadata in `src/content/articles/index.ts`.
+3. Confirm:
+   - `/articles` listing includes it
+   - `/articles/:slug` renders
+   - Sitemap includes the public slug when appropriate
 
-A step-by-step operations checklist is available here:
+## How To Update Navigation Links
+
+1. Edit `src/routes/routeConfig.ts`.
+2. Use route constants in components/pages instead of hardcoded strings.
+3. Run:
+   - `npm run lint`
+   - `npm run build`
+4. Smoke test navbar, footer, dashboard sidebars, and CTA buttons.
+
+## Deployment
+
+Recommended: Vercel
+
+1. Connect repository.
+2. Configure environment variables.
+3. Ensure Supabase migrations are applied if using Supabase provider.
+4. Run production build checks before release.
+5. Validate:
+   - Public routes load and index correctly.
+   - Protected routes require auth.
+   - `robots.txt` and `sitemap.xml` are reachable.
+
+## Supabase Migration Reference
+
+LMS schema migration:
+- `supabase/migrations/20260509190000_phase7_lms_schema_and_rls.sql`
+
+Deployment checklist:
 - `supabase/DEPLOYMENT_CHECKLIST.md`
-
-## Strategy Documents
-
-Planning and advisory docs are grouped under:
-- `docs/strategy/README.md`
-- `docs/strategy/strategy-summary.md`
-- `docs/strategy/product-strategy.md`
-- `docs/strategy/implementation-guide.md`
-- `docs/strategy/lms-implementation-plan.md`
-
-## SEO and Sitemap Maintenance
-
-- `public/sitemap.xml` contains public pages and detail routes (articles, webinars, courses).
-- `public/robots.txt` allows public crawl and blocks private/authenticated routes.
-- `docs/seo/README.md` contains maintenance guidance for SEO metadata, crawl policy, and domain updates.
-- If your production domain changes, update these locations:
-  - `index.html` canonical and social URLs
-  - `public/robots.txt` sitemap URL
-  - `public/sitemap.xml` base URL
-
----
-
-If you are onboarding a new maintainer, start with:
-1. `src/types/lms.ts`
-2. `src/lib/lms/service.ts`
-3. `src/lib/lms/supabaseProvider.ts`
-4. `supabase/migrations/20260509190000_phase7_lms_schema_and_rls.sql`

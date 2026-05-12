@@ -1,10 +1,17 @@
 import { Card } from "@/components/ui/card";
 import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import SEO from "@/components/common/SEO";
+import { routes } from "@/routes/routeConfig";
 
 const TermsOfService = () => {
   return (
     <div className="min-h-screen bg-background py-12">
+      <SEO
+        title="Terms of Service | Tech Pulse Insider"
+        description="Read the terms governing access and use of Tech Pulse Insider, including LMS usage, payments, and community participation."
+        canonicalPath={routes.public.terms}
+      />
       <div className="container mx-auto px-4 max-w-4xl">
         {/* Header */}
         <div className="mb-12">
@@ -348,7 +355,7 @@ const TermsOfService = () => {
             <div className="bg-muted p-4 rounded-lg space-y-2 text-foreground">
               <p><strong>Tech Pulse Insider</strong></p>
               <p>📧 Email: <a href="mailto:legal@techpulseinsider.com" className="text-primary hover:underline">legal@techpulseinsider.com</a></p>
-              <p>💬 WhatsApp: <a href="https://wa.me/254715674828" className="text-primary hover:underline">+254 715 674 828</a></p>
+              <p>💬 WhatsApp: <a href="https://wa.me/254715674828" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">+254 715 674 828</a></p>
               <p>📍 Kenya</p>
             </div>
           </Card>

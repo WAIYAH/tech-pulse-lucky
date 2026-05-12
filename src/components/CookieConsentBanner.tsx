@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { routes } from "@/routes/routeConfig";
 
 type ConsentState = "accepted" | "declined" | null;
 
@@ -80,7 +81,7 @@ const CookieConsentBanner = () => {
             Decline
           </Button>
           <Button type="button" variant="ghost" asChild>
-            <Link to="/privacy-policy">Learn More</Link>
+            <Link to={routes.public.privacyPolicy}>Learn More</Link>
           </Button>
         </div>
       </div>

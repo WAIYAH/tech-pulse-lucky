@@ -12,6 +12,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import SEO from "@/components/common/SEO";
 import {
   Card,
   CardContent,
@@ -31,25 +32,10 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { lmsConfig } from "@/data/lmsConfig";
+import { webinars as webinarCatalog, type WebinarRecord } from "@/data/webinars";
+import { routes } from "@/routes/routeConfig";
 import { z } from "zod";
 import { emailSchema, transactionCodeSchema } from "@/lib/validation";
-
-type Webinar = {
-  id: number;
-  title: string;
-  slug: string;
-  date: string;
-  startsAt: string; // ISO date for countdown
-  time: string;
-  duration: string;
-  type: "free" | "paid";
-  price?: string;
-  priceAmount?: number;
-  spots: number;
-  description: string;
-  topics: string[];
-  bookingLink: string;
-};
 
 const useCountdown = (target: string) => {
   const targetMs = useMemo(() => new Date(target).getTime(), [target]);
@@ -85,104 +71,13 @@ const Webinars = () => {
 
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [waitlistOpen, setWaitlistOpen] = useState(false);
-  const [activeWebinar, setActiveWebinar] = useState<Webinar | null>(null);
+  const [activeWebinar, setActiveWebinar] = useState<WebinarRecord | null>(null);
   const [waitlistEmail, setWaitlistEmail] = useState("");
   const [txCode, setTxCode] = useState("");
   const [isSubmittingPayment, setIsSubmittingPayment] = useState(false);
   const [isSubmittingWaitlist, setIsSubmittingWaitlist] = useState(false);
 
-  const upcomingWebinars: Webinar[] = [
-    {
-      id: 1,
-      title: "Basics of IT & Safe Internet Browsing",
-      slug: "basics-of-it-safe-internet-browsing",
-      date: "March 13, 2026",
-      startsAt: "2026-03-13T19:00:00+03:00",
-      time: "07:00 PM - 09:00 PM EAT",
-      duration: "2 hours",
-      type: "free",
-      spots: 100,
-      description: "Computer basics, smartphones, internet fundamentals, online safety, scams, and digital hygiene.",
-      topics: ["Internet Fundamentals", "Online Safety", "Avoiding Scams", "Digital Hygiene"],
-      bookingLink: "https://forms.gle/nvioKLZqe4dN3ZTK8",
-    },
-    {
-      id: 2,
-      title: "Web Development Using HTML, CSS & JavaScript",
-      slug: "web-development-html-css-javascript",
-      date: "March 20, 2026",
-      startsAt: "2026-03-20T19:00:00+03:00",
-      time: "7:00 PM - 9:00 PM EAT",
-      duration: "3 Days, Friday to Sunday",
-      type: "paid",
-      price: "KES 300",
-      priceAmount: 300,
-      spots: 30,
-      description: "Practical frontend web development from scratch with real projects.",
-      topics: ["HTML Essentials", "CSS Styling", "JavaScript Fundamentals", "Real Projects"],
-      bookingLink: "https://forms.gle/nvioKLZqe4dN3ZTK8",
-    },
-    {
-      id: 3,
-      title: "AI & Machine Learning: Getting Started",
-      slug: "ai-machine-learning-getting-started",
-      date: "March 27, 2026",
-      startsAt: "2026-03-27T19:00:00+03:00",
-      time: "7:00 PM - 9:00 PM EAT",
-      duration: "2 hours",
-      type: "free",
-      spots: 75,
-      description: "Introduction to AI, ML concepts, real-world use cases, and beginner tools.",
-      topics: ["AI Basics", "ML Concepts", "Real-World Applications", "ML Tools"],
-      bookingLink: "https://forms.gle/nvioKLZqe4dN3ZTK8",
-    },
-    {
-      id: 4,
-      title: "Advanced Software Engineering (JavaScript + XAMPP & MySQL)",
-      slug: "advanced-software-engineering-javascript-xampp-mysql",
-      date: "April 22, 2026",
-      startsAt: "2026-04-22T19:00:00+03:00",
-      time: "7:00 PM - 9:00 PM EAT",
-      duration: "Full Day",
-      type: "paid",
-      price: "KES 500",
-      priceAmount: 500,
-      spots: 25,
-      description: "Backend development, databases, APIs, and full-stack workflows.",
-      topics: ["Backend Development", "Database Design", "API Development", "Full-Stack Workflows"],
-      bookingLink: "https://forms.gle/nvioKLZqe4dN3ZTK8",
-    },
-    {
-      id: 5,
-      title: "Digital Marketing for Tech Startups",
-      slug: "digital-marketing-for-tech-startups",
-      date: "May 20, 2026",
-      startsAt: "2026-05-20T19:00:00+03:00",
-      time: "7:00 PM - 9:00 PM EAT",
-      duration: "2 hours",
-      type: "free",
-      spots: 80,
-      description: "Branding, online growth, social media, and customer acquisition for tech products.",
-      topics: ["Tech Branding", "Social Media Strategy", "Customer Acquisition", "Growth Hacking"],
-      bookingLink: "https://forms.gle/nvioKLZqe4dN3ZTK8",
-    },
-    {
-      id: 6,
-      title: "DevOps & Cloud Computing",
-      slug: "devops-cloud-computing",
-      date: "July 29, 2026",
-      startsAt: "2026-07-29T19:00:00+03:00",
-      time: "7:00 PM - 9:00 PM EAT",
-      duration: "Full Day",
-      type: "paid",
-      price: "KES 800",
-      priceAmount: 800,
-      spots: 20,
-      description: "CI/CD, cloud fundamentals, deployment, and modern DevOps practices.",
-      topics: ["CI/CD Pipelines", "Cloud Fundamentals", "Deployment Strategies", "DevOps Tools"],
-      bookingLink: "https://forms.gle/nvioKLZqe4dN3ZTK8",
-    },
-  ];
+  const upcomingWebinars = webinarCatalog;
 
   const featured = useMemo(() => {
     const now = Date.now();
@@ -198,13 +93,13 @@ const Webinars = () => {
 
   const countdown = useCountdown(featured.startsAt);
 
-  const openCheckout = (w: Webinar) => {
+  const openCheckout = (w: WebinarRecord) => {
     setActiveWebinar(w);
     setTxCode("");
     setCheckoutOpen(true);
   };
 
-  const openWaitlist = (w: Webinar) => {
+  const openWaitlist = (w: WebinarRecord) => {
     setActiveWebinar(w);
     setWaitlistEmail("");
     setWaitlistOpen(true);
@@ -267,6 +162,12 @@ const Webinars = () => {
 
   return (
     <div className="min-h-screen py-20">
+      <SEO
+        title="Webinars | Tech Pulse Insider"
+        description="Join live and practical webinars on web development, AI, cybersecurity, and digital skills with Get Techy With Lucky."
+        canonicalPath={routes.public.webinars}
+        keywords="tech webinars Kenya, live coding sessions, AI webinars for beginners, cybersecurity webinar, Tech Pulse Insider webinars"
+      />
       <div className="container mx-auto px-4">
         {/* Header */}
         <motion.div
@@ -385,7 +286,7 @@ const Webinars = () => {
                     </div>
                     <div className="flex items-center gap-2 text-muted-foreground">
                       <Users size={16} className="text-primary" />
-                      <span>{webinar.spots} spots available</span>
+                      <span>{webinar.spots.available} spots available</span>
                     </div>
                   </div>
 
@@ -429,6 +330,14 @@ const Webinars = () => {
                     >
                       Join Waitlist
                     </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="w-full"
+                      onClick={() => navigate(routes.public.event(webinar.slug))}
+                    >
+                      View Event Details
+                    </Button>
                   </div>
                 </CardFooter>
               </Card>
@@ -449,7 +358,11 @@ const Webinars = () => {
             your specific needs and get a personalized learning experience.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button variant="hero" size="lg" onClick={() => navigate("/custom-training")}>
+            <Button
+              variant="hero"
+              size="lg"
+              onClick={() => navigate(routes.public.customTraining)}
+            >
               Request Custom Training
             </Button>
             <Button variant="outline" size="lg" onClick={() => openWaitlist(featured)}>

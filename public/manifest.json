@@ -1,0 +1,22 @@
+{
+  "name": "Tech Pulse Insider",
+  "short_name": "Tech Pulse",
+  "description": "Get Techy With Lucky: digital skills, LMS courses, webinars, and tech education in Kenya.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0f172a",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "16x16 32x32 48x48",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/og-cover.webp",
+      "sizes": "512x512",
+      "type": "image/webp",
+      "purpose": "any"
+    }
+  ]
+}

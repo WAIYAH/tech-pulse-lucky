@@ -42,7 +42,9 @@ import learnerGrace from "@/assets/learner-grace.svg";
 import learnerDavid from "@/assets/learner-david.svg";
 import learnerFaith from "@/assets/learner-faith.svg";
 import learnerKevin from "@/assets/learner-kevin.svg";
+import SEO from "@/components/common/SEO";
 import { getSortedArticles } from "@/content/articles";
+import { routes } from "@/routes/routeConfig";
 
 const Home = () => {
   const latestArticles = getSortedArticles().slice(0, 3);
@@ -302,6 +304,12 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO
+        title="Tech Pulse Insider | Tech Education in Kenya"
+        description="Learn web development, AI, cybersecurity, and digital skills through practical online courses, articles, and webinars with Get Techy With Lucky."
+        canonicalPath={routes.public.home}
+        keywords="Tech education in Kenya, digital skills training, learn web development, AI and machine learning for beginners, cybersecurity and safe browsing, Get Techy With Lucky, Tech Pulse Insider, online tech courses in Kenya"
+      />
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-background via-primary/5 to-accent/10">
         <div className="absolute inset-0 opacity-20">
@@ -350,13 +358,13 @@ const Home = () => {
 
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button variant="hero" size="lg" asChild>
-                  <Link to="/courses">Browse Courses</Link>
+                  <Link to={routes.public.courses}>Browse Courses</Link>
                 </Button>
                 <Button variant="outline" size="lg" asChild>
-                  <Link to="/webinars">Book a Masterclass</Link>
+                  <Link to={routes.public.webinars}>Book a Masterclass</Link>
                 </Button>
                 <Button variant="accent" size="lg" asChild>
-                  <Link to="/community">Join Community</Link>
+                  <Link to={routes.public.community}>Join Community</Link>
                 </Button>
               </div>
 
@@ -588,7 +596,7 @@ const Home = () => {
                 </div>
                 <h3 className="text-lg font-semibold mb-2">{path.title}</h3>
                 <p className="text-sm text-muted-foreground mb-4 flex-1">{path.description}</p>
-                <Link to="/courses" className="text-sm font-semibold text-primary hover:underline">
+                <Link to={routes.public.courses} className="text-sm font-semibold text-primary hover:underline">
                   Explore
                 </Link>
               </motion.div>
@@ -597,7 +605,7 @@ const Home = () => {
 
           <div className="text-center mt-10">
             <Button variant="hero" size="lg" asChild>
-              <Link to="/courses">View All Courses</Link>
+              <Link to={routes.public.courses}>View All Courses</Link>
             </Button>
           </div>
         </div>
@@ -644,7 +652,7 @@ const Home = () => {
 
           <div className="text-center mt-10">
             <Button variant="hero" size="lg" asChild>
-              <Link to="/register">Start Learning Free</Link>
+              <Link to={routes.auth.register}>Start Learning Free</Link>
             </Button>
           </div>
         </div>
@@ -745,7 +753,7 @@ const Home = () => {
 
           <div className="text-center">
             <Button variant="outline" size="lg" asChild>
-              <Link to="/tips">View All Tips and Articles</Link>
+              <Link to={routes.public.articles}>View All Tips and Articles</Link>
             </Button>
           </div>
         </div>
@@ -795,7 +803,7 @@ const Home = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button variant="accent" size="lg" asChild>
-                <Link to="/community">Join Community Now</Link>
+                <Link to={routes.public.community}>Join Community Now</Link>
               </Button>
               <Button
                 variant="outline"
@@ -803,7 +811,7 @@ const Home = () => {
                 className="bg-white/10 border-white text-white hover:bg-white hover:text-primary"
                 asChild
               >
-                <Link to="/webinars">Explore Webinars</Link>
+                <Link to={routes.public.webinars}>Explore Webinars</Link>
               </Button>
             </div>
           </motion.div>

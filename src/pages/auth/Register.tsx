@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { routes } from "@/routes/routeConfig";
 
 const registerSchema = z
   .object({
@@ -120,16 +121,16 @@ const Register = () => {
     });
 
     if (result.user?.role === "admin") {
-      navigate("/admin", { replace: true });
+      navigate(routes.admin.root, { replace: true });
       return;
     }
 
     if (result.user) {
-      navigate("/dashboard", { replace: true });
+      navigate(routes.student.overview, { replace: true });
       return;
     }
 
-    navigate("/login", { replace: true });
+    navigate(routes.auth.login, { replace: true });
   };
 
   const handleSocialSignIn = async (provider: SocialProvider) => {
@@ -331,7 +332,7 @@ const Register = () => {
                 <p className="text-sm text-muted-foreground">
                   Already registered?{" "}
                   <Link
-                    to="/login"
+                    to={routes.auth.login}
                     className="font-semibold text-primary hover:underline"
                   >
                     Login here

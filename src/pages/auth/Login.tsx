@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { routes } from "@/routes/routeConfig";
 
 const loginSchema = z.object({
   email: z.string().email("Enter a valid email address."),
@@ -69,9 +70,9 @@ const Login = () => {
 
   const locationState = (location.state as
     | { from?: string; reason?: string }
-    | null) ?? { from: "/dashboard" };
+    | null) ?? {};
 
-  const from = locationState.from ?? "/dashboard";
+  const from = locationState.from ?? routes.student.overview;
   const isBusy = isSubmitting || socialProvider !== null;
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -105,8 +106,17 @@ const Login = () => {
       description: result.message,
     });
 
-    const fallbackTarget = result.user?.role === "admin" ? "/admin" : "/dashboard";
-    const target = from === "/login" || from === "/register" ? fallbackTarget : from;
+    if (result.user?.role === "admin") {
+      navigate(routes.admin.root, { replace: true });
+      return;
+    }
+
+    const target =
+      from === routes.auth.login ||
+      from === routes.auth.register ||
+      from === routes.auth.forgotPassword
+        ? routes.student.overview
+        : from;
     navigate(target, { replace: true });
   };
 
@@ -299,13 +309,13 @@ const Login = () => {
                 </form>
 
                 <div className="flex flex-col gap-2 text-sm">
-                  <Link to="/forgot-password" className="text-primary hover:underline">
+                  <Link to={routes.auth.forgotPassword} className="text-primary hover:underline">
                     Forgot password?
                   </Link>
                   <p className="text-muted-foreground">
                     New learner?{" "}
                     <Link
-                      to="/register"
+                      to={routes.auth.register}
                       className="font-semibold text-primary hover:underline"
                     >
                       Create an account

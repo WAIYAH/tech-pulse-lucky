@@ -3,6 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { Search, Calendar, Clock, Filter, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import SEO from "@/components/common/SEO";
 import {
   allArticles,
   getAllTags,
@@ -11,6 +12,7 @@ import {
   getSortedArticles,
 } from "@/content/articles";
 import { useState, useMemo } from "react";
+import { routes } from "@/routes/routeConfig";
 
 const Articles = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -78,6 +80,12 @@ const Articles = () => {
 
   return (
     <div className="min-h-screen py-20 bg-gradient-to-b from-background via-background to-accent/5">
+      <SEO
+        title="Articles | Tech Pulse Insider"
+        description="Read practical guides on web development, AI, cybersecurity, and digital growth for beginner and intermediate learners in Kenya."
+        canonicalPath={routes.public.articles}
+        keywords="tech articles Kenya, learn web development, cybersecurity guides, AI for beginners, Tech Pulse Insider articles"
+      />
       <div className="container mx-auto px-4">
         {/* Header */}
         <motion.div
@@ -240,7 +248,7 @@ const Articles = () => {
                     </div>
 
                     <Link
-                      to={`/articles/${article.slug}`}
+                      to={routes.public.article(article.slug)}
                       className="inline-block"
                     >
                       <Button variant="ghost" size="sm" className="gap-2 group/btn">
@@ -307,12 +315,12 @@ const Articles = () => {
             and support.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/webinars">
+            <Link to={routes.public.webinars}>
               <Button variant="hero" size="lg">
                 Explore Webinars
               </Button>
             </Link>
-            <Link to="/custom-training">
+            <Link to={routes.public.customTraining}>
               <Button variant="outline" size="lg">
                 Custom Training
               </Button>

@@ -8,6 +8,7 @@ import CourseProgress from "@/components/lms/CourseProgress";
 import { useAuth } from "@/contexts/AuthContext";
 import { lmsProvider } from "@/lib/lms";
 import { getCourseById } from "@/data/courses";
+import { routes } from "@/routes/routeConfig";
 import type { LmsEnrollment, LmsPayment } from "@/types/lms";
 
 const MyCourses = () => {
@@ -59,7 +60,7 @@ const MyCourses = () => {
               </p>
             </div>
             <Button variant="outline" asChild>
-              <Link to="/courses">Browse More Courses</Link>
+              <Link to={routes.public.courses}>Browse More Courses</Link>
             </Button>
           </div>
 
@@ -76,7 +77,7 @@ const MyCourses = () => {
                     You have not enrolled in any course yet.
                   </p>
                   <Button asChild>
-                    <Link to="/courses">Explore Courses</Link>
+                    <Link to={routes.public.courses}>Explore Courses</Link>
                   </Button>
                 </div>
               ) : (
@@ -153,4 +154,3 @@ const MyCourses = () => {
 };
 
 export default MyCourses;
-

@@ -5,11 +5,13 @@ import { Clock3, Layers3, User2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import SEO from "@/components/common/SEO";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { lmsProvider } from "@/lib/lms";
 import { getCourseBySlug } from "@/data/courses";
 import { lmsConfig, formatKesAmount } from "@/data/lmsConfig";
+import { routes } from "@/routes/routeConfig";
 import type { EnrollmentAccessStatus, LmsPayment } from "@/types/lms";
 
 const CourseDetails = () => {
@@ -59,13 +61,19 @@ const CourseDetails = () => {
   if (!course) {
     return (
       <div className="min-h-screen py-20">
+        <SEO
+          title="Course Not Found | Tech Pulse Insider"
+          description="The requested course could not be found."
+          canonicalPath={routes.public.courses}
+          noindex
+        />
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-3xl font-bold mb-4">Course Not Found</h1>
           <p className="text-muted-foreground mb-6">
             The requested course could not be found.
           </p>
           <Button asChild>
-            <Link to="/courses">Back to Courses</Link>
+            <Link to={routes.public.courses}>Back to Courses</Link>
           </Button>
         </div>
       </div>
@@ -74,7 +82,7 @@ const CourseDetails = () => {
 
   const handleEnrollFree = async () => {
     if (!isAuthenticated || !user) {
-      navigate("/login", { state: { from: `/courses/${course.slug}` } });
+      navigate(routes.auth.login, { state: { from: routes.public.course(course.slug) } });
       return;
     }
 
@@ -85,7 +93,7 @@ const CourseDetails = () => {
         title: "Enrollment successful",
         description: "You can now access this free course from your dashboard.",
       });
-      navigate("/dashboard");
+      navigate(routes.student.myCourses);
     } catch (error) {
       toast({
         title: "Enrollment failed",
@@ -100,15 +108,23 @@ const CourseDetails = () => {
 
   const handlePaidCTA = () => {
     if (!isAuthenticated) {
-      navigate("/login", { state: { from: `/courses/${course.slug}` } });
+      navigate(routes.auth.login, { state: { from: routes.public.course(course.slug) } });
       return;
     }
 
-    navigate(`/payment/${course.slug}`);
+    navigate(routes.student.payment(course.slug));
   };
 
   return (
     <div className="min-h-screen py-16 bg-gradient-to-b from-background via-background to-primary/5">
+      <SEO
+        title={`${course.title} | Tech Pulse Insider Course`}
+        description={course.shortDescription}
+        canonicalPath={routes.public.course(course.slug)}
+        image={course.imageUrl}
+        imageAlt={course.title}
+        keywords={`${course.category}, ${course.level}, ${course.instructor}, online tech courses in Kenya`}
+      />
       <div className="container mx-auto px-4">
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
           <div className="grid lg:grid-cols-3 gap-8">
@@ -222,7 +238,7 @@ const CourseDetails = () => {
                           Already Enrolled
                         </Button>
                         <Button variant="outline" className="w-full" asChild>
-                          <Link to="/dashboard">Open Dashboard</Link>
+                          <Link to={routes.student.myCourses}>Open Dashboard</Link>
                         </Button>
                       </div>
                     ) : (
@@ -242,7 +258,9 @@ const CourseDetails = () => {
                   ) : accessStatus === "approved" ? (
                     <div className="space-y-2">
                       <Button variant="hero" className="w-full" asChild>
-                        <Link to="/dashboard">Access approved. Continue learning.</Link>
+                        <Link to={routes.student.learn(course.slug)}>
+                          Access approved. Continue learning.
+                        </Link>
                       </Button>
                     </div>
                   ) : accessStatus === "pending_payment" ? (

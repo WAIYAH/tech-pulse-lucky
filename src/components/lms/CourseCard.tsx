@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { formatKesAmount } from "@/data/lmsConfig";
+import { routes } from "@/routes/routeConfig";
 import type { LmsCourse } from "@/types/lms";
 
 interface CourseCardProps {
@@ -52,7 +53,7 @@ const CourseCard = ({ course }: CourseCardProps) => {
           {course.isFree ? "Free" : formatKesAmount(course.price)}
         </p>
         <Button asChild>
-          <Link to={`/courses/${course.slug}`}>View Details</Link>
+          <Link to={routes.public.course(course.slug)}>View Details</Link>
         </Button>
       </CardFooter>
     </Card>
@@ -60,4 +61,3 @@ const CourseCard = ({ course }: CourseCardProps) => {
 };
 
 export default CourseCard;
-

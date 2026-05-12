@@ -5,7 +5,9 @@ Allow: /
 Disallow: /admin
 Disallow: /admin/
 Disallow: /dashboard
+Disallow: /dashboard/
 Disallow: /my-courses
+Disallow: /my-courses/
 Disallow: /learn/
 Disallow: /payment/
 Disallow: /login

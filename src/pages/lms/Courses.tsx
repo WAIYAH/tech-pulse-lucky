@@ -4,9 +4,11 @@ import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import SEO from "@/components/common/SEO";
 import CourseCard from "@/components/lms/CourseCard";
 import { lmsProvider } from "@/lib/lms";
 import { getCourseLevels } from "@/data/courses";
+import { routes } from "@/routes/routeConfig";
 import type { CourseLevel, LmsCourse, LmsCourseFilters } from "@/types/lms";
 
 type PricingFilter = "all" | "free" | "paid";
@@ -72,6 +74,12 @@ const Courses = () => {
 
   return (
     <div className="min-h-screen py-16 bg-gradient-to-b from-background via-background to-accent/10">
+      <SEO
+        title="Courses | Tech Pulse Insider LMS"
+        description="Explore beginner to advanced online tech courses in Kenya, including free digital literacy classes and paid practical masterclasses."
+        canonicalPath={routes.public.courses}
+        keywords="online tech courses in Kenya, LMS for beginner tech learners, learn web development, digital skills training"
+      />
       <div className="container mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
@@ -170,4 +178,3 @@ const Courses = () => {
 };
 
 export default Courses;
-

@@ -4,23 +4,14 @@ import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
+import { publicNavLinks, routes } from "@/routes/routeConfig";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const { isAuthenticated, user, logout } = useAuth();
 
-  const dashboardPath = user?.role === "admin" ? "/admin" : "/dashboard";
-
-  const navLinks = [
-    { name: "Home", path: "/" },
-    { name: "Courses", path: "/courses" },
-    { name: "Webinars", path: "/webinars" },
-    { name: "Tech Tips", path: "/tips" },
-    { name: "Custom Training", path: "/custom-training" },
-    { name: "About", path: "/about" },
-    { name: "Contact", path: "/contact" },
-  ];
+  const dashboardPath = user?.role === "admin" ? routes.admin.root : routes.student.overview;
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -33,7 +24,7 @@ const Navbar = () => {
       <div className="container mx-auto px-4 py-3">
         <div className="flex justify-between items-center">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
+          <Link to={routes.public.home} className="flex items-center space-x-2">
             <motion.div
               whileHover={{ scale: 1.05 }}
               className="font-bold text-xl md:text-2xl bg-gradient-primary bg-clip-text text-transparent"
@@ -44,7 +35,7 @@ const Navbar = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-6">
-            {navLinks.map((link) => (
+            {publicNavLinks.map((link) => (
               <Link
                 key={link.path}
                 to={link.path}
@@ -54,7 +45,7 @@ const Navbar = () => {
                     : "text-muted-foreground"
                 }`}
               >
-                {link.name}
+                {link.label}
                 {isActive(link.path) && (
                   <motion.div
                     layoutId="navbar-indicator"
@@ -76,7 +67,7 @@ const Navbar = () => {
               </>
             ) : (
               <Button variant="hero" size="sm" asChild>
-                <Link to="/register">Get Started</Link>
+                <Link to={routes.auth.register}>Get Started</Link>
               </Button>
             )}
           </div>
@@ -106,7 +97,7 @@ const Navbar = () => {
               className="md:hidden mt-4 pb-4"
             >
               <div className="flex flex-col space-y-3 rounded-2xl border border-border bg-card p-3">
-                {navLinks.map((link) => (
+                {publicNavLinks.map((link) => (
                   <Link
                     key={link.path}
                     to={link.path}
@@ -117,7 +108,7 @@ const Navbar = () => {
                         : "hover:bg-secondary text-foreground"
                     }`}
                   >
-                    {link.name}
+                    {link.label}
                   </Link>
                 ))}
                 {isAuthenticated ? (
@@ -140,7 +131,7 @@ const Navbar = () => {
                   </>
                 ) : (
                   <Button variant="hero" className="w-full" asChild>
-                    <Link to="/register" onClick={() => setIsOpen(false)}>
+                    <Link to={routes.auth.register} onClick={() => setIsOpen(false)}>
                       Get Started
                     </Link>
                   </Button>

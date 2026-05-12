@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { routes } from "@/routes/routeConfig";
 
 interface AuthRouteProps {
   children: ReactNode;
@@ -21,7 +22,7 @@ const AuthRoute = ({ children }: AuthRouteProps) => {
   }
 
   if (isAuthenticated) {
-    const target = user?.role === "admin" ? "/admin" : "/dashboard";
+    const target = user?.role === "admin" ? routes.admin.root : routes.student.overview;
     return <Navigate to={target} replace />;
   }
 
@@ -29,4 +30,3 @@ const AuthRoute = ({ children }: AuthRouteProps) => {
 };
 
 export default AuthRoute;
-

@@ -2,6 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
@@ -17,7 +18,6 @@ import ProtectedRoute from "./components/lms/ProtectedRoute";
 import AdminRoute from "./components/lms/AdminRoute";
 import { AuthProvider } from "./contexts/AuthContext";
 import Home from "./pages/Home";
-import Tips from "./pages/Tips";
 import Articles from "./pages/Articles";
 import ArticleDetail from "./pages/ArticleDetail";
 import Webinars from "./pages/Webinars";
@@ -33,39 +33,63 @@ import EditorialPolicy from "./pages/EditorialPolicy";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
 import ForgotPassword from "./pages/auth/ForgotPassword";
-import StudentDashboard from "./pages/lms/StudentDashboard";
-import MyCourses from "./pages/lms/MyCourses";
 import LearnCourse from "./pages/lms/LearnCourse";
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import AdminPayments from "./pages/admin/AdminPayments";
-import AdminCourses from "./pages/admin/AdminCourses";
-import AdminUsers from "./pages/admin/AdminUsers";
 import Courses from "./pages/lms/Courses";
 import CourseDetails from "./pages/lms/CourseDetails";
 import PaymentPage from "./pages/lms/PaymentPage";
+import LMSLanding from "./pages/lms/LMSLanding";
+import AdminLayout from "./pages/admin/system/AdminLayout";
+import AdminOverviewPage from "./pages/admin/system/AdminOverviewPage";
+import AdminStudentsPage from "./pages/admin/system/AdminStudentsPage";
+import AdminCoursesPage from "./pages/admin/system/AdminCoursesPage";
+import AdminPaymentsPage from "./pages/admin/system/AdminPaymentsPage";
+import AdminFinancePage from "./pages/admin/system/AdminFinancePage";
+import AdminContentPage from "./pages/admin/system/AdminContentPage";
+import AdminLmsControlPage from "./pages/admin/system/AdminLmsControlPage";
+import AdminSettingsPage from "./pages/admin/system/AdminSettingsPage";
+import AdminWebinarsPage from "./pages/admin/system/AdminWebinarsPage";
+import AdminArticlesPage from "./pages/admin/system/AdminArticlesPage";
+import { StudentPortalProvider } from "./pages/student/system/StudentPortalContext";
+import StudentPortalLayout from "./pages/student/system/StudentPortalLayout";
+import StudentOverviewPage from "./pages/student/system/StudentOverviewPage";
+import StudentProgressPage from "./pages/student/system/StudentProgressPage";
+import StudentCoursesPage from "./pages/student/system/StudentCoursesPage";
+import StudentPaymentsPage from "./pages/student/system/StudentPaymentsPage";
+import StudentAssignmentsPage from "./pages/student/system/StudentAssignmentsPage";
+import StudentCertificatesPage from "./pages/student/system/StudentCertificatesPage";
+import StudentWebinarsPage from "./pages/student/system/StudentWebinarsPage";
+import StudentResourcesPage from "./pages/student/system/StudentResourcesPage";
+import StudentSupportPage from "./pages/student/system/StudentSupportPage";
+import StudentProfilePage from "./pages/student/system/StudentProfilePage";
+import StudentSettingsPage from "./pages/student/system/StudentSettingsPage";
+import { routes } from "./routes/routeConfig";
 
 const queryClient = new QueryClient();
 
 const AppRoutes = () => (
   <Routes>
-    <Route path="/" element={<Home />} />
-    <Route path="/tips" element={<Tips />} />
-    <Route path="/articles" element={<Articles />} />
+    <Route path={routes.public.home} element={<Home />} />
+    <Route path={routes.public.tipsLegacy} element={<Navigate to={routes.public.articles} replace />} />
+    <Route path={routes.public.articles} element={<Articles />} />
     <Route path="/articles/:slug" element={<ArticleDetail />} />
-    <Route path="/webinars" element={<Webinars />} />
+    <Route path={routes.public.webinars} element={<Webinars />} />
     <Route path="/events/:eventSlug" element={<EventDetails />} />
-    <Route path="/custom-training" element={<CustomTraining />} />
-    <Route path="/community" element={<Community />} />
-    <Route path="/about" element={<About />} />
-    <Route path="/contact" element={<Contact />} />
-    <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-    <Route path="/terms-of-service" element={<TermsOfService />} />
-    <Route path="/editorial-policy" element={<EditorialPolicy />} />
-    <Route path="/lms" element={<Navigate to="/courses" replace />} />
-    <Route path="/courses" element={<Courses />} />
+    <Route path={routes.public.customTraining} element={<CustomTraining />} />
+    <Route path={routes.public.community} element={<Community />} />
+    <Route path={routes.public.about} element={<About />} />
+    <Route path={routes.public.contact} element={<Contact />} />
+    <Route path={routes.public.privacyPolicy} element={<PrivacyPolicy />} />
+    <Route path={routes.public.terms} element={<TermsOfService />} />
+    <Route
+      path={routes.public.termsOfServiceLegacy}
+      element={<Navigate to={routes.public.terms} replace />}
+    />
+    <Route path={routes.public.editorialPolicy} element={<EditorialPolicy />} />
+    <Route path={routes.public.lms} element={<LMSLanding />} />
+    <Route path={routes.public.courses} element={<Courses />} />
     <Route path="/courses/:slug" element={<CourseDetails />} />
     <Route
-      path="/login"
+      path={routes.auth.login}
       element={
         <AuthRoute>
           <Login />
@@ -73,7 +97,7 @@ const AppRoutes = () => (
       }
     />
     <Route
-      path="/register"
+      path={routes.auth.register}
       element={
         <AuthRoute>
           <Register />
@@ -81,7 +105,7 @@ const AppRoutes = () => (
       }
     />
     <Route
-      path="/forgot-password"
+      path={routes.auth.forgotPassword}
       element={
         <AuthRoute>
           <ForgotPassword />
@@ -89,18 +113,35 @@ const AppRoutes = () => (
       }
     />
     <Route
-      path="/dashboard"
+      path={routes.student.dashboard}
       element={
         <ProtectedRoute>
-          <StudentDashboard />
+          <StudentPortalProvider>
+            <StudentPortalLayout />
+          </StudentPortalProvider>
         </ProtectedRoute>
       }
-    />
+    >
+      <Route index element={<Navigate to={routes.student.overview} replace />} />
+      <Route path="overview" element={<StudentOverviewPage />} />
+      <Route path="progress" element={<StudentProgressPage />} />
+      <Route path="courses" element={<Navigate to={routes.student.myCourses} replace />} />
+      <Route path="my-courses" element={<StudentCoursesPage />} />
+      <Route path="learn/:courseSlug" element={<LearnCourse />} />
+      <Route path="payments" element={<StudentPaymentsPage />} />
+      <Route path="assignments" element={<StudentAssignmentsPage />} />
+      <Route path="certificates" element={<StudentCertificatesPage />} />
+      <Route path="webinars" element={<StudentWebinarsPage />} />
+      <Route path="resources" element={<StudentResourcesPage />} />
+      <Route path="support" element={<StudentSupportPage />} />
+      <Route path="profile" element={<StudentProfilePage />} />
+      <Route path="settings" element={<StudentSettingsPage />} />
+    </Route>
     <Route
-      path="/my-courses"
+      path={routes.legacy.myCourses}
       element={
         <ProtectedRoute>
-          <MyCourses />
+          <Navigate to={routes.student.myCourses} replace />
         </ProtectedRoute>
       }
     />
@@ -121,37 +162,26 @@ const AppRoutes = () => (
       }
     />
     <Route
-      path="/admin"
+      path={routes.admin.root}
       element={
         <AdminRoute>
-          <AdminDashboard />
+          <AdminLayout />
         </AdminRoute>
       }
-    />
-    <Route
-      path="/admin/payments"
-      element={
-        <AdminRoute>
-          <AdminPayments />
-        </AdminRoute>
-      }
-    />
-    <Route
-      path="/admin/courses"
-      element={
-        <AdminRoute>
-          <AdminCourses />
-        </AdminRoute>
-      }
-    />
-    <Route
-      path="/admin/users"
-      element={
-        <AdminRoute>
-          <AdminUsers />
-        </AdminRoute>
-      }
-    />
+    >
+      <Route index element={<AdminOverviewPage />} />
+      <Route path="students" element={<AdminStudentsPage />} />
+      <Route path="courses" element={<AdminCoursesPage />} />
+      <Route path="payments" element={<AdminPaymentsPage />} />
+      <Route path="finance" element={<AdminFinancePage />} />
+      <Route path="webinars" element={<AdminWebinarsPage />} />
+      <Route path="articles" element={<AdminArticlesPage />} />
+      <Route path="content" element={<AdminContentPage />} />
+      <Route path="lms-control" element={<AdminLmsControlPage />} />
+      <Route path="settings" element={<AdminSettingsPage />} />
+      <Route path="users" element={<Navigate to={routes.admin.students} replace />} />
+      <Route path="dashboard" element={<Navigate to={routes.admin.root} replace />} />
+    </Route>
     <Route path="*" element={<NotFound />} />
   </Routes>
 );
@@ -159,14 +189,38 @@ const AppRoutes = () => (
 const AppShell = () => {
   const location = useLocation();
   const path = location.pathname;
+  const isAdminRoute = path.startsWith("/admin");
+  const isStudentPortalRoute = path.startsWith("/dashboard");
+  const isPortalRoute = isAdminRoute || isStudentPortalRoute;
+  const isAuthRoute =
+    path === routes.auth.login ||
+    path === routes.auth.register ||
+    path === routes.auth.forgotPassword;
+
+  useEffect(() => {
+    let robots = document.head.querySelector<HTMLMetaElement>('meta[name="robots"]');
+    if (!robots) {
+      robots = document.createElement("meta");
+      robots.setAttribute("name", "robots");
+      document.head.appendChild(robots);
+    }
+
+    if (isPortalRoute || isAuthRoute || path.startsWith("/learn/") || path.startsWith("/payment/")) {
+      robots.setAttribute("content", "noindex, nofollow, max-image-preview:none");
+      return;
+    }
+
+    robots.setAttribute(
+      "content",
+      "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1",
+    );
+  }, [isAuthRoute, isPortalRoute, path]);
 
   const hideShowcaseSection =
-    path === "/login" ||
-    path === "/register" ||
-    path === "/forgot-password" ||
-    path.startsWith("/admin") ||
-    path.startsWith("/dashboard") ||
-    path.startsWith("/my-courses") ||
+    isAuthRoute ||
+    isPortalRoute ||
+    path.startsWith(routes.student.dashboard) ||
+    path.startsWith(routes.legacy.myCourses) ||
     path.startsWith("/learn/") ||
     path.startsWith("/payment/");
 
@@ -181,15 +235,15 @@ const AppShell = () => {
       >
         Skip to main content
       </a>
-      <Navbar />
+      {!isPortalRoute && <Navbar />}
       <main id="main-content" className="relative z-10 flex-grow">
         <AppRoutes />
       </main>
-      {!hideShowcaseSection && <GlobalShowcaseSection />}
-      <Footer />
-      <BackToTopButton />
-      <WhatsAppButton />
-      <CookieConsentBanner />
+      {!isPortalRoute && !hideShowcaseSection && <GlobalShowcaseSection />}
+      {!isPortalRoute && <Footer />}
+      {!isPortalRoute && <BackToTopButton />}
+      {!isPortalRoute && <WhatsAppButton />}
+      {!isPortalRoute && <CookieConsentBanner />}
     </div>
   );
 };

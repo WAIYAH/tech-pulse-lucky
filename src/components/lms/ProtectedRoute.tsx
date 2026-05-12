@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import type { LmsRole } from "@/types/lms";
 import { useAuth } from "@/contexts/AuthContext";
+import { routes } from "@/routes/routeConfig";
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -30,7 +31,7 @@ const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) => {
   if (!isAuthenticated || !user) {
     return (
       <Navigate
-        to="/login"
+        to={routes.auth.login}
         replace
         state={{
           from: `${location.pathname}${location.search}`,
@@ -41,7 +42,8 @@ const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) => {
   }
 
   if (allowedRoles && !allowedRoles.includes(user.role)) {
-    const fallbackRoute = user.role === "admin" ? "/admin" : "/dashboard";
+    const fallbackRoute =
+      user.role === "admin" ? routes.admin.root : routes.student.overview;
     return <Navigate to={fallbackRoute} replace />;
   }
 

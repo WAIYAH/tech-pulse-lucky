@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { lmsProvider } from "@/lib/lms";
 import { getCourseById } from "@/data/courses";
+import { routes } from "@/routes/routeConfig";
 import type { LmsEnrollment, LmsPayment } from "@/types/lms";
 
 const StudentDashboard = () => {
@@ -82,10 +83,10 @@ const StudentDashboard = () => {
 
         <div className="flex flex-wrap gap-3 mb-8">
           <Button asChild>
-            <Link to="/my-courses">Open My Courses</Link>
+            <Link to={routes.student.myCourses}>Open My Courses</Link>
           </Button>
           <Button variant="outline" asChild>
-            <Link to="/courses">Browse Courses</Link>
+            <Link to={routes.public.courses}>Browse Courses</Link>
           </Button>
         </div>
 
@@ -153,7 +154,7 @@ const StudentDashboard = () => {
                   options.
                 </p>
                 <Button variant="hero" asChild>
-                  <Link to="/webinars">Explore Trainings</Link>
+                  <Link to={routes.public.webinars}>Explore Trainings</Link>
                 </Button>
               </div>
             ) : (

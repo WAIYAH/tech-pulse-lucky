@@ -19,12 +19,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useState } from "react";
 import { z } from "zod";
+import SEO from "@/components/common/SEO";
 import heroImage from "@/assets/hero-image.webp";
 import heroImageAlt from "@/assets/hero-image-alt.webp";
 import showcaseCourse from "@/assets/global-showcase-course.webp";
 import showcaseAnalytics from "@/assets/global-showcase-analytics.webp";
 import showcaseCoach from "@/assets/global-showcase-coach.webp";
 import luckyProfile from "@/assets/lucky-profile-full.webp";
+import { routes } from "@/routes/routeConfig";
 import {
   containsUnsafeContent,
   createSafeTextSchema,
@@ -225,6 +227,12 @@ Additional Notes: ${validation.data.notes || "N/A"}
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-accent/5">
+      <SEO
+        title="Custom Training | Tech Pulse Insider"
+        description="Request tailored digital skills training for your team in web development, AI, cybersecurity, and modern tech workflows."
+        canonicalPath={routes.public.customTraining}
+        keywords="custom tech training Kenya, corporate tech training Nairobi, cybersecurity training, AI training for teams"
+      />
       {/* Hero */}
       <section className="relative overflow-hidden py-16 md:py-24 px-4">
         <div className="absolute inset-0 opacity-20">

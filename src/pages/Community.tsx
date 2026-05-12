@@ -2,6 +2,8 @@ import { motion } from "framer-motion";
 import { MessageCircle, Facebook, Instagram, Users, Heart, Star, Trophy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import SEO from "@/components/common/SEO";
+import { routes } from "@/routes/routeConfig";
 
 const Community = () => {
   const testimonials = [
@@ -36,6 +38,11 @@ const Community = () => {
 
   return (
     <div className="min-h-screen py-20">
+      <SEO
+        title="Community | Tech Pulse Insider"
+        description="Join the Tech Pulse Insider community to learn, network, and grow with digital skills learners and professionals across Kenya."
+        canonicalPath={routes.public.community}
+      />
       <div className="container mx-auto px-4">
         {/* Header */}
         <motion.div

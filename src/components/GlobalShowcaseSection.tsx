@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import globalShowcaseCourse from "@/assets/global-showcase-course.webp";
 import globalShowcaseAnalytics from "@/assets/global-showcase-analytics.webp";
 import globalShowcaseCoach from "@/assets/global-showcase-coach.webp";
+import { routes } from "@/routes/routeConfig";
 
 const showcaseItems = [
   {
@@ -71,10 +72,10 @@ const GlobalShowcaseSection = () => {
 
           <div className="mt-10 flex flex-col sm:flex-row justify-center gap-4">
             <Button variant="hero" size="lg" asChild>
-              <Link to="/courses">Explore Courses</Link>
+              <Link to={routes.public.courses}>Explore Courses</Link>
             </Button>
             <Button variant="outline" size="lg" asChild>
-              <Link to="/custom-training">Request Custom Training</Link>
+              <Link to={routes.public.customTraining}>Request Custom Training</Link>
             </Button>
           </div>
         </div>

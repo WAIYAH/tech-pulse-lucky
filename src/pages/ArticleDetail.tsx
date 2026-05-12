@@ -12,8 +12,10 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import SEO from "@/components/common/SEO";
 import { getArticleBySlug, getRelatedArticles } from "@/content/articles";
 import { useEffect } from "react";
+import { routes } from "@/routes/routeConfig";
 
 const ArticleDetail = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -29,12 +31,18 @@ const ArticleDetail = () => {
   if (!article) {
     return (
       <div className="min-h-screen py-20 flex items-center justify-center">
+        <SEO
+          title="Article Not Found | Tech Pulse Insider"
+          description="The requested article could not be found."
+          canonicalPath={routes.public.articles}
+          noindex
+        />
         <div className="text-center">
           <h1 className="text-4xl font-bold mb-4">Article Not Found</h1>
           <p className="text-muted-foreground mb-8">
             The article you're looking for doesn't exist.
           </p>
-          <Button onClick={() => navigate("/articles")} className="gap-2">
+          <Button onClick={() => navigate(routes.public.articles)} className="gap-2">
             <ArrowLeft size={18} />
             Back to Articles
           </Button>
@@ -65,12 +73,38 @@ const ArticleDetail = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-accent/5">
+      <SEO
+        title={`${article.title} | Tech Pulse Insider`}
+        description={article.description}
+        canonicalPath={routes.public.article(article.slug)}
+        image={article.coverImage}
+        imageAlt={article.title}
+        type="article"
+        keywords={article.tags.join(", ")}
+        structuredData={{
+          "@context": "https://schema.org",
+          "@type": "Article",
+          headline: article.title,
+          description: article.description,
+          author: {
+            "@type": "Person",
+            name: article.author,
+          },
+          datePublished: article.publishDate,
+          image: article.coverImage,
+          mainEntityOfPage: `https://techpulseinsider.com${routes.public.article(article.slug)}`,
+          publisher: {
+            "@type": "Organization",
+            name: "Tech Pulse Insider",
+          },
+        }}
+      />
       <div className="container mx-auto px-4 py-12">
         {/* Back Button */}
         <motion.button
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          onClick={() => navigate("/articles")}
+          onClick={() => navigate(routes.public.articles)}
           className="flex items-center gap-2 text-primary hover:text-primary/80 transition-colors mb-8 group"
         >
           <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
@@ -101,7 +135,7 @@ const ArticleDetail = () => {
                 {article.tags.map((tag) => (
                   <Link
                     key={tag}
-                    to={`/articles?tag=${encodeURIComponent(tag)}`}
+                    to={`${routes.public.articles}?tag=${encodeURIComponent(tag)}`}
                     className="px-3 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
                   >
                     {tag}
@@ -279,11 +313,15 @@ const ArticleDetail = () => {
                 <Button
                   variant="outline"
                   className="w-full mb-3"
-                  onClick={() => navigate("/articles")}
+                  onClick={() => navigate(routes.public.articles)}
                 >
                   View All Articles
                 </Button>
-                <Button variant="hero" className="w-full" onClick={() => navigate("/contact")}>
+                <Button
+                  variant="hero"
+                  className="w-full"
+                  onClick={() => navigate(routes.public.contact)}
+                >
                   Contact Us
                 </Button>
               </CardContent>
@@ -301,7 +339,7 @@ const ArticleDetail = () => {
                   {relatedArticles.map((relArticle) => (
                     <Link
                       key={relArticle.slug}
-                      to={`/articles/${relArticle.slug}`}
+                      to={routes.public.article(relArticle.slug)}
                       className="block p-4 rounded-lg border border-border hover:border-primary/50 hover:shadow-md transition-all group"
                     >
                       <h4 className="font-semibold text-sm group-hover:text-primary transition-colors mb-2 line-clamp-2">

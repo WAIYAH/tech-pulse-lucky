@@ -75,6 +75,17 @@ const LOCAL_BOOTSTRAP_ADMIN: LocalAuthUserRecord = {
   passwordHash: "8aeb41ca6bb2b346d4737956e001876f4de2f1dbe5acaa904fb5519bd35b8692",
 };
 
+const LOCAL_BOOTSTRAP_STUDENT: LocalAuthUserRecord = {
+  id: "local-student-bootstrap",
+  fullName: "Lucky LMS Learner",
+  email: "student@techpulseinsider.com",
+  phone: "+254700000001",
+  role: "student",
+  dateJoined: "2026-05-12T00:00:00.000Z",
+  // SHA-256("tech-pulse-insider-local-auth-v1:LuckyStudent@2026!")
+  passwordHash: "6b9748bffd8419dcb65db2fb8fd0ce31a1e1f97dfe3d0ed4ea566955b2f9a273",
+};
+
 const SUPPORTED_ROLES: LmsRole[] = ["guest", "student", "admin"];
 
 const AUTH_MODE: "supabase" | "local" =
@@ -154,18 +165,21 @@ const clearLocalSession = (): void => {
   window.localStorage.removeItem(LOCAL_SESSION_KEY);
 };
 
-const ensureLocalBootstrapAdmin = (): void => {
+const ensureLocalBootstrapUsers = (): void => {
   const users = loadLocalUsers();
-  const hasBootstrapAdmin = users.some(
-    (item) => item.email === LOCAL_BOOTSTRAP_ADMIN.email,
-  );
+  const bootstraps = [LOCAL_BOOTSTRAP_ADMIN, LOCAL_BOOTSTRAP_STUDENT];
+  let hasChanges = false;
 
-  if (hasBootstrapAdmin) {
-    return;
+  bootstraps.forEach((bootstrapUser) => {
+    const exists = users.some((item) => item.email === bootstrapUser.email);
+    if (exists) return;
+    users.push(bootstrapUser);
+    hasChanges = true;
+  });
+
+  if (hasChanges) {
+    saveLocalUsers(users);
   }
-
-  users.push(LOCAL_BOOTSTRAP_ADMIN);
-  saveLocalUsers(users);
 };
 
 const randomId = (): string => {
@@ -215,7 +229,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
 
     const session = loadLocalSession();
-    ensureLocalBootstrapAdmin();
+    ensureLocalBootstrapUsers();
     if (!session) {
       setUser(null);
       setIsLoading(false);

@@ -1,6 +1,8 @@
 import { motion } from "framer-motion";
 import { Target, Globe, Lightbulb, Award, BookOpen, Users } from "lucide-react";
 import luckyProfile from "@/assets/lucky-profile-full.webp";
+import SEO from "@/components/common/SEO";
+import { routes } from "@/routes/routeConfig";
 
 const About = () => {
   const achievements = [
@@ -25,6 +27,12 @@ const About = () => {
 
   return (
     <div className="min-h-screen py-20">
+      <SEO
+        title="About Lucky Nakola | Tech Pulse Insider"
+        description="Meet Lucky Nakola, founder of Tech Pulse Insider, and learn about the mission to deliver beginner-friendly digital skills training across Kenya and Africa."
+        canonicalPath={routes.public.about}
+        keywords="Tech Pulse Insider founder, Lucky Nakola, tech educator in Kenya, digital literacy training Nairobi"
+      />
       <div className="container mx-auto px-4">
         {/* Header */}
         <motion.div

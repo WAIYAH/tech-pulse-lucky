@@ -72,7 +72,12 @@ const Login = () => {
     | { from?: string; reason?: string }
     | null) ?? {};
 
-  const from = locationState.from ?? routes.student.overview;
+  const from =
+    typeof locationState.from === "string" &&
+    locationState.from.startsWith("/") &&
+    !locationState.from.startsWith("//")
+      ? locationState.from
+      : routes.student.overview;
   const isBusy = isSubmitting || socialProvider !== null;
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {

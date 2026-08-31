@@ -57,54 +57,56 @@ const AdminArticlesPage = () => {
             <h2 className="text-xl font-semibold">Content Index</h2>
           </CardHeader>
           <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Title</TableHead>
-                  <TableHead>Published</TableHead>
-                  <TableHead>Reading Time</TableHead>
-                  <TableHead>Tags</TableHead>
-                  <TableHead>Link</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {sorted.map((article) => (
-                  <TableRow key={article.id}>
-                    <TableCell>
-                      <p className="font-medium">{article.title}</p>
-                      <p className="text-xs text-muted-foreground">{article.slug}</p>
-                    </TableCell>
-                    <TableCell>
-                      {new Date(article.publishDate).toLocaleDateString("en-KE")}
-                    </TableCell>
-                    <TableCell>{article.readingTime} min</TableCell>
-                    <TableCell>
-                      <div className="flex flex-wrap gap-1">
-                        {article.tags.slice(0, 3).map((tag) => (
-                          <Badge key={`${article.id}-${tag}`} variant="secondary">
-                            {tag}
-                          </Badge>
-                        ))}
-                        {article.tags.length > 3 && (
-                          <Badge variant="outline">+{article.tags.length - 3}</Badge>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Button size="sm" variant="outline" asChild>
-                        <a
-                          href={routes.public.article(article.slug)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          Open
-                        </a>
-                      </Button>
-                    </TableCell>
+            <div className="overflow-x-auto">
+              <Table className="min-w-[760px]">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Title</TableHead>
+                    <TableHead>Published</TableHead>
+                    <TableHead>Reading Time</TableHead>
+                    <TableHead>Tags</TableHead>
+                    <TableHead>Link</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {sorted.map((article) => (
+                    <TableRow key={article.id}>
+                      <TableCell>
+                        <p className="font-medium">{article.title}</p>
+                        <p className="break-all text-xs text-muted-foreground">{article.slug}</p>
+                      </TableCell>
+                      <TableCell>
+                        {new Date(article.publishDate).toLocaleDateString("en-KE")}
+                      </TableCell>
+                      <TableCell>{article.readingTime} min</TableCell>
+                      <TableCell>
+                        <div className="flex flex-wrap gap-1">
+                          {article.tags.slice(0, 3).map((tag) => (
+                            <Badge key={`${article.id}-${tag}`} variant="secondary">
+                              {tag}
+                            </Badge>
+                          ))}
+                          {article.tags.length > 3 && (
+                            <Badge variant="outline">+{article.tags.length - 3}</Badge>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Button size="sm" variant="outline" asChild>
+                          <a
+                            href={routes.public.article(article.slug)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            Open
+                          </a>
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           </CardContent>
         </Card>
       </section>

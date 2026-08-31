@@ -1,0 +1,182 @@
+import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import { BellRing, CheckCheck, CircleDot } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import {
+  markAllStudentNotificationsRead,
+  markStudentNotificationRead,
+} from "@/lib/student/studentPortalState";
+import { useStudentPortal } from "./StudentPortalContext";
+import { useToast } from "@/hooks/use-toast";
+
+type NotificationFilter = "all" | "unread";
+
+const StudentNotificationsPage = () => {
+  const { user, notifications, unreadNotificationsCount, refresh } = useStudentPortal();
+  const { toast } = useToast();
+  const [filter, setFilter] = useState<NotificationFilter>("all");
+
+  const filtered = useMemo(() => {
+    if (filter === "unread") return notifications.filter((item) => !item.read);
+    return notifications;
+  }, [filter, notifications]);
+
+  if (!user) return null;
+
+  const markRead = async (notificationId: string) => {
+    try {
+      await markStudentNotificationRead(user.id, notificationId);
+      await refresh();
+    } catch (error) {
+      toast({
+        title: "Update failed",
+        description:
+          error instanceof Error ? error.message : "Unable to mark notification as read.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const markAll = async () => {
+    try {
+      await markAllStudentNotificationsRead(user.id);
+      await refresh();
+    } catch (error) {
+      toast({
+        title: "Update failed",
+        description:
+          error instanceof Error ? error.message : "Unable to mark all notifications as read.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+        <h1 className="text-2xl font-bold md:text-3xl">Notifications</h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Stay updated on payment approvals, support responses, and learning milestones.
+        </p>
+      </section>
+
+      <section className="grid gap-4 sm:grid-cols-3">
+        <Card>
+          <CardContent className="pt-6">
+            <p className="text-sm text-muted-foreground">Total</p>
+            <p className="text-3xl font-semibold">{notifications.length}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <p className="text-sm text-muted-foreground">Unread</p>
+            <p className="text-3xl font-semibold">{unreadNotificationsCount}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <p className="text-sm text-muted-foreground">Read</p>
+            <p className="text-3xl font-semibold">
+              {Math.max(0, notifications.length - unreadNotificationsCount)}
+            </p>
+          </CardContent>
+        </Card>
+      </section>
+
+      <section>
+        <Card>
+          <CardHeader>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h2 className="text-xl font-semibold">Inbox</h2>
+              <div className="flex w-full flex-wrap gap-2 sm:w-auto">
+                <Button
+                  size="sm"
+                  variant={filter === "all" ? "default" : "outline"}
+                  onClick={() => setFilter("all")}
+                  className="flex-1 sm:flex-none"
+                >
+                  All
+                </Button>
+                <Button
+                  size="sm"
+                  variant={filter === "unread" ? "default" : "outline"}
+                  onClick={() => setFilter("unread")}
+                  className="flex-1 sm:flex-none"
+                >
+                  Unread
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => void markAll()}
+                  disabled={unreadNotificationsCount === 0}
+                  className="w-full sm:w-auto"
+                >
+                  <CheckCheck className="mr-1 h-4 w-4" />
+                  Mark all read
+                </Button>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {filtered.length === 0 ? (
+              <div className="rounded-xl border border-border bg-background p-6 text-sm text-muted-foreground">
+                <div className="mb-2 flex items-center gap-2 text-foreground">
+                  <BellRing className="h-4 w-4 text-primary" />
+                  No notifications yet
+                </div>
+                New updates will appear here as you use the LMS.
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {filtered.map((notification) => (
+                  <div
+                    key={notification.id}
+                    className="rounded-xl border border-border bg-background p-4"
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <p className="font-semibold">{notification.title}</p>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline">{notification.type}</Badge>
+                        {!notification.read && (
+                          <Badge variant="secondary" className="inline-flex items-center gap-1">
+                            <CircleDot className="h-3 w-3" />
+                            Unread
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                    <p className="mt-2 text-sm text-muted-foreground">{notification.message}</p>
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      {new Date(notification.createdAt).toLocaleString("en-KE")}
+                    </p>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {!notification.read && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => void markRead(notification.id)}
+                        >
+                          Mark as Read
+                        </Button>
+                      )}
+                      {notification.actionPath && (
+                        <Button size="sm" asChild>
+                          <Link to={notification.actionPath}>Open</Link>
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </section>
+    </div>
+  );
+};
+
+export default StudentNotificationsPage;

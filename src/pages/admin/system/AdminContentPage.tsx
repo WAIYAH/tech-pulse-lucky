@@ -169,7 +169,7 @@ const AdminContentPage = () => {
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2">
-              <label className="flex items-center justify-between rounded-lg border border-border bg-background p-3">
+              <label className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-background p-3">
                 <span className="text-sm font-medium">Block search indexing</span>
                 <Switch
                   checked={form.blockSearchIndexing}
@@ -179,7 +179,7 @@ const AdminContentPage = () => {
                 />
               </label>
 
-              <label className="flex items-center justify-between rounded-lg border border-border bg-background p-3">
+              <label className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-background p-3">
                 <span className="text-sm font-medium">Include course pages in sitemap</span>
                 <Switch
                   checked={form.includeCoursePagesInSitemap}
@@ -217,7 +217,7 @@ const AdminContentPage = () => {
       </section>
 
       <div className="flex justify-end">
-        <Button onClick={saveContent}>Save Content Settings</Button>
+        <Button onClick={saveContent} className="w-full sm:w-auto">Save Content Settings</Button>
       </div>
     </div>
   );

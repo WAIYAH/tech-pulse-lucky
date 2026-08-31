@@ -170,7 +170,7 @@ const AdminOverviewPage = () => {
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <div>
                         <p className="font-medium">{payment.fullName}</p>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="break-all text-xs text-muted-foreground">
                           {payment.email} • {courseTitleById[payment.courseId] ?? "Unknown course"}
                         </p>
                       </div>

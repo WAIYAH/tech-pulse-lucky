@@ -15,7 +15,15 @@ const StudentCertificatesPage = () => {
     return hasAccess && enrollment.progress >= 100;
   });
 
-  const inProgress = enrollments.filter((enrollment) => enrollment.progress < 100);
+  const inProgress = enrollments.filter((enrollment) => {
+    const hasAccess =
+      enrollment.accessStatus === "approved" || enrollment.accessStatus === "free";
+    return hasAccess && enrollment.progress < 100;
+  });
+
+  const lockedCourses = enrollments.filter((enrollment) => {
+    return enrollment.accessStatus !== "approved" && enrollment.accessStatus !== "free";
+  });
 
   return (
     <div className="space-y-6">
@@ -91,12 +99,12 @@ const StudentCertificatesPage = () => {
                         Completion achieved on this learning path.
                       </p>
                       <div className="mt-3 flex flex-wrap gap-2">
-                        <Button size="sm" variant="outline" disabled>
+                        <Button size="sm" variant="outline" disabled className="w-full sm:w-auto">
                           <BadgeCheck className="mr-1 h-4 w-4" />
                           Download Certificate (Coming Soon)
                         </Button>
                         {course ? (
-                          <Button size="sm" variant="ghost" asChild>
+                          <Button size="sm" variant="ghost" asChild className="w-full sm:w-auto">
                             <Link to={routes.student.learn(course.slug)}>Review Course</Link>
                           </Button>
                         ) : null}
@@ -115,9 +123,15 @@ const StudentCertificatesPage = () => {
           </CardHeader>
           <CardContent>
             {inProgress.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                You are caught up. All enrolled courses are complete.
-              </p>
+              lockedCourses.length > 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  Unlock your pending paid courses to continue toward certificate eligibility.
+                </p>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  You are caught up. All enrolled courses are complete.
+                </p>
+              )
             ) : (
               <div className="space-y-3">
                 {inProgress
@@ -139,14 +153,14 @@ const StudentCertificatesPage = () => {
                         </p>
                         <div className="mt-3">
                           {course ? (
-                            <Button size="sm" asChild>
+                            <Button size="sm" asChild className="w-full sm:w-auto">
                               <Link to={routes.student.learn(course.slug)}>
                                 <Award className="mr-1 h-4 w-4" />
                                 Continue Learning
                               </Link>
                             </Button>
                           ) : (
-                            <Button size="sm" variant="outline" disabled>
+                            <Button size="sm" variant="outline" disabled className="w-full sm:w-auto">
                               <LockKeyhole className="mr-1 h-4 w-4" />
                               Course unavailable
                             </Button>

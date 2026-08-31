@@ -22,6 +22,11 @@ const StudentResourcesPage = () => {
     const rows: ResourceItem[] = [];
 
     enrollments.forEach((enrollment) => {
+      const hasAccess =
+        enrollment.accessStatus === "free" ||
+        enrollment.accessStatus === "approved";
+      if (!hasAccess) return;
+
       const course = courseById[enrollment.courseId];
       if (!course) return;
 
@@ -106,7 +111,7 @@ const StudentResourcesPage = () => {
                         href={resource.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 rounded-md border border-border px-3 py-1.5 text-sm hover:bg-muted"
+                        className="inline-flex w-full items-center justify-center gap-1 rounded-md border border-border px-3 py-1.5 text-sm hover:bg-muted sm:w-auto"
                       >
                         <ExternalLink className="h-4 w-4" />
                         Open
@@ -114,7 +119,7 @@ const StudentResourcesPage = () => {
                       <a
                         href={resource.url}
                         download
-                        className="inline-flex items-center gap-1 rounded-md border border-border px-3 py-1.5 text-sm hover:bg-muted"
+                        className="inline-flex w-full items-center justify-center gap-1 rounded-md border border-border px-3 py-1.5 text-sm hover:bg-muted sm:w-auto"
                       >
                         <Download className="h-4 w-4" />
                         Download

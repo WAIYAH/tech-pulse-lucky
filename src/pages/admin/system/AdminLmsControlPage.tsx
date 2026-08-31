@@ -73,7 +73,7 @@ const AdminLmsControlPage = () => {
             <h2 className="text-xl font-semibold">Feature Controls</h2>
           </CardHeader>
           <CardContent className="space-y-3">
-            <label className="flex items-center justify-between rounded-lg border border-border bg-background p-3">
+            <label className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-background p-3">
               <span className="text-sm font-medium">Enable certificates</span>
               <Switch
                 checked={controlState.enableCertificates}
@@ -82,7 +82,7 @@ const AdminLmsControlPage = () => {
                 }
               />
             </label>
-            <label className="flex items-center justify-between rounded-lg border border-border bg-background p-3">
+            <label className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-background p-3">
               <span className="text-sm font-medium">Enable email notifications</span>
               <Switch
                 checked={controlState.enableEmailNotifications}
@@ -94,7 +94,7 @@ const AdminLmsControlPage = () => {
                 }
               />
             </label>
-            <label className="flex items-center justify-between rounded-lg border border-border bg-background p-3">
+            <label className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-background p-3">
               <span className="text-sm font-medium">Enable live classes</span>
               <Switch
                 checked={controlState.enableLiveClasses}
@@ -103,7 +103,7 @@ const AdminLmsControlPage = () => {
                 }
               />
             </label>
-            <label className="flex items-center justify-between rounded-lg border border-border bg-background p-3">
+            <label className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-background p-3">
               <span className="text-sm font-medium">Enable waitlist mode</span>
               <Switch
                 checked={controlState.enableWaitlist}
@@ -112,7 +112,7 @@ const AdminLmsControlPage = () => {
                 }
               />
             </label>
-            <label className="flex items-center justify-between rounded-lg border border-border bg-background p-3">
+            <label className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-background p-3">
               <span className="text-sm font-medium">Payment collection enabled</span>
               <Switch
                 checked={controlState.paymentCollectionEnabled}
@@ -124,7 +124,7 @@ const AdminLmsControlPage = () => {
                 }
               />
             </label>
-            <label className="flex items-center justify-between rounded-lg border border-border bg-background p-3">
+            <label className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-background p-3">
               <span className="text-sm font-medium">
                 Auto-archive rejected payments
               </span>
@@ -191,17 +191,17 @@ const AdminLmsControlPage = () => {
               <p className="text-sm font-medium">Instruction Steps</p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {config.payment.instructionSteps.map((step, index) => (
-                  <Badge key={`${index}-${step}`} variant="secondary">
+                  <Badge key={`${index}-${step}`} variant="secondary" className="whitespace-normal break-words">
                     {index + 1}. {step}
                   </Badge>
                 ))}
               </div>
             </div>
             <div className="flex flex-wrap gap-2">
-              <Button onClick={runHealthCheck} variant="outline">
+              <Button onClick={runHealthCheck} variant="outline" className="w-full sm:w-auto">
                 Run LMS Health Check
               </Button>
-              <Button onClick={saveControls}>Save LMS Controls</Button>
+              <Button onClick={saveControls} className="w-full sm:w-auto">Save LMS Controls</Button>
             </div>
           </CardContent>
         </Card>
@@ -211,13 +211,13 @@ const AdminLmsControlPage = () => {
             <h2 className="text-xl font-semibold">Feature Flags</h2>
           </CardHeader>
           <CardContent className="space-y-2 text-sm">
-            <div className="flex items-center justify-between rounded-lg border border-border p-2">
+            <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border p-2">
               <span>Certificates</span>
               <Badge variant={controlState.enableCertificates ? "secondary" : "outline"}>
                 {controlState.enableCertificates ? "On" : "Off"}
               </Badge>
             </div>
-            <div className="flex items-center justify-between rounded-lg border border-border p-2">
+            <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border p-2">
               <span>Email Notifications</span>
               <Badge
                 variant={controlState.enableEmailNotifications ? "secondary" : "outline"}
@@ -225,13 +225,13 @@ const AdminLmsControlPage = () => {
                 {controlState.enableEmailNotifications ? "On" : "Off"}
               </Badge>
             </div>
-            <div className="flex items-center justify-between rounded-lg border border-border p-2">
+            <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border p-2">
               <span>Live Classes</span>
               <Badge variant={controlState.enableLiveClasses ? "secondary" : "outline"}>
                 {controlState.enableLiveClasses ? "On" : "Off"}
               </Badge>
             </div>
-            <div className="flex items-center justify-between rounded-lg border border-border p-2">
+            <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border p-2">
               <span>Waitlist Mode</span>
               <Badge variant={controlState.enableWaitlist ? "secondary" : "outline"}>
                 {controlState.enableWaitlist ? "On" : "Off"}

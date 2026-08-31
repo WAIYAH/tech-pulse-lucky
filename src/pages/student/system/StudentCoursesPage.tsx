@@ -59,7 +59,7 @@ const StudentCoursesPage = () => {
                 </p>
               </div>
               <div className="flex w-full flex-col gap-2 sm:flex-row lg:w-auto">
-                <div className="relative sm:w-[260px]">
+                <div className="relative w-full sm:w-[260px]">
                   <Search className="pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input
                     value={query}
@@ -72,7 +72,7 @@ const StudentCoursesPage = () => {
                   value={accessFilter}
                   onValueChange={(value: AccessFilter) => setAccessFilter(value)}
                 >
-                  <SelectTrigger className="sm:w-[170px]">
+                  <SelectTrigger className="w-full sm:w-[170px]">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -137,7 +137,7 @@ const StudentCoursesPage = () => {
 
                         <div className="mt-3 flex flex-wrap gap-2">
                           {course && hasAccess ? (
-                            <Button size="sm" asChild>
+                            <Button size="sm" asChild className="w-full sm:w-auto">
                               <Link to={routes.student.learn(course.slug)}>
                                 {enrollment.progress > 0 ? "Continue Learning" : "Start Learning"}
                               </Link>
@@ -145,7 +145,7 @@ const StudentCoursesPage = () => {
                           ) : null}
 
                           {course && !hasAccess && !course.isFree ? (
-                            <Button size="sm" variant="outline" asChild>
+                            <Button size="sm" variant="outline" asChild className="w-full sm:w-auto">
                               <Link to={routes.student.payment(course.slug)}>
                                 Resolve Payment Access
                               </Link>
@@ -153,7 +153,7 @@ const StudentCoursesPage = () => {
                           ) : null}
 
                           {course ? (
-                            <Button size="sm" variant="ghost" asChild>
+                            <Button size="sm" variant="ghost" asChild className="w-full sm:w-auto">
                               <Link to={routes.public.course(course.slug)}>View Course</Link>
                             </Button>
                           ) : null}

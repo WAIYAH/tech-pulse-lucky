@@ -84,7 +84,7 @@ const StudentPaymentsPage = () => {
                 return (
                   <div
                     key={enrollment.id}
-                    className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-amber-300/50 bg-white/70 p-3"
+                    className="flex flex-wrap items-start justify-between gap-2 rounded-lg border border-amber-300/50 bg-white/70 p-3"
                   >
                     <div>
                       <p className="font-medium">{course.title}</p>
@@ -92,7 +92,7 @@ const StudentPaymentsPage = () => {
                         Access status: {enrollment.accessStatus}
                       </p>
                     </div>
-                    <Button size="sm" variant="outline" asChild>
+                    <Button size="sm" variant="outline" asChild className="w-full sm:w-auto">
                       <Link to={routes.student.payment(course.slug)}>Open Payment Page</Link>
                     </Button>
                   </div>
@@ -116,41 +116,43 @@ const StudentPaymentsPage = () => {
                 You have not submitted any payment requests yet.
               </p>
             ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Course</TableHead>
-                    <TableHead>Amount</TableHead>
-                    <TableHead>Transaction</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Admin Note</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {payments
-                    .slice()
-                    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
-                    .map((payment) => (
-                      <TableRow key={payment.id}>
-                        <TableCell className="font-medium">
-                          {courseById[payment.courseId]?.title ?? "Course"}
-                        </TableCell>
-                        <TableCell>{formatMoney(payment.amount, payment.currency)}</TableCell>
-                        <TableCell>{payment.transactionCode}</TableCell>
-                        <TableCell>
-                          <Badge variant="secondary">{payment.status}</Badge>
-                        </TableCell>
-                        <TableCell>
-                          {new Date(payment.paymentDate).toLocaleDateString("en-KE")}
-                        </TableCell>
-                        <TableCell className="text-xs text-muted-foreground">
-                          {payment.adminNote ?? "No note"}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                </TableBody>
-              </Table>
+              <div className="overflow-x-auto">
+                <Table className="min-w-[760px]">
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Course</TableHead>
+                      <TableHead>Amount</TableHead>
+                      <TableHead>Transaction</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Admin Note</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {payments
+                      .slice()
+                      .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+                      .map((payment) => (
+                        <TableRow key={payment.id}>
+                          <TableCell className="font-medium">
+                            {courseById[payment.courseId]?.title ?? "Course"}
+                          </TableCell>
+                          <TableCell>{formatMoney(payment.amount, payment.currency)}</TableCell>
+                          <TableCell className="break-all">{payment.transactionCode}</TableCell>
+                          <TableCell>
+                            <Badge variant="secondary">{payment.status}</Badge>
+                          </TableCell>
+                          <TableCell>
+                            {new Date(payment.paymentDate).toLocaleDateString("en-KE")}
+                          </TableCell>
+                          <TableCell className="max-w-[260px] break-words text-xs text-muted-foreground">
+                            {payment.adminNote ?? "No note"}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                  </TableBody>
+                </Table>
+              </div>
             )}
           </CardContent>
         </Card>

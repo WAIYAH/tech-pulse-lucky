@@ -9,6 +9,13 @@ import {
 import type { ReactNode } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { lmsProvider } from "@/lib/lms";
+import {
+  readStudentNotifications,
+  readStudentSupportTickets,
+  subscribeStudentExperience,
+  type StudentNotification,
+  type SupportTicket,
+} from "@/lib/student/studentPortalState";
 import type {
   LmsConfig,
   LmsCourse,
@@ -32,6 +39,9 @@ interface StudentPortalContextValue {
   averageProgress: number;
   totalLessons: number;
   completedLessons: number;
+  supportTickets: SupportTicket[];
+  notifications: StudentNotification[];
+  unreadNotificationsCount: number;
   refresh: () => Promise<void>;
 }
 
@@ -50,6 +60,23 @@ export const StudentPortalProvider = ({ children }: { children: ReactNode }) => 
   const [progressByCourseId, setProgressByCourseId] = useState<
     Record<string, LmsLessonProgress[]>
   >({});
+  const [supportTickets, setSupportTickets] = useState<SupportTicket[]>([]);
+  const [notifications, setNotifications] = useState<StudentNotification[]>([]);
+
+  const syncExperience = useCallback(async () => {
+    if (!user) {
+      setSupportTickets([]);
+      setNotifications([]);
+      return;
+    }
+
+    const [ticketRows, notificationRows] = await Promise.all([
+      readStudentSupportTickets(user.id),
+      readStudentNotifications(user.id),
+    ]);
+    setSupportTickets(ticketRows);
+    setNotifications(notificationRows);
+  }, [user]);
 
   const refresh = useCallback(async () => {
     if (!user) {
@@ -57,6 +84,8 @@ export const StudentPortalProvider = ({ children }: { children: ReactNode }) => 
       setEnrollments([]);
       setPayments([]);
       setProgressByCourseId({});
+      setSupportTickets([]);
+      setNotifications([]);
       setIsLoading(false);
       return;
     }
@@ -92,12 +121,20 @@ export const StudentPortalProvider = ({ children }: { children: ReactNode }) => 
         return acc;
       }, {}),
     );
+    await syncExperience();
     setIsLoading(false);
-  }, [user]);
+  }, [syncExperience, user]);
 
   useEffect(() => {
-    refresh();
+    void refresh();
   }, [refresh]);
+
+  useEffect(() => {
+    void syncExperience();
+    return subscribeStudentExperience(() => {
+      void syncExperience();
+    });
+  }, [syncExperience]);
 
   const courseById = useMemo(() => {
     return courses.reduce<Record<string, LmsCourse>>((acc, course) => {
@@ -141,6 +178,10 @@ export const StudentPortalProvider = ({ children }: { children: ReactNode }) => 
     return { totalLessons: lessonCount, completedLessons: completed };
   }, [courseById, enrollments, progressByCourseId]);
 
+  const unreadNotificationsCount = useMemo(() => {
+    return notifications.filter((item) => !item.read).length;
+  }, [notifications]);
+
   const value = useMemo<StudentPortalContextValue>(
     () => ({
       user,
@@ -156,6 +197,9 @@ export const StudentPortalProvider = ({ children }: { children: ReactNode }) => 
       averageProgress,
       totalLessons,
       completedLessons,
+      supportTickets,
+      notifications,
+      unreadNotificationsCount,
       refresh,
     }),
     [
@@ -171,6 +215,9 @@ export const StudentPortalProvider = ({ children }: { children: ReactNode }) => 
       averageProgress,
       totalLessons,
       completedLessons,
+      supportTickets,
+      notifications,
+      unreadNotificationsCount,
       refresh,
     ],
   );

@@ -5,6 +5,7 @@ import {
   CircleDollarSign,
   Coins,
   Gauge,
+  Headset,
   LayoutTemplate,
   ListChecks,
   Settings2,
@@ -56,6 +57,12 @@ export const adminNavItems: AdminNavItem[] = [
     description: "Review and approve paid course submissions",
     path: routes.admin.payments,
     icon: CircleDollarSign,
+  },
+  {
+    label: "Support",
+    description: "Handle student support tickets and responses",
+    path: routes.admin.support,
+    icon: Headset,
   },
   {
     label: "Finance",

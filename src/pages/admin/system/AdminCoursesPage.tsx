@@ -348,11 +348,11 @@ const AdminCoursesPage = () => {
                     <p className="mt-1 text-xs text-muted-foreground">
                       {course.category} • {course.level} • {course.lessonsCount} lessons
                     </p>
-                    <div className="mt-3 flex gap-2">
-                      <Button size="sm" variant="outline" onClick={() => startEditMode(course)}>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <Button size="sm" variant="outline" onClick={() => startEditMode(course)} className="w-full sm:w-auto">
                         Edit
                       </Button>
-                      <Button size="sm" variant="destructive" onClick={() => deleteCourse(course)}>
+                      <Button size="sm" variant="destructive" onClick={() => deleteCourse(course)} className="w-full sm:w-auto">
                         Delete
                       </Button>
                     </div>
@@ -383,7 +383,7 @@ const AdminCoursesPage = () => {
                 </div>
                 <div className="space-y-2">
                   <Label>Slug</Label>
-                  <div className="flex gap-2">
+                  <div className="flex flex-col gap-2 sm:flex-row">
                     <Input
                       value={form.slug}
                       onChange={(event) =>
@@ -393,6 +393,7 @@ const AdminCoursesPage = () => {
                     <Button
                       type="button"
                       variant="outline"
+                      className="w-full sm:w-auto"
                       onClick={() => setForm((prev) => ({ ...prev, slug: toSlug(prev.title) }))}
                     >
                       Generate
@@ -611,7 +612,7 @@ const AdminCoursesPage = () => {
                     }
                   />
                 </div>
-                <Button type="button" variant="outline" onClick={addLesson}>
+                <Button type="button" variant="outline" onClick={addLesson} className="w-full sm:w-auto">
                   <Plus className="mr-2 h-4 w-4" />
                   Add Lesson
                 </Button>
@@ -644,14 +645,14 @@ const AdminCoursesPage = () => {
               </div>
 
               <div className="flex flex-wrap gap-2">
-                <Button type="submit" disabled={isSaving}>
+                <Button type="submit" disabled={isSaving} className="w-full sm:w-auto">
                   {isSaving
                     ? "Saving..."
                     : selectedCourse
                       ? "Update Course"
                       : "Create Course"}
                 </Button>
-                <Button type="button" variant="outline" onClick={startCreateMode}>
+                <Button type="button" variant="outline" onClick={startCreateMode} className="w-full sm:w-auto">
                   Reset Form
                 </Button>
               </div>

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { z } from "zod";
@@ -12,7 +12,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { getCourseBySlug } from "@/data/courses";
 import { formatKesAmount, lmsConfig } from "@/data/lmsConfig";
 import { lmsProvider } from "@/lib/lms";
-import type { EnrollmentAccessStatus, LmsPayment } from "@/types/lms";
+import { createStudentNotification } from "@/lib/student/studentPortalState";
+import { routes } from "@/routes/routeConfig";
+import type { EnrollmentAccessStatus, LmsCourse, LmsPayment } from "@/types/lms";
 import {
   createSafeTextSchema,
   dateNotFutureSchema,
@@ -36,17 +38,51 @@ const paymentSchema = z.object({
 const PaymentPage = () => {
   const { courseSlug } = useParams<{ courseSlug: string }>();
   const { user } = useAuth();
+  const userId = user?.id ?? null;
   const { toast } = useToast();
+  const [course, setCourse] = useState<LmsCourse | null>(() =>
+    courseSlug ? getCourseBySlug(courseSlug) ?? null : null,
+  );
+  const [isCourseLoading, setIsCourseLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [accessStatus, setAccessStatus] = useState<EnrollmentAccessStatus | null>(null);
   const [latestPayment, setLatestPayment] = useState<LmsPayment | null>(null);
   const [isStatusLoading, setIsStatusLoading] = useState(true);
   const maxPaymentDate = new Date().toISOString().split("T")[0];
+  const courseId = course?.id ?? null;
 
-  const course = useMemo(
-    () => (courseSlug ? getCourseBySlug(courseSlug) : undefined),
-    [courseSlug],
-  );
+  useEffect(() => {
+    let isMounted = true;
+    const localCourse = courseSlug ? getCourseBySlug(courseSlug) ?? null : null;
+    setCourse(localCourse);
+
+    if (!courseSlug) {
+      setIsCourseLoading(false);
+      return () => {
+        isMounted = false;
+      };
+    }
+
+    setIsCourseLoading(true);
+    lmsProvider
+      .getCourseBySlug(courseSlug)
+      .then((remoteCourse) => {
+        if (!isMounted) return;
+        setCourse(remoteCourse ?? localCourse);
+      })
+      .catch(() => {
+        if (!isMounted) return;
+        setCourse(localCourse);
+      })
+      .finally(() => {
+        if (!isMounted) return;
+        setIsCourseLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [courseSlug]);
 
   const [formData, setFormData] = useState({
     fullName: user?.fullName ?? "",
@@ -69,29 +105,39 @@ const PaymentPage = () => {
 
   useEffect(() => {
     const loadStatus = async () => {
-      if (!user || !course) {
+      if (!userId || !courseId) {
         setIsStatusLoading(false);
         return;
       }
 
       const [enrollments, payments] = await Promise.all([
-        lmsProvider.getEnrollments(user.id),
-        lmsProvider.getPaymentsForUser(user.id),
+        lmsProvider.getEnrollments(userId),
+        lmsProvider.getPaymentsForUser(userId),
       ]);
 
-      const enrollment = enrollments.find((row) => row.courseId === course.id);
+      const enrollment = enrollments.find((row) => row.courseId === courseId);
       setAccessStatus(enrollment?.accessStatus ?? null);
 
       const latestCoursePayment =
         payments
-          .filter((row) => row.courseId === course.id)
+          .filter((row) => row.courseId === courseId)
           .sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0] ?? null;
       setLatestPayment(latestCoursePayment);
       setIsStatusLoading(false);
     };
 
     loadStatus();
-  }, [course, user]);
+  }, [courseId, userId]);
+
+  if (isCourseLoading) {
+    return (
+      <div className="min-h-screen py-16">
+        <div className="container mx-auto px-4 text-center">
+          <p className="text-muted-foreground">Loading course payment details...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!course) {
     return (
@@ -163,6 +209,13 @@ const PaymentPage = () => {
       });
       setLatestPayment(payment);
       setAccessStatus("pending_payment");
+      await createStudentNotification({
+        userId: user.id,
+        title: "Payment request submitted",
+        message: `Your payment for "${course.title}" is pending review.`,
+        type: "payment",
+        actionPath: routes.student.payments,
+      });
 
       toast({
         title: "Payment submitted successfully",

@@ -69,7 +69,7 @@ const StudentSettingsPage = () => {
             <h2 className="text-xl font-semibold">Notification Preferences</h2>
           </CardHeader>
           <CardContent className="space-y-3">
-            <label className="flex items-center justify-between rounded-lg border border-border bg-background p-3">
+            <label className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-background p-3">
               <span className="text-sm font-medium">Email notifications</span>
               <Switch
                 checked={settings.emailNotifications}
@@ -78,7 +78,7 @@ const StudentSettingsPage = () => {
                 }
               />
             </label>
-            <label className="flex items-center justify-between rounded-lg border border-border bg-background p-3">
+            <label className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-background p-3">
               <span className="text-sm font-medium">SMS notifications</span>
               <Switch
                 checked={settings.smsNotifications}
@@ -87,7 +87,7 @@ const StudentSettingsPage = () => {
                 }
               />
             </label>
-            <label className="flex items-center justify-between rounded-lg border border-border bg-background p-3">
+            <label className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-background p-3">
               <span className="text-sm font-medium">Weekly digest summary</span>
               <Switch
                 checked={settings.weeklyDigest}
@@ -96,7 +96,7 @@ const StudentSettingsPage = () => {
                 }
               />
             </label>
-            <label className="flex items-center justify-between rounded-lg border border-border bg-background p-3">
+            <label className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-background p-3">
               <span className="text-sm font-medium">Webinar reminders</span>
               <Switch
                 checked={settings.webinarReminders}
@@ -113,7 +113,7 @@ const StudentSettingsPage = () => {
             <h2 className="text-xl font-semibold">Learning Experience</h2>
           </CardHeader>
           <CardContent className="space-y-3">
-            <label className="flex items-center justify-between rounded-lg border border-border bg-background p-3">
+            <label className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-background p-3">
               <span className="text-sm font-medium">Autoplay next lesson</span>
               <Switch
                 checked={settings.autoplayNextLesson}
@@ -122,7 +122,7 @@ const StudentSettingsPage = () => {
                 }
               />
             </label>
-            <label className="flex items-center justify-between rounded-lg border border-border bg-background p-3">
+            <label className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-background p-3">
               <span className="text-sm font-medium">High contrast mode</span>
               <Switch
                 checked={settings.highContrastMode}
@@ -133,8 +133,8 @@ const StudentSettingsPage = () => {
             </label>
 
             <div className="flex flex-wrap gap-2 pt-2">
-              <Button onClick={saveSettings}>Save Settings</Button>
-              <Button variant="outline" onClick={resetSettings}>
+              <Button onClick={saveSettings} className="w-full sm:w-auto">Save Settings</Button>
+              <Button variant="outline" onClick={resetSettings} className="w-full sm:w-auto">
                 <RotateCcw className="mr-2 h-4 w-4" />
                 Reset to Defaults
               </Button>

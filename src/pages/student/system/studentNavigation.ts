@@ -1,6 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import {
   BadgeCheck,
+  Bell,
   BookOpenCheck,
   CreditCard,
   GraduationCap,
@@ -63,6 +64,12 @@ export const studentNavItems: StudentNavItem[] = [
     description: "Upcoming sessions and watch links",
     path: routes.student.webinars,
     icon: Video,
+  },
+  {
+    label: "Notifications",
+    description: "Updates on payments, support, and learning",
+    path: routes.student.notifications,
+    icon: Bell,
   },
   {
     label: "Resources",

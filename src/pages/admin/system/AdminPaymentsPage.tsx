@@ -8,6 +8,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { readAdminSettings } from "@/lib/admin/adminState";
 import { lmsProvider } from "@/lib/lms";
+import { createStudentNotification } from "@/lib/student/studentPortalState";
+import { routes } from "@/routes/routeConfig";
 import type { LmsCourse, LmsPayment, PaymentStatus } from "@/types/lms";
 
 type StatusFilter = "all" | PaymentStatus;
@@ -120,6 +122,22 @@ const AdminPaymentsPage = () => {
         return;
       }
 
+      const courseTitle = courseTitleById[payment.courseId] ?? "your course";
+      const notificationMessage =
+        nextStatus === "approved"
+          ? `Your payment for "${courseTitle}" was approved. You can continue learning now.`
+          : nextStatus === "rejected"
+            ? `Your payment for "${courseTitle}" was rejected. Please review admin feedback.`
+            : `Your payment for "${courseTitle}" was moved back to pending review.`;
+
+      await createStudentNotification({
+        userId: updated.userId,
+        title: "Payment status updated",
+        message: notificationMessage,
+        type: "payment",
+        actionPath: routes.student.payments,
+      });
+
       setPayments((prev) => prev.map((row) => (row.id === payment.id ? updated : row)));
       toast({
         title: `Payment ${nextStatus}`,
@@ -188,7 +206,7 @@ const AdminPaymentsPage = () => {
                 </p>
               </div>
               <div className="flex w-full flex-col gap-2 sm:flex-row lg:w-auto">
-                <div className="relative sm:w-[280px]">
+                <div className="relative w-full sm:w-[280px]">
                   <Search className="pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input
                     value={search}
@@ -197,7 +215,7 @@ const AdminPaymentsPage = () => {
                     className="pl-9"
                   />
                 </div>
-                <div className="flex gap-1">
+                <div className="flex flex-wrap gap-1">
                   {(["all", "pending", "approved", "rejected"] as StatusFilter[]).map(
                     (status) => (
                       <Button
@@ -234,7 +252,7 @@ const AdminPaymentsPage = () => {
                       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                         <div className="space-y-1">
                           <p className="font-semibold">{payment.fullName}</p>
-                          <p className="text-sm text-muted-foreground">
+                          <p className="break-all text-sm text-muted-foreground">
                             {payment.email} • {payment.phone}
                           </p>
                           <p className="text-sm text-muted-foreground">
@@ -242,7 +260,7 @@ const AdminPaymentsPage = () => {
                           </p>
                           <p className="text-sm">
                             Transaction{" "}
-                            <span className="font-medium">{payment.transactionCode}</span> •{" "}
+                            <span className="break-all font-medium">{payment.transactionCode}</span> •{" "}
                             {formatMoney(payment.amount, payment.currency)}
                           </p>
                           <p className="text-xs text-muted-foreground">
@@ -279,6 +297,7 @@ const AdminPaymentsPage = () => {
                           size="sm"
                           disabled={isUpdating}
                           onClick={() => handleStatusUpdate(payment, "approved")}
+                          className="w-full sm:w-auto"
                         >
                           Approve
                         </Button>
@@ -287,6 +306,7 @@ const AdminPaymentsPage = () => {
                           variant="destructive"
                           disabled={isUpdating}
                           onClick={() => handleStatusUpdate(payment, "rejected")}
+                          className="w-full sm:w-auto"
                         >
                           Reject
                         </Button>
@@ -295,6 +315,7 @@ const AdminPaymentsPage = () => {
                           variant="outline"
                           disabled={isUpdating}
                           onClick={() => handleStatusUpdate(payment, "pending")}
+                          className="w-full sm:w-auto"
                         >
                           Mark Pending
                         </Button>

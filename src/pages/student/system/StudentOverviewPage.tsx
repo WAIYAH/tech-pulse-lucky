@@ -1,5 +1,7 @@
+import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import {
+  Bell,
   BookOpenCheck,
   Clock3,
   CreditCard,
@@ -24,9 +26,95 @@ const StudentOverviewPage = () => {
     averageProgress,
     completedLessons,
     totalLessons,
+    supportTickets,
+    unreadNotificationsCount,
   } = useStudentPortal();
 
   const pendingPayments = payments.filter((payment) => payment.status === "pending").length;
+
+  const nextBestAction = useMemo(() => {
+    if (isLoading) return null;
+
+    if (unreadNotificationsCount > 0) {
+      return {
+        title: "Review your latest updates",
+        description: `${unreadNotificationsCount} unread notification${unreadNotificationsCount === 1 ? "" : "s"} waiting.`,
+        ctaLabel: "Open Notifications",
+        href: routes.student.notifications,
+      };
+    }
+
+    const unresolvedSupport = supportTickets.filter((ticket) => ticket.status !== "resolved");
+    if (unresolvedSupport.length > 0) {
+      const active = unresolvedSupport[0];
+      return {
+        title: "Follow up on support request",
+        description: `Ticket "${active.subject}" is currently ${active.status.replace("_", " ")}.`,
+        ctaLabel: "Open Support Center",
+        href: routes.student.support,
+      };
+    }
+
+    const blockedPaidEnrollment = enrollments.find((enrollment) => {
+      const course = courseById[enrollment.courseId];
+      if (!course || course.isFree) return false;
+      return enrollment.accessStatus !== "approved";
+    });
+
+    if (blockedPaidEnrollment) {
+      const course = courseById[blockedPaidEnrollment.courseId];
+      if (course) {
+        return {
+          title: "Unlock your paid course",
+          description: `${course.title} still needs payment verification.`,
+          ctaLabel: "Resolve Payment Access",
+          href: routes.student.payment(course.slug),
+        };
+      }
+    }
+
+    const activeCourse = enrollments
+      .filter((enrollment) => {
+        const hasAccess =
+          enrollment.accessStatus === "free" || enrollment.accessStatus === "approved";
+        return hasAccess && enrollment.progress < 100;
+      })
+      .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))[0];
+
+    if (activeCourse) {
+      const course = courseById[activeCourse.courseId];
+      if (course) {
+        return {
+          title: "Continue your learning streak",
+          description: `Next step: ${course.title} (${activeCourse.progress}% complete).`,
+          ctaLabel: "Continue Course",
+          href: routes.student.learn(course.slug),
+        };
+      }
+    }
+
+    if (enrollments.length === 0) {
+      return {
+        title: "Start your first learning track",
+        description: "Choose a beginner-friendly course and begin today.",
+        ctaLabel: "Explore Courses",
+        href: routes.public.courses,
+      };
+    }
+
+    return {
+      title: "Explore live events",
+      description: "Keep momentum with upcoming webinars and workshops.",
+      ctaLabel: "Open Webinars",
+      href: routes.student.webinars,
+    };
+  }, [
+    courseById,
+    enrollments,
+    isLoading,
+    supportTickets,
+    unreadNotificationsCount,
+  ]);
 
   return (
     <div className="space-y-6">
@@ -39,6 +127,25 @@ const StudentOverviewPage = () => {
           in one place.
         </p>
       </section>
+
+      {nextBestAction && (
+        <section>
+          <Card className="border-primary/30 bg-primary/5">
+            <CardContent className="pt-6">
+              <p className="text-xs font-semibold uppercase tracking-wide text-primary">
+                Next Best Action
+              </p>
+              <h2 className="mt-2 text-xl font-semibold">{nextBestAction.title}</h2>
+              <p className="mt-2 text-sm text-muted-foreground">{nextBestAction.description}</p>
+              <div className="mt-4">
+                <Button asChild>
+                  <Link to={nextBestAction.href}>{nextBestAction.ctaLabel}</Link>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </section>
+      )}
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Card>
@@ -138,26 +245,26 @@ const StudentOverviewPage = () => {
                         </div>
 
                         {latestPayment?.adminNote && (
-                          <p className="mt-2 text-xs text-muted-foreground">
+                          <p className="mt-2 break-words text-xs text-muted-foreground">
                             Admin note: {latestPayment.adminNote}
                           </p>
                         )}
 
                         <div className="mt-3 flex flex-wrap gap-2">
                           {course && hasAccess ? (
-                            <Button size="sm" asChild>
+                            <Button size="sm" asChild className="w-full sm:w-auto">
                               <Link to={routes.student.learn(course.slug)}>
                                 {enrollment.progress > 0 ? "Continue Learning" : "Start Learning"}
                               </Link>
                             </Button>
                           ) : null}
                           {course && !hasAccess && !course.isFree ? (
-                            <Button size="sm" variant="outline" asChild>
+                            <Button size="sm" variant="outline" asChild className="w-full sm:w-auto">
                               <Link to={routes.student.payment(course.slug)}>Open Payment</Link>
                             </Button>
                           ) : null}
                           {course ? (
-                            <Button size="sm" variant="ghost" asChild>
+                            <Button size="sm" variant="ghost" asChild className="w-full sm:w-auto">
                               <Link to={routes.public.course(course.slug)}>Course Details</Link>
                             </Button>
                           ) : null}
@@ -205,6 +312,19 @@ const StudentOverviewPage = () => {
               </p>
               <p className="text-xs text-muted-foreground">
                 Get help with courses, billing, or technical access.
+              </p>
+            </Link>
+
+            <Link
+              to={routes.student.notifications}
+              className="block rounded-lg border border-border bg-background p-3 hover:border-primary/50"
+            >
+              <p className="flex items-center gap-2 font-medium">
+                <Bell className="h-4 w-4 text-primary" />
+                Notifications
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {unreadNotificationsCount} unread updates from support and payments.
               </p>
             </Link>
           </CardContent>

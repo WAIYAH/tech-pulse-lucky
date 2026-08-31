@@ -25,6 +25,11 @@ const StudentAssignmentsPage = () => {
     const rows: AssignmentItem[] = [];
 
     enrollments.forEach((enrollment) => {
+      const hasAccess =
+        enrollment.accessStatus === "free" ||
+        enrollment.accessStatus === "approved";
+      if (!hasAccess) return;
+
       const course = courseById[enrollment.courseId];
       if (!course) return;
 
@@ -140,7 +145,7 @@ const StudentAssignmentsPage = () => {
                     </div>
 
                     <div className="mt-3">
-                      <Button size="sm" asChild>
+                      <Button size="sm" asChild className="w-full sm:w-auto">
                         <Link to={routes.student.learn(assignment.courseSlug)}>
                           Open Lesson
                         </Link>

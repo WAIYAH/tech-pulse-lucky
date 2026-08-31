@@ -127,7 +127,7 @@ const AdminSettingsPage = () => {
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2">
-              <label className="flex items-center justify-between rounded-lg border border-border bg-background p-3">
+              <label className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-background p-3">
                 <span className="text-sm font-medium">Require note on rejection</span>
                 <Switch
                   checked={form.requireRejectionNote}
@@ -137,7 +137,7 @@ const AdminSettingsPage = () => {
                 />
               </label>
 
-              <label className="flex items-center justify-between rounded-lg border border-border bg-background p-3">
+              <label className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-background p-3">
                 <span className="text-sm font-medium">Maintenance mode</span>
                 <Switch
                   checked={form.maintenanceMode}
@@ -149,7 +149,7 @@ const AdminSettingsPage = () => {
             </div>
 
             <div className="flex justify-end">
-              <Button onClick={saveSettings}>Save Admin Settings</Button>
+              <Button onClick={saveSettings} className="w-full sm:w-auto">Save Admin Settings</Button>
             </div>
           </CardContent>
         </Card>
@@ -162,7 +162,7 @@ const AdminSettingsPage = () => {
             <div className="rounded-lg border border-border bg-muted/40 p-3">
               <p className="font-medium">Current User</p>
               <p className="text-muted-foreground">{user?.fullName}</p>
-              <p className="text-xs text-muted-foreground">{user?.email}</p>
+              <p className="break-all text-xs text-muted-foreground">{user?.email}</p>
               <div className="mt-2">
                 <Badge variant="secondary">{user?.role ?? "guest"}</Badge>
               </div>

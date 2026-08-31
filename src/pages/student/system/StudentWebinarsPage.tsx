@@ -1,40 +1,32 @@
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { CalendarDays, Clock3, MapPin, Video } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import type { WebinarRecord } from "@/data/webinars";
+import { readAdminWebinars, subscribeAdminWebinars } from "@/lib/admin/webinarState";
 import { routes } from "@/routes/routeConfig";
 import { useStudentPortal } from "./StudentPortalContext";
 
-const upcomingWebinars = [
-  {
-    id: "web-1",
-    title: "Cybersecurity Fundamentals Live Lab",
-    date: "2026-05-22",
-    time: "7:00 PM EAT",
-    location: "Google Meet",
-    type: "Live Training",
-  },
-  {
-    id: "web-2",
-    title: "Career Roadmap: Junior Dev to Professional Engineer",
-    date: "2026-05-29",
-    time: "7:30 PM EAT",
-    location: "YouTube Live",
-    type: "Career Session",
-  },
-  {
-    id: "web-3",
-    title: "Practical API Security Workshop",
-    date: "2026-06-05",
-    time: "6:30 PM EAT",
-    location: "Zoom",
-    type: "Hands-on Workshop",
-  },
-];
-
 const StudentWebinarsPage = () => {
   const { config } = useStudentPortal();
+  const [webinars, setWebinars] = useState<WebinarRecord[]>(() => readAdminWebinars());
+
+  useEffect(() => {
+    const sync = () => setWebinars(readAdminWebinars());
+    sync();
+    return subscribeAdminWebinars(sync);
+  }, []);
+
+  const upcomingWebinars = useMemo(() => {
+    const now = Date.now();
+    const sorted = [...webinars].sort(
+      (a, b) => new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime(),
+    );
+    const upcoming = sorted.filter((webinar) => new Date(webinar.startsAt).getTime() >= now);
+    return (upcoming.length > 0 ? upcoming : sorted).slice(0, 6);
+  }, [webinars]);
 
   return (
     <div className="space-y-6">
@@ -51,31 +43,39 @@ const StudentWebinarsPage = () => {
             <h2 className="text-xl font-semibold">Upcoming Sessions</h2>
           </CardHeader>
           <CardContent className="space-y-3">
-            {upcomingWebinars.map((webinar) => (
-              <div
-                key={webinar.id}
-                className="rounded-xl border border-border bg-background p-4"
-              >
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <p className="font-semibold">{webinar.title}</p>
-                  <Badge variant="secondary">{webinar.type}</Badge>
+            {upcomingWebinars.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                No webinars are currently scheduled.
+              </p>
+            ) : (
+              upcomingWebinars.map((webinar) => (
+                <div
+                  key={webinar.id}
+                  className="rounded-xl border border-border bg-background p-4"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <p className="font-semibold">{webinar.title}</p>
+                    <Badge variant={webinar.type === "paid" ? "default" : "secondary"}>
+                      {webinar.type === "paid" ? "Paid Masterclass" : "Free Webinar"}
+                    </Badge>
+                  </div>
+                  <div className="mt-2 flex flex-wrap gap-2 text-xs text-muted-foreground">
+                    <span className="inline-flex items-center gap-1 rounded-full border border-border px-2 py-1">
+                      <CalendarDays className="h-3.5 w-3.5" />
+                      {new Date(webinar.startsAt).toLocaleDateString("en-KE")}
+                    </span>
+                    <span className="inline-flex items-center gap-1 rounded-full border border-border px-2 py-1">
+                      <Clock3 className="h-3.5 w-3.5" />
+                      {webinar.time}
+                    </span>
+                    <span className="inline-flex items-center gap-1 rounded-full border border-border px-2 py-1">
+                      <MapPin className="h-3.5 w-3.5" />
+                      Online Session
+                    </span>
+                  </div>
                 </div>
-                <div className="mt-2 flex flex-wrap gap-2 text-xs text-muted-foreground">
-                  <span className="inline-flex items-center gap-1 rounded-full border border-border px-2 py-1">
-                    <CalendarDays className="h-3.5 w-3.5" />
-                    {new Date(webinar.date).toLocaleDateString("en-KE")}
-                  </span>
-                  <span className="inline-flex items-center gap-1 rounded-full border border-border px-2 py-1">
-                    <Clock3 className="h-3.5 w-3.5" />
-                    {webinar.time}
-                  </span>
-                  <span className="inline-flex items-center gap-1 rounded-full border border-border px-2 py-1">
-                    <MapPin className="h-3.5 w-3.5" />
-                    {webinar.location}
-                  </span>
-                </div>
-              </div>
-            ))}
+              ))
+            )}
           </CardContent>
         </Card>
 

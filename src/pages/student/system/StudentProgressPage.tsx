@@ -86,6 +86,9 @@ const StudentProgressPage = () => {
                     const progressRows = progressByCourseId[enrollment.courseId] ?? [];
                     const completedLessons = progressRows.filter((row) => row.completed).length;
                     const totalLessons = course?.lessonsCount ?? 0;
+                    const hasAccess =
+                      enrollment.accessStatus === "free" ||
+                      enrollment.accessStatus === "approved";
                     const nextLesson = course?.lessons
                       .slice()
                       .sort((a, b) => a.lessonOrder - b.lessonOrder)
@@ -124,15 +127,29 @@ const StudentProgressPage = () => {
                         </div>
 
                         <div className="mt-3 flex flex-wrap gap-2">
-                          {course ? (
-                            <Button size="sm" asChild>
+                          {course && hasAccess ? (
+                            <Button size="sm" asChild className="w-full sm:w-auto">
                               <Link to={routes.student.learn(course.slug)}>
                                 {enrollment.progress > 0 ? "Continue Course" : "Start Course"}
                               </Link>
                             </Button>
                           ) : null}
+                          {course && !hasAccess && !course.isFree ? (
+                            <Button size="sm" variant="outline" asChild className="w-full sm:w-auto">
+                              <Link to={routes.student.payment(course.slug)}>
+                                Resolve Payment Access
+                              </Link>
+                            </Button>
+                          ) : null}
+                          {course && !hasAccess && course.isFree ? (
+                            <Button size="sm" variant="outline" asChild className="w-full sm:w-auto">
+                              <Link to={routes.public.course(course.slug)}>
+                                Enroll to Start
+                              </Link>
+                            </Button>
+                          ) : null}
                           {course ? (
-                            <Button size="sm" variant="outline" asChild>
+                            <Button size="sm" variant="outline" asChild className="w-full sm:w-auto">
                               <Link to={routes.public.course(course.slug)}>View Details</Link>
                             </Button>
                           ) : null}

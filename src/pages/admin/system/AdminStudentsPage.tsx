@@ -129,13 +129,13 @@ const AdminStudentsPage = () => {
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
                   placeholder="Search by name or email"
-                  className="sm:w-[260px]"
+                  className="w-full sm:w-[260px]"
                 />
                 <Select
                   value={roleFilter}
                   onValueChange={(value: RoleFilter) => setRoleFilter(value)}
                 >
-                  <SelectTrigger className="sm:w-[180px]">
+                  <SelectTrigger className="w-full sm:w-[180px]">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -156,76 +156,78 @@ const AdminStudentsPage = () => {
                 No users matched your filters.
               </p>
             ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>User</TableHead>
-                    <TableHead>Role</TableHead>
-                    <TableHead>Joined</TableHead>
-                    <TableHead>Enrollments</TableHead>
-                    <TableHead>Payment Status</TableHead>
-                    <TableHead>Courses</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredUsers.map((user) => (
-                    <TableRow key={user.id}>
-                      <TableCell>
-                        <p className="font-medium">{user.fullName}</p>
-                        <p className="text-xs text-muted-foreground">{user.email}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {user.phone || "No phone on file"}
-                        </p>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={user.role === "admin" ? "default" : "outline"}>
-                          {user.role}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        {new Date(user.dateJoined).toLocaleDateString("en-KE")}
-                      </TableCell>
-                      <TableCell>
-                        <p className="text-sm">
-                          {user.enrolledCourseIds.length} total
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          Approved {user.approvedEnrollments} • Pending {user.pendingEnrollments}
-                        </p>
-                      </TableCell>
-                      <TableCell>
-                        {user.latestPaymentStatus ? (
-                          <Badge variant="secondary">{user.latestPaymentStatus}</Badge>
-                        ) : (
-                          <span className="text-xs text-muted-foreground">No payments</span>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex flex-wrap gap-1">
-                          {user.enrolledCourseIds.length === 0 ? (
-                            <span className="text-xs text-muted-foreground">None</span>
-                          ) : (
-                            user.enrolledCourseIds.slice(0, 3).map((courseId) => (
-                              <Badge
-                                key={`${user.id}-${courseId}`}
-                                variant="secondary"
-                                className="max-w-[200px] truncate"
-                              >
-                                {courseTitleById[courseId] ?? courseId}
-                              </Badge>
-                            ))
-                          )}
-                          {user.enrolledCourseIds.length > 3 && (
-                            <Badge variant="outline">
-                              +{user.enrolledCourseIds.length - 3}
-                            </Badge>
-                          )}
-                        </div>
-                      </TableCell>
+              <div className="overflow-x-auto">
+                <Table className="min-w-[980px]">
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>User</TableHead>
+                      <TableHead>Role</TableHead>
+                      <TableHead>Joined</TableHead>
+                      <TableHead>Enrollments</TableHead>
+                      <TableHead>Payment Status</TableHead>
+                      <TableHead>Courses</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredUsers.map((user) => (
+                      <TableRow key={user.id}>
+                        <TableCell>
+                          <p className="font-medium">{user.fullName}</p>
+                          <p className="break-all text-xs text-muted-foreground">{user.email}</p>
+                          <p className="break-all text-xs text-muted-foreground">
+                            {user.phone || "No phone on file"}
+                          </p>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant={user.role === "admin" ? "default" : "outline"}>
+                            {user.role}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          {new Date(user.dateJoined).toLocaleDateString("en-KE")}
+                        </TableCell>
+                        <TableCell>
+                          <p className="text-sm">
+                            {user.enrolledCourseIds.length} total
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            Approved {user.approvedEnrollments} • Pending {user.pendingEnrollments}
+                          </p>
+                        </TableCell>
+                        <TableCell>
+                          {user.latestPaymentStatus ? (
+                            <Badge variant="secondary">{user.latestPaymentStatus}</Badge>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">No payments</span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex flex-wrap gap-1">
+                            {user.enrolledCourseIds.length === 0 ? (
+                              <span className="text-xs text-muted-foreground">None</span>
+                            ) : (
+                              user.enrolledCourseIds.slice(0, 3).map((courseId) => (
+                                <Badge
+                                  key={`${user.id}-${courseId}`}
+                                  variant="secondary"
+                                  className="max-w-[200px] truncate"
+                                >
+                                  {courseTitleById[courseId] ?? courseId}
+                                </Badge>
+                              ))
+                            )}
+                            {user.enrolledCourseIds.length > 3 && (
+                              <Badge variant="outline">
+                                +{user.enrolledCourseIds.length - 3}
+                              </Badge>
+                            )}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             )}
           </CardContent>
         </Card>

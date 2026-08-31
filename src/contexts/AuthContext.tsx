@@ -59,10 +59,22 @@ interface LocalAuthUserRecord {
 
 interface LocalSessionRecord {
   userId: string;
+  lastActivityAt?: string;
 }
 
 const LOCAL_USERS_KEY = "lms_auth_users";
 const LOCAL_SESSION_KEY = "lms_auth_session";
+const LOCAL_LOGIN_ATTEMPTS_KEY = "lms_auth_login_attempts_v1";
+const LOCAL_LOGIN_MAX_ATTEMPTS = 5;
+const LOCAL_LOGIN_LOCKOUT_MS = 15 * 60 * 1000;
+
+interface LocalLoginAttemptEntry {
+  count: number;
+  lockUntil?: string;
+  lastFailureAt: string;
+}
+
+type LocalLoginAttemptMap = Record<string, LocalLoginAttemptEntry>;
 
 const LOCAL_BOOTSTRAP_ADMIN: LocalAuthUserRecord = {
   id: "local-admin-bootstrap",
@@ -163,6 +175,75 @@ const saveLocalSession = (session: LocalSessionRecord): void => {
 
 const clearLocalSession = (): void => {
   window.localStorage.removeItem(LOCAL_SESSION_KEY);
+};
+
+const loadLoginAttempts = (): LocalLoginAttemptMap => {
+  const raw = window.localStorage.getItem(LOCAL_LOGIN_ATTEMPTS_KEY);
+  return safeJsonParse<LocalLoginAttemptMap>(raw, {});
+};
+
+const saveLoginAttempts = (attempts: LocalLoginAttemptMap): void => {
+  window.localStorage.setItem(LOCAL_LOGIN_ATTEMPTS_KEY, JSON.stringify(attempts));
+};
+
+const clearExpiredLoginLocks = (attempts: LocalLoginAttemptMap): LocalLoginAttemptMap => {
+  const now = Date.now();
+  const next: LocalLoginAttemptMap = {};
+
+  Object.entries(attempts).forEach(([email, entry]) => {
+    if (!entry?.lockUntil) {
+      next[email] = entry;
+      return;
+    }
+
+    const lockUntilMs = Date.parse(entry.lockUntil);
+    if (Number.isNaN(lockUntilMs) || lockUntilMs <= now) {
+      return;
+    }
+
+    next[email] = entry;
+  });
+
+  return next;
+};
+
+const getLoginLockRemainingMs = (email: string): number => {
+  const attempts = clearExpiredLoginLocks(loadLoginAttempts());
+  saveLoginAttempts(attempts);
+
+  const entry = attempts[email];
+  if (!entry?.lockUntil) return 0;
+
+  const lockUntilMs = Date.parse(entry.lockUntil);
+  if (Number.isNaN(lockUntilMs)) return 0;
+
+  const remainingMs = lockUntilMs - Date.now();
+  return remainingMs > 0 ? remainingMs : 0;
+};
+
+const registerFailedLoginAttempt = (email: string): void => {
+  const attempts = clearExpiredLoginLocks(loadLoginAttempts());
+  const previous = attempts[email];
+  const nextCount = (previous?.count ?? 0) + 1;
+  const nowIso = new Date().toISOString();
+
+  attempts[email] = {
+    count: nextCount,
+    lastFailureAt: nowIso,
+    lockUntil:
+      nextCount >= LOCAL_LOGIN_MAX_ATTEMPTS
+        ? new Date(Date.now() + LOCAL_LOGIN_LOCKOUT_MS).toISOString()
+        : undefined,
+  };
+
+  saveLoginAttempts(attempts);
+};
+
+const clearLoginAttempts = (email: string): void => {
+  const attempts = clearExpiredLoginLocks(loadLoginAttempts());
+  if (!(email in attempts)) return;
+  delete attempts[email];
+  saveLoginAttempts(attempts);
 };
 
 const ensureLocalBootstrapUsers = (): void => {
@@ -318,6 +399,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     users.push(localUser);
     saveLocalUsers(users);
     saveLocalSession({ userId: localUser.id });
+    clearLoginAttempts(normalizedEmail);
 
     const profile: LmsProfile = {
       id: localUser.id,
@@ -365,19 +447,33 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       };
     }
 
+    const lockRemainingMs = getLoginLockRemainingMs(normalizedEmail);
+    if (lockRemainingMs > 0) {
+      const lockMinutes = Math.ceil(lockRemainingMs / 60000);
+      return {
+        success: false,
+        message: `Too many failed attempts. Try again in ${lockMinutes} minute${
+          lockMinutes === 1 ? "" : "s"
+        }.`,
+      };
+    }
+
     const users = loadLocalUsers();
     const localUser = users.find((item) => item.email === normalizedEmail);
 
     if (!localUser) {
+      registerFailedLoginAttempt(normalizedEmail);
       return { success: false, message: "Invalid email or password." };
     }
 
     const passwordHash = await passwordToHash(input.password);
     if (passwordHash !== localUser.passwordHash) {
+      registerFailedLoginAttempt(normalizedEmail);
       return { success: false, message: "Invalid email or password." };
     }
 
     saveLocalSession({ userId: localUser.id });
+    clearLoginAttempts(normalizedEmail);
     const profile: LmsProfile = {
       id: localUser.id,
       fullName: localUser.fullName,

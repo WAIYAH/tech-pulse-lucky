@@ -1,17 +1,30 @@
 import { motion } from "framer-motion";
+import { useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Calendar, Clock, ArrowLeft, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import SEO from "@/components/common/SEO";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { getWebinarBySlug } from "@/data/webinars";
+import { lmsConfig } from "@/data/lmsConfig";
+import type { WebinarRecord } from "@/data/webinars";
+import { readAdminWebinars, subscribeAdminWebinars } from "@/lib/admin/webinarState";
 import { routes } from "@/routes/routeConfig";
 
 const EventDetails = () => {
   const { eventSlug } = useParams<{ eventSlug: string }>();
   const navigate = useNavigate();
+  const [events, setEvents] = useState<WebinarRecord[]>(() => readAdminWebinars());
 
-  const event = eventSlug ? getWebinarBySlug(eventSlug) : undefined;
+  useEffect(() => {
+    const sync = () => setEvents(readAdminWebinars());
+    sync();
+    return subscribeAdminWebinars(sync);
+  }, []);
+
+  const event = useMemo(() => {
+    if (!eventSlug) return undefined;
+    return events.find((row) => row.slug === eventSlug);
+  }, [eventSlug, events]);
 
   if (!event) {
     return (
@@ -211,7 +224,7 @@ const EventDetails = () => {
                   <h3 className="text-lg font-bold">Payment Methods</h3>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  {event.paymentMethods.map((method, idx) => (
+                  {(event.paymentMethods ?? []).map((method, idx) => (
                     <div
                       key={idx}
                       className="flex items-center gap-2 p-2 bg-accent/10 rounded-lg"
@@ -243,7 +256,7 @@ const EventDetails = () => {
                 variant="outline"
                 className="w-full gap-2"
                 onClick={() =>
-                  (window.location.href = `mailto:luckiesadabwoy@gmail.com?subject=Support for ${event.title}`)
+                  (window.location.href = `mailto:${lmsConfig.supportEmail}?subject=Support for ${event.title}`)
                 }
               >
                 <Mail size={18} />
@@ -259,10 +272,10 @@ const EventDetails = () => {
                   out to our support team anytime.
                 </p>
                 <a
-                  href="mailto:luckiesadabwoy@gmail.com"
+                  href={`mailto:${lmsConfig.supportEmail}`}
                   className="text-primary font-semibold hover:underline"
                 >
-                  luckiesadabwoy@gmail.com
+                  {lmsConfig.supportEmail}
                 </a>
               </CardContent>
             </Card>

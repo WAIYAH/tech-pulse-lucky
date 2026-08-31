@@ -13,6 +13,7 @@ import ScrollToTopOnNavigate from "./components/ScrollToTopOnNavigate";
 import BackToTopButton from "./components/BackToTopButton";
 import CookieConsentBanner from "./components/CookieConsentBanner";
 import ContentProtection from "./components/ContentProtection";
+import SessionSecurityGuard from "./components/security/SessionSecurityGuard";
 import AuthRoute from "./components/lms/AuthRoute";
 import ProtectedRoute from "./components/lms/ProtectedRoute";
 import AdminRoute from "./components/lms/AdminRoute";
@@ -58,10 +59,12 @@ import StudentPaymentsPage from "./pages/student/system/StudentPaymentsPage";
 import StudentAssignmentsPage from "./pages/student/system/StudentAssignmentsPage";
 import StudentCertificatesPage from "./pages/student/system/StudentCertificatesPage";
 import StudentWebinarsPage from "./pages/student/system/StudentWebinarsPage";
+import StudentNotificationsPage from "./pages/student/system/StudentNotificationsPage";
 import StudentResourcesPage from "./pages/student/system/StudentResourcesPage";
 import StudentSupportPage from "./pages/student/system/StudentSupportPage";
 import StudentProfilePage from "./pages/student/system/StudentProfilePage";
 import StudentSettingsPage from "./pages/student/system/StudentSettingsPage";
+import AdminSupportPage from "./pages/admin/system/AdminSupportPage";
 import { routes } from "./routes/routeConfig";
 
 const queryClient = new QueryClient();
@@ -115,7 +118,7 @@ const AppRoutes = () => (
     <Route
       path={routes.student.dashboard}
       element={
-        <ProtectedRoute>
+        <ProtectedRoute allowedRoles={["student"]}>
           <StudentPortalProvider>
             <StudentPortalLayout />
           </StudentPortalProvider>
@@ -132,6 +135,7 @@ const AppRoutes = () => (
       <Route path="assignments" element={<StudentAssignmentsPage />} />
       <Route path="certificates" element={<StudentCertificatesPage />} />
       <Route path="webinars" element={<StudentWebinarsPage />} />
+      <Route path="notifications" element={<StudentNotificationsPage />} />
       <Route path="resources" element={<StudentResourcesPage />} />
       <Route path="support" element={<StudentSupportPage />} />
       <Route path="profile" element={<StudentProfilePage />} />
@@ -140,7 +144,7 @@ const AppRoutes = () => (
     <Route
       path={routes.legacy.myCourses}
       element={
-        <ProtectedRoute>
+        <ProtectedRoute allowedRoles={["student"]}>
           <Navigate to={routes.student.myCourses} replace />
         </ProtectedRoute>
       }
@@ -148,7 +152,7 @@ const AppRoutes = () => (
     <Route
       path="/learn/:courseSlug"
       element={
-        <ProtectedRoute>
+        <ProtectedRoute allowedRoles={["student"]}>
           <LearnCourse />
         </ProtectedRoute>
       }
@@ -156,7 +160,7 @@ const AppRoutes = () => (
     <Route
       path="/payment/:courseSlug"
       element={
-        <ProtectedRoute>
+        <ProtectedRoute allowedRoles={["student"]}>
           <PaymentPage />
         </ProtectedRoute>
       }
@@ -173,6 +177,7 @@ const AppRoutes = () => (
       <Route path="students" element={<AdminStudentsPage />} />
       <Route path="courses" element={<AdminCoursesPage />} />
       <Route path="payments" element={<AdminPaymentsPage />} />
+      <Route path="support" element={<AdminSupportPage />} />
       <Route path="finance" element={<AdminFinancePage />} />
       <Route path="webinars" element={<AdminWebinarsPage />} />
       <Route path="articles" element={<AdminArticlesPage />} />
@@ -229,6 +234,7 @@ const AppShell = () => {
       <ScrollToTopOnNavigate />
       <GlobalPageBackground />
       <ContentProtection />
+      <SessionSecurityGuard />
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[80] focus:rounded-lg focus:bg-card focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-foreground focus:shadow-lg"

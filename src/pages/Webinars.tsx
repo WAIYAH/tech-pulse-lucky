@@ -32,13 +32,13 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { lmsConfig } from "@/data/lmsConfig";
-import { webinars as webinarCatalog, type WebinarRecord } from "@/data/webinars";
+import type { WebinarRecord } from "@/data/webinars";
 import { routes } from "@/routes/routeConfig";
-import { z } from "zod";
 import { emailSchema, transactionCodeSchema } from "@/lib/validation";
+import { readAdminWebinars, subscribeAdminWebinars } from "@/lib/admin/webinarState";
 
-const useCountdown = (target: string) => {
-  const targetMs = useMemo(() => new Date(target).getTime(), [target]);
+const useCountdown = (target?: string | null) => {
+  const targetMs = useMemo(() => (target ? new Date(target).getTime() : 0), [target]);
   const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
@@ -46,12 +46,12 @@ const useCountdown = (target: string) => {
     return () => window.clearInterval(id);
   }, []);
 
-  const diff = Math.max(0, targetMs - now);
+  const diff = target ? Math.max(0, targetMs - now) : 0;
   const days = Math.floor(diff / (1000 * 60 * 60 * 24));
   const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
   const minutes = Math.floor((diff / (1000 * 60)) % 60);
   const seconds = Math.floor((diff / 1000) % 60);
-  return { days, hours, minutes, seconds, isLive: diff === 0 };
+  return { days, hours, minutes, seconds, isLive: target ? diff === 0 : false };
 };
 
 const CountdownBlock = ({ label, value }: { label: string; value: number }) => (
@@ -76,10 +76,19 @@ const Webinars = () => {
   const [txCode, setTxCode] = useState("");
   const [isSubmittingPayment, setIsSubmittingPayment] = useState(false);
   const [isSubmittingWaitlist, setIsSubmittingWaitlist] = useState(false);
+  const [upcomingWebinars, setUpcomingWebinars] = useState<WebinarRecord[]>(() =>
+    readAdminWebinars(),
+  );
 
-  const upcomingWebinars = webinarCatalog;
+  useEffect(() => {
+    const sync = () => setUpcomingWebinars(readAdminWebinars());
+    sync();
+    return subscribeAdminWebinars(sync);
+  }, []);
 
   const featured = useMemo(() => {
+    if (upcomingWebinars.length === 0) return null;
+
     const now = Date.now();
     return (
       [...upcomingWebinars]
@@ -91,7 +100,7 @@ const Webinars = () => {
     );
   }, [upcomingWebinars]);
 
-  const countdown = useCountdown(featured.startsAt);
+  const countdown = useCountdown(featured?.startsAt);
 
   const openCheckout = (w: WebinarRecord) => {
     setActiveWebinar(w);
@@ -188,65 +197,78 @@ const Webinars = () => {
         </motion.div>
 
         {/* Featured countdown */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-12 rounded-3xl border-2 border-primary/30 bg-gradient-to-br from-primary/5 via-background to-accent/5 p-6 md:p-10"
-        >
-          <div className="grid md:grid-cols-2 gap-6 items-center">
-            <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold mb-3">
-                <Timer size={14} /> Next live session
-              </div>
-              <h2 className="text-2xl md:text-3xl font-bold mb-2">
-                {featured.title}
-              </h2>
-              <p className="text-muted-foreground mb-4">{featured.description}</p>
-              <div className="flex flex-wrap gap-3 text-sm text-muted-foreground mb-4">
-                <span className="inline-flex items-center gap-1">
-                  <Calendar size={14} className="text-primary" /> {featured.date}
-                </span>
-                <span className="inline-flex items-center gap-1">
-                  <Clock size={14} className="text-primary" /> {featured.time}
-                </span>
-              </div>
-              <div className="flex flex-wrap gap-3">
-                {featured.type === "free" ? (
-                  <Button
-                    variant="hero"
-                    onClick={() => window.open(featured.bookingLink, "_blank")}
-                  >
-                    Register Free
+        {featured ? (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-12 rounded-3xl border-2 border-primary/30 bg-gradient-to-br from-primary/5 via-background to-accent/5 p-6 md:p-10"
+          >
+            <div className="grid md:grid-cols-2 gap-6 items-center">
+              <div>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold mb-3">
+                  <Timer size={14} /> Next live session
+                </div>
+                <h2 className="text-2xl md:text-3xl font-bold mb-2">
+                  {featured.title}
+                </h2>
+                <p className="text-muted-foreground mb-4">{featured.description}</p>
+                <div className="flex flex-wrap gap-3 text-sm text-muted-foreground mb-4">
+                  <span className="inline-flex items-center gap-1">
+                    <Calendar size={14} className="text-primary" /> {featured.date}
+                  </span>
+                  <span className="inline-flex items-center gap-1">
+                    <Clock size={14} className="text-primary" /> {featured.time}
+                  </span>
+                </div>
+                <div className="flex flex-wrap gap-3">
+                  {featured.type === "free" ? (
+                    <Button
+                      variant="hero"
+                      onClick={() => window.open(featured.bookingLink, "_blank")}
+                    >
+                      Register Free
+                    </Button>
+                  ) : (
+                    <Button variant="hero" onClick={() => openCheckout(featured)}>
+                      Book for {featured.price}
+                    </Button>
+                  )}
+                  <Button variant="outline" onClick={() => openWaitlist(featured)}>
+                    Join Waitlist
                   </Button>
-                ) : (
-                  <Button variant="hero" onClick={() => openCheckout(featured)}>
-                    Book for {featured.price}
-                  </Button>
-                )}
-                <Button variant="outline" onClick={() => openWaitlist(featured)}>
-                  Join Waitlist
-                </Button>
+                </div>
+              </div>
+              <div>
+                <p className="text-xs uppercase tracking-wider text-muted-foreground text-center mb-3">
+                  {countdown.isLive ? "We're live now" : "Starts in"}
+                </p>
+                <div className="flex justify-center gap-2 md:gap-3">
+                  <CountdownBlock label="Days" value={countdown.days} />
+                  <CountdownBlock label="Hours" value={countdown.hours} />
+                  <CountdownBlock label="Mins" value={countdown.minutes} />
+                  <CountdownBlock label="Secs" value={countdown.seconds} />
+                </div>
               </div>
             </div>
-            <div>
-              <p className="text-xs uppercase tracking-wider text-muted-foreground text-center mb-3">
-                {countdown.isLive ? "We're live now" : "Starts in"}
-              </p>
-              <div className="flex justify-center gap-2 md:gap-3">
-                <CountdownBlock label="Days" value={countdown.days} />
-                <CountdownBlock label="Hours" value={countdown.hours} />
-                <CountdownBlock label="Mins" value={countdown.minutes} />
-                <CountdownBlock label="Secs" value={countdown.seconds} />
-              </div>
-            </div>
-          </div>
-        </motion.div>
+          </motion.div>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-12 rounded-3xl border border-border bg-card p-6 text-center"
+          >
+            <h2 className="text-2xl font-bold">No Upcoming Webinars Yet</h2>
+            <p className="mt-2 text-muted-foreground">
+              New sessions will appear here once the admin publishes them.
+            </p>
+          </motion.div>
+        )}
 
         {/* Webinar Cards */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
           {upcomingWebinars.map((webinar, index) => (
             <motion.div
-              key={index}
+              key={webinar.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
@@ -343,6 +365,13 @@ const Webinars = () => {
               </Card>
             </motion.div>
           ))}
+          {upcomingWebinars.length === 0 && (
+            <Card className="md:col-span-2 lg:col-span-3 border border-border bg-card">
+              <CardContent className="py-8 text-center text-muted-foreground">
+                Webinar sessions are being scheduled. Check back soon.
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         {/* CTA Section */}
@@ -365,7 +394,12 @@ const Webinars = () => {
             >
               Request Custom Training
             </Button>
-            <Button variant="outline" size="lg" onClick={() => openWaitlist(featured)}>
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={() => featured && openWaitlist(featured)}
+              disabled={!featured}
+            >
               Join Waitlist
             </Button>
           </div>

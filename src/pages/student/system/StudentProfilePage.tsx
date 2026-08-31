@@ -155,7 +155,7 @@ const StudentProfilePage = () => {
             </div>
 
             <div className="flex justify-end">
-              <Button onClick={saveProfile}>Save Profile</Button>
+              <Button onClick={saveProfile} className="w-full sm:w-auto">Save Profile</Button>
             </div>
           </CardContent>
         </Card>
@@ -171,11 +171,11 @@ const StudentProfilePage = () => {
             </div>
             <div className="rounded-lg border border-border bg-background p-3">
               <p className="font-medium">Email</p>
-              <p className="text-muted-foreground">{user.email}</p>
+              <p className="break-all text-muted-foreground">{user.email}</p>
             </div>
             <div className="rounded-lg border border-border bg-background p-3">
               <p className="font-medium">Phone</p>
-              <p className="text-muted-foreground">{user.phone || "Not provided"}</p>
+              <p className="break-all text-muted-foreground">{user.phone || "Not provided"}</p>
             </div>
             <div className="rounded-lg border border-border bg-background p-3">
               <p className="font-medium">Role</p>

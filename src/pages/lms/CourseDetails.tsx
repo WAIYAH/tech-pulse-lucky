@@ -12,19 +12,57 @@ import { lmsProvider } from "@/lib/lms";
 import { getCourseBySlug } from "@/data/courses";
 import { lmsConfig, formatKesAmount } from "@/data/lmsConfig";
 import { routes } from "@/routes/routeConfig";
-import type { EnrollmentAccessStatus, LmsPayment } from "@/types/lms";
+import type { EnrollmentAccessStatus, LmsCourse, LmsPayment } from "@/types/lms";
 
 const CourseDetails = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
   const { isAuthenticated, user } = useAuth();
+  const userId = user?.id ?? null;
   const [isEnrolling, setIsEnrolling] = useState(false);
+  const [course, setCourse] = useState<LmsCourse | null>(() =>
+    slug ? getCourseBySlug(slug) ?? null : null,
+  );
+  const [isCourseLoading, setIsCourseLoading] = useState(true);
   const [accessStatus, setAccessStatus] = useState<EnrollmentAccessStatus | null>(null);
   const [latestPayment, setLatestPayment] = useState<LmsPayment | null>(null);
   const [isAccessLoading, setIsAccessLoading] = useState(false);
+  const courseId = course?.id ?? null;
 
-  const course = useMemo(() => (slug ? getCourseBySlug(slug) : undefined), [slug]);
+  useEffect(() => {
+    let isMounted = true;
+    const localCourse = slug ? getCourseBySlug(slug) ?? null : null;
+    setCourse(localCourse);
+
+    if (!slug) {
+      setIsCourseLoading(false);
+      return () => {
+        isMounted = false;
+      };
+    }
+
+    setIsCourseLoading(true);
+    lmsProvider
+      .getCourseBySlug(slug)
+      .then((remoteCourse) => {
+        if (!isMounted) return;
+        setCourse(remoteCourse ?? localCourse);
+      })
+      .catch(() => {
+        if (!isMounted) return;
+        setCourse(localCourse);
+      })
+      .finally(() => {
+        if (!isMounted) return;
+        setIsCourseLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [slug]);
+
   const sortedCurriculum = useMemo(
     () => [...(course?.lessons ?? [])].sort((a, b) => a.lessonOrder - b.lessonOrder),
     [course?.lessons],
@@ -32,31 +70,42 @@ const CourseDetails = () => {
 
   useEffect(() => {
     const loadAccessState = async () => {
-      if (!user || !course) {
+      if (!userId || !courseId) {
         setAccessStatus(null);
         setLatestPayment(null);
+        setIsAccessLoading(false);
         return;
       }
 
       setIsAccessLoading(true);
       const [enrollments, payments] = await Promise.all([
-        lmsProvider.getEnrollments(user.id),
-        lmsProvider.getPaymentsForUser(user.id),
+        lmsProvider.getEnrollments(userId),
+        lmsProvider.getPaymentsForUser(userId),
       ]);
 
-      const enrollment = enrollments.find((row) => row.courseId === course.id);
+      const enrollment = enrollments.find((row) => row.courseId === courseId);
       setAccessStatus(enrollment?.accessStatus ?? null);
 
       const latestCoursePayment =
         payments
-          .filter((row) => row.courseId === course.id)
+          .filter((row) => row.courseId === courseId)
           .sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0] ?? null;
       setLatestPayment(latestCoursePayment);
       setIsAccessLoading(false);
     };
 
     loadAccessState();
-  }, [course, user]);
+  }, [courseId, userId]);
+
+  if (isCourseLoading) {
+    return (
+      <div className="min-h-screen py-20">
+        <div className="container mx-auto px-4 text-center">
+          <p className="text-muted-foreground">Loading course details...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!course) {
     return (

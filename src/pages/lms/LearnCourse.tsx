@@ -14,6 +14,7 @@ import { getCourseBySlug } from "@/data/courses";
 import { formatKesAmount, lmsConfig } from "@/data/lmsConfig";
 import type {
   EnrollmentAccessStatus,
+  LmsCourse,
   LmsEnrollment,
   LmsLesson,
   LmsLessonProgress,
@@ -39,10 +40,10 @@ const LearnCourse = () => {
   const { user } = useAuth();
   const { toast } = useToast();
 
-  const course = useMemo(
-    () => (courseSlug ? getCourseBySlug(courseSlug) : undefined),
-    [courseSlug],
+  const [course, setCourse] = useState<LmsCourse | null>(() =>
+    courseSlug ? getCourseBySlug(courseSlug) ?? null : null,
   );
+  const [isCourseLoading, setIsCourseLoading] = useState(true);
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -107,6 +108,39 @@ const LearnCourse = () => {
   };
 
   useEffect(() => {
+    let isMounted = true;
+    const localCourse = courseSlug ? getCourseBySlug(courseSlug) ?? null : null;
+    setCourse(localCourse);
+
+    if (!courseSlug) {
+      setIsCourseLoading(false);
+      return () => {
+        isMounted = false;
+      };
+    }
+
+    setIsCourseLoading(true);
+    lmsProvider
+      .getCourseBySlug(courseSlug)
+      .then((remoteCourse) => {
+        if (!isMounted) return;
+        setCourse(remoteCourse ?? localCourse);
+      })
+      .catch(() => {
+        if (!isMounted) return;
+        setCourse(localCourse);
+      })
+      .finally(() => {
+        if (!isMounted) return;
+        setIsCourseLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [courseSlug]);
+
+  useEffect(() => {
     loadLearnState();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [course?.id, user?.id]);
@@ -163,6 +197,16 @@ const LearnCourse = () => {
       });
     }
   };
+
+  if (isCourseLoading) {
+    return (
+      <div className="min-h-screen py-16">
+        <div className="container mx-auto px-4">
+          <p className="text-muted-foreground">Loading course content...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!course) {
     return (

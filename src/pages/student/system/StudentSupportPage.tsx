@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { LifeBuoy, MessageCircleHeart } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -9,23 +9,49 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import {
+  createStudentNotification,
+  createSupportTicket,
   readStudentSupportTickets,
-  saveStudentSupportTickets,
+  subscribeStudentExperience,
   type SupportTicket,
+  type SupportTicketCategory,
   type SupportTicketPriority,
+  updateSupportTicket,
 } from "@/lib/student/studentPortalState";
 import { useStudentPortal } from "./StudentPortalContext";
+import { readAdminSettings } from "@/lib/admin/adminState";
 
 const StudentSupportPage = () => {
-  const { user, config } = useStudentPortal();
+  const { user } = useStudentPortal();
   const { toast } = useToast();
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
-  const [category, setCategory] = useState<SupportTicket["category"]>("course");
+  const [category, setCategory] = useState<SupportTicketCategory>("course");
   const [priority, setPriority] = useState<SupportTicketPriority>("medium");
-  const [tickets, setTickets] = useState<SupportTicket[]>(() =>
-    user ? readStudentSupportTickets(user.id) : [],
-  );
+  const [tickets, setTickets] = useState<SupportTicket[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const supportSettings = readAdminSettings();
+
+  useEffect(() => {
+    if (!user) return;
+
+    let isMounted = true;
+    const sync = async () => {
+      const rows = await readStudentSupportTickets(user.id);
+      if (!isMounted) return;
+      setTickets(rows);
+    };
+    void sync();
+
+    const unsubscribe = subscribeStudentExperience(() => {
+      void sync();
+    });
+
+    return () => {
+      isMounted = false;
+      unsubscribe();
+    };
+  }, [user]);
 
   const sortedTickets = useMemo(() => {
     return tickets.slice().sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
@@ -33,7 +59,7 @@ const StudentSupportPage = () => {
 
   if (!user) return null;
 
-  const createTicket = () => {
+  const createTicket = async () => {
     if (!subject.trim() || !message.trim()) {
       toast({
         title: "Missing details",
@@ -43,40 +69,79 @@ const StudentSupportPage = () => {
       return;
     }
 
-    const now = new Date().toISOString();
-    const nextTicket: SupportTicket = {
-      id: `${Date.now()}`,
-      subject: subject.trim(),
-      message: message.trim(),
-      category,
-      priority,
-      status: "open",
-      createdAt: now,
-      updatedAt: now,
-    };
+    setIsSubmitting(true);
+    try {
+      const nextTicket = await createSupportTicket({
+        userId: user.id,
+        userName: user.fullName,
+        userEmail: user.email,
+        subject: subject.trim(),
+        message: message.trim(),
+        category,
+        priority,
+      });
 
-    const nextTickets = [nextTicket, ...tickets];
-    setTickets(nextTickets);
-    saveStudentSupportTickets(user.id, nextTickets);
-    setSubject("");
-    setMessage("");
-    setCategory("course");
-    setPriority("medium");
+      await createStudentNotification({
+        userId: user.id,
+        title: "Support request submitted",
+        message: "We received your ticket and the support queue has been updated.",
+        type: "support",
+        actionPath: "/dashboard/support",
+      });
 
-    toast({
-      title: "Support request submitted",
-      description: "Your request has been added to your student support queue.",
-    });
+      setTickets((prev) => [nextTicket, ...prev]);
+      setSubject("");
+      setMessage("");
+      setCategory("course");
+      setPriority("medium");
+
+      toast({
+        title: "Support request submitted",
+        description: "Your request has been added to your student support queue.",
+      });
+    } catch (error) {
+      toast({
+        title: "Submission failed",
+        description:
+          error instanceof Error ? error.message : "Unable to submit support request.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const markResolved = (ticketId: string) => {
-    const nextTickets = tickets.map((ticket) =>
-      ticket.id === ticketId
-        ? { ...ticket, status: "resolved", updatedAt: new Date().toISOString() }
-        : ticket,
-    );
-    setTickets(nextTickets);
-    saveStudentSupportTickets(user.id, nextTickets);
+  const markResolved = async (ticketId: string) => {
+    try {
+      const updated = await updateSupportTicket(ticketId, { status: "resolved" });
+      if (!updated) {
+        toast({
+          title: "Update failed",
+          description: "Unable to mark this ticket as resolved.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      await createStudentNotification({
+        userId: user.id,
+        title: "Support ticket updated",
+        message: `Ticket "${updated.subject}" has been marked resolved.`,
+        type: "support",
+        actionPath: "/dashboard/support",
+      });
+
+      setTickets((prev) =>
+        prev.map((ticket) => (ticket.id === ticketId ? updated : ticket)),
+      );
+    } catch (error) {
+      toast({
+        title: "Update failed",
+        description:
+          error instanceof Error ? error.message : "Unable to mark this ticket as resolved.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -108,7 +173,7 @@ const StudentSupportPage = () => {
                 <Label>Category</Label>
                 <Select
                   value={category}
-                  onValueChange={(value: SupportTicket["category"]) => setCategory(value)}
+                  onValueChange={(value: SupportTicketCategory) => setCategory(value)}
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -151,9 +216,9 @@ const StudentSupportPage = () => {
               />
             </div>
 
-            <Button onClick={createTicket}>
+            <Button onClick={() => void createTicket()} disabled={isSubmitting} className="w-full sm:w-auto">
               <LifeBuoy className="mr-2 h-4 w-4" />
-              Submit Request
+              {isSubmitting ? "Submitting..." : "Submit Request"}
             </Button>
           </CardContent>
         </Card>
@@ -165,15 +230,15 @@ const StudentSupportPage = () => {
           <CardContent className="space-y-3 text-sm">
             <div className="rounded-lg border border-border bg-background p-3">
               <p className="font-medium">Support Email</p>
-              <p className="text-muted-foreground">{config.supportEmail}</p>
+              <p className="break-all text-muted-foreground">{supportSettings.supportEmail}</p>
             </div>
             <div className="rounded-lg border border-border bg-background p-3">
               <p className="font-medium">Support Phone</p>
-              <p className="text-muted-foreground">{config.supportPhone}</p>
+              <p className="break-all text-muted-foreground">{supportSettings.supportPhone}</p>
             </div>
             <Button variant="outline" asChild className="w-full">
               <a
-                href={config.whatsappCommunityLink}
+                href={`https://wa.me/${supportSettings.supportPhone.replace(/\D/g, "")}`}
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -215,12 +280,17 @@ const StudentSupportPage = () => {
                       </div>
                     </div>
                     <p className="mt-2 text-sm text-muted-foreground">{ticket.message}</p>
+                    {ticket.adminReply && (
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        Admin reply: {ticket.adminReply}
+                      </p>
+                    )}
                     {ticket.status !== "resolved" && (
                       <div className="mt-3">
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => markResolved(ticket.id)}
+                          onClick={() => void markResolved(ticket.id)}
                         >
                           Mark Resolved
                         </Button>

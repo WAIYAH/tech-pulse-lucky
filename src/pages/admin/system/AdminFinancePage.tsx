@@ -187,34 +187,36 @@ const AdminFinancePage = () => {
                 No payment records yet.
               </p>
             ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Month</TableHead>
-                    <TableHead>Approved</TableHead>
-                    <TableHead>Pending</TableHead>
-                    <TableHead>Rejected</TableHead>
-                    <TableHead>Conversion</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {monthly.map((row) => {
-                    const conversion =
-                      row.totalCount === 0
-                        ? 0
-                        : (row.approvedCount / row.totalCount) * 100;
-                    return (
-                      <TableRow key={row.month}>
-                        <TableCell className="font-medium">{row.month}</TableCell>
-                        <TableCell>{formatMoney(row.approvedAmount)}</TableCell>
-                        <TableCell>{formatMoney(row.pendingAmount)}</TableCell>
-                        <TableCell>{formatMoney(row.rejectedAmount)}</TableCell>
-                        <TableCell>{conversion.toFixed(1)}%</TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
+              <div className="overflow-x-auto">
+                <Table className="min-w-[720px]">
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Month</TableHead>
+                      <TableHead>Approved</TableHead>
+                      <TableHead>Pending</TableHead>
+                      <TableHead>Rejected</TableHead>
+                      <TableHead>Conversion</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {monthly.map((row) => {
+                      const conversion =
+                        row.totalCount === 0
+                          ? 0
+                          : (row.approvedCount / row.totalCount) * 100;
+                      return (
+                        <TableRow key={row.month}>
+                          <TableCell className="font-medium">{row.month}</TableCell>
+                          <TableCell>{formatMoney(row.approvedAmount)}</TableCell>
+                          <TableCell>{formatMoney(row.pendingAmount)}</TableCell>
+                          <TableCell>{formatMoney(row.rejectedAmount)}</TableCell>
+                          <TableCell>{conversion.toFixed(1)}%</TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
             )}
           </CardContent>
         </Card>
@@ -236,7 +238,7 @@ const AdminFinancePage = () => {
                     className="rounded-lg border border-border bg-background p-3"
                   >
                     <p className="font-medium">{payment.fullName}</p>
-                    <p className="text-xs text-muted-foreground">{payment.email}</p>
+                    <p className="break-all text-xs text-muted-foreground">{payment.email}</p>
                     <div className="mt-2 flex items-center justify-between">
                       <Badge variant="secondary">{payment.status}</Badge>
                       <p className="text-sm font-medium">

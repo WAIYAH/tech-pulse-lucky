@@ -22,6 +22,7 @@ export const routes = {
     article: (slug: string) => `/articles/${slug}`,
     course: (slug: string) => `/courses/${slug}`,
     event: (slug: string) => `/events/${slug}`,
+    masterclass: "/courses/web-development-masterclass",
   },
   auth: {
     login: "/login",
@@ -44,6 +45,9 @@ export const routes = {
     settings: "/dashboard/settings",
     learn: (courseSlug: string) => `/dashboard/learn/${courseSlug}`,
     payment: (courseSlug: string) => `/payment/${courseSlug}`,
+    masterclass: "/dashboard/masterclass",
+    masterclassWeek: (weekNumber: number | string) => `/dashboard/masterclass/week/${weekNumber}`,
+    masterclassFinalProject: "/dashboard/masterclass/final-project",
   },
   admin: {
     root: "/admin",
@@ -58,6 +62,7 @@ export const routes = {
     settings: "/admin/settings",
     content: "/admin/content",
     lmsControl: "/admin/lms-control",
+    masterclass: "/admin/masterclass",
   },
   legacy: {
     myCourses: "/my-courses",

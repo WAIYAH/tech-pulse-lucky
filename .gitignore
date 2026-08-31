@@ -32,3 +32,6 @@ dist-ssr
 credentials.md
 adminupdate.md
 studentdashboard.md
+
+# Supabase CLI local state
+supabase/.temp/

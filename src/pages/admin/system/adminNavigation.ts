@@ -9,6 +9,7 @@ import {
   LayoutTemplate,
   ListChecks,
   Settings2,
+  Sparkles,
   Users,
   Video,
 } from "lucide-react";
@@ -57,6 +58,12 @@ export const adminNavItems: AdminNavItem[] = [
     description: "Review and approve paid course submissions",
     path: routes.admin.payments,
     icon: CircleDollarSign,
+  },
+  {
+    label: "Masterclass",
+    description: "Cohorts, curriculum, final projects, and certificates",
+    path: routes.admin.masterclass,
+    icon: Sparkles,
   },
   {
     label: "Support",

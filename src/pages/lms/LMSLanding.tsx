@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { BookOpen, GraduationCap, Layers3, Sparkles } from "lucide-react";
+import { ArrowRight, BookOpen, GraduationCap, Layers3, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import SEO from "@/components/common/SEO";
@@ -68,6 +68,29 @@ const LMSLanding = () => {
               </Button>
             </div>
           </div>
+        </div>
+      </section>
+
+      <section className="pb-12">
+        <div className="container mx-auto px-4">
+          <Card className="mx-auto max-w-4xl overflow-hidden border-2 border-accent bg-gradient-to-br from-primary to-primary-glow text-primary-foreground">
+            <CardContent className="flex flex-col items-center gap-4 p-8 text-center sm:flex-row sm:justify-between sm:text-left">
+              <div>
+                <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-accent/20 px-3 py-1 text-xs font-semibold">
+                  <Sparkles size={14} /> 2026 COHORT &middot; STARTS 7 SEPTEMBER 2026
+                </div>
+                <h2 className="text-2xl font-bold md:text-3xl">Web Development Masterclass</h2>
+                <p className="mt-1 text-sm text-primary-foreground/85">
+                  8 weeks. Intensive. Practical. Project-based. KES 2,000 only.
+                </p>
+              </div>
+              <Button variant="accent" size="lg" asChild className="whitespace-nowrap">
+                <Link to={routes.public.masterclass}>
+                  Enroll Now <ArrowRight className="ml-1 h-4 w-4" />
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
         </div>
       </section>
 

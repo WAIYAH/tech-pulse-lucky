@@ -9,6 +9,7 @@ import {
   LifeBuoy,
   NotebookPen,
   Settings2,
+  Sparkles,
   UserCircle2,
   Video,
   WalletCards,
@@ -40,6 +41,12 @@ export const studentNavItems: StudentNavItem[] = [
     description: "Manage enrollments and continue learning",
     path: routes.student.myCourses,
     icon: BookOpenCheck,
+  },
+  {
+    label: "Masterclass",
+    description: "8-week Web Development Masterclass cohort",
+    path: routes.student.masterclass,
+    icon: Sparkles,
   },
   {
     label: "Payments",

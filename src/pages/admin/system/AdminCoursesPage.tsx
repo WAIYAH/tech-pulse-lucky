@@ -272,6 +272,16 @@ const AdminCoursesPage = () => {
   };
 
   const deleteCourse = async (course: LmsCourse) => {
+    if (course.category === "Masterclass Cohort") {
+      toast({
+        title: "Cannot delete from here",
+        description:
+          "This course backs a Masterclass cohort's enrollments and payments. Manage or retire cohorts from Admin > Masterclass instead.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const shouldDelete = window.confirm(
       `Delete "${course.title}"? This also removes linked enrollments and payments.`,
     );
@@ -352,7 +362,18 @@ const AdminCoursesPage = () => {
                       <Button size="sm" variant="outline" onClick={() => startEditMode(course)} className="w-full sm:w-auto">
                         Edit
                       </Button>
-                      <Button size="sm" variant="destructive" onClick={() => deleteCourse(course)} className="w-full sm:w-auto">
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => deleteCourse(course)}
+                        disabled={course.category === "Masterclass Cohort"}
+                        title={
+                          course.category === "Masterclass Cohort"
+                            ? "Manage this cohort from Admin > Masterclass"
+                            : undefined
+                        }
+                        className="w-full sm:w-auto"
+                      >
                         Delete
                       </Button>
                     </div>

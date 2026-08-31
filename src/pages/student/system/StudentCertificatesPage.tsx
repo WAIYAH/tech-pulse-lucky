@@ -1,10 +1,97 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Award, BadgeCheck, LockKeyhole } from "lucide-react";
+import { Award, BadgeCheck, LockKeyhole, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { useAuth } from "@/contexts/AuthContext";
+import {
+  PROGRAM_SLUG,
+  readMasterclassCohorts,
+  readMasterclassCertificate,
+  readMasterclassProgram,
+  resolveCohortForCourseId,
+} from "@/lib/masterclass";
 import { routes } from "@/routes/routeConfig";
+import type { MasterclassCertificate } from "@/types/masterclass";
 import { useStudentPortal } from "./StudentPortalContext";
+
+/**
+ * Additive-only: surfaces the real masterclass certificate (if any) alongside the
+ * existing generic per-course certificate readiness below, without touching that logic.
+ */
+const MasterclassCertificateCard = () => {
+  const { user } = useAuth();
+  const { enrollments, courseById } = useStudentPortal();
+  const [certificate, setCertificate] = useState<MasterclassCertificate | null>(null);
+  const [isChecking, setIsChecking] = useState(true);
+
+  const masterclassEnrollment = enrollments.find((enrollment) => {
+    const course = courseById[enrollment.courseId];
+    return (
+      course?.category === "Masterclass Cohort" &&
+      (enrollment.accessStatus === "approved" || enrollment.accessStatus === "free")
+    );
+  });
+
+  useEffect(() => {
+    let isMounted = true;
+    const load = async () => {
+      if (!user || !masterclassEnrollment) {
+        setIsChecking(false);
+        return;
+      }
+      const program = await readMasterclassProgram(PROGRAM_SLUG);
+      if (!program || !isMounted) {
+        setIsChecking(false);
+        return;
+      }
+      const cohorts = await readMasterclassCohorts(program.id);
+      const cohort = resolveCohortForCourseId(cohorts, masterclassEnrollment.courseId);
+      if (!cohort || !isMounted) {
+        setIsChecking(false);
+        return;
+      }
+      const row = await readMasterclassCertificate(user.id, cohort.id);
+      if (!isMounted) return;
+      setCertificate(row);
+      setIsChecking(false);
+    };
+    void load();
+    return () => {
+      isMounted = false;
+    };
+  }, [user, masterclassEnrollment]);
+
+  if (!masterclassEnrollment || isChecking) return null;
+
+  return (
+    <Card className="border-primary/40">
+      <CardContent className="flex flex-wrap items-center justify-between gap-3 pt-6">
+        <div className="flex items-center gap-3">
+          <Sparkles className="h-5 w-5 text-primary" />
+          <div>
+            <p className="font-semibold">Web Development Masterclass Certificate</p>
+            <p className="text-xs text-muted-foreground capitalize">
+              Status: {(certificate?.status ?? "not_eligible").replace("_", " ")}
+            </p>
+          </div>
+        </div>
+        {certificate?.status === "issued" && certificate.certificateUrl ? (
+          <Button size="sm" asChild>
+            <a href={certificate.certificateUrl} target="_blank" rel="noreferrer">
+              <BadgeCheck className="mr-1 h-4 w-4" /> View Certificate
+            </a>
+          </Button>
+        ) : (
+          <Button size="sm" variant="outline" disabled>
+            {certificate?.status === "eligible" ? "Awaiting Issuance" : "Not Yet Eligible"}
+          </Button>
+        )}
+      </CardContent>
+    </Card>
+  );
+};
 
 const StudentCertificatesPage = () => {
   const { isLoading, config, enrollments, courseById } = useStudentPortal();
@@ -33,6 +120,8 @@ const StudentCertificatesPage = () => {
           View certificate readiness and completion achievements for finished courses.
         </p>
       </section>
+
+      <MasterclassCertificateCard />
 
       {!config.featureFlags.enableCertificates && (
         <section>

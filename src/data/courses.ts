@@ -49,6 +49,7 @@ const course005Id = "course-005";
 const course006Id = "course-006";
 const course007Id = "course-007";
 const course008Id = "course-008";
+const course009Id = "course-009";
 const COURSE_STORAGE_KEY = "lms_courses";
 const isBrowser = typeof window !== "undefined";
 
@@ -640,6 +641,54 @@ export const allCourses: LmsCourse[] = [
         },
       ),
     ],
+  }),
+  createCourse({
+    id: course009Id,
+    title: "Web Development Masterclass — 2026 Cohort",
+    slug: "web-development-masterclass",
+    shortDescription:
+      "An intensive 8-week, project-based web development program covering HTML, CSS, Tailwind, JavaScript, PHP, MySQL, Git and GitHub, deployment, and DevOps fundamentals.",
+    description:
+      "The Web Development Masterclass is an intensive 8-week, project-based program that takes learners from web fundamentals to a deployed, full-stack capstone project. Each week builds on the last, moving from HTML and CSS, through Tailwind CSS and JavaScript, into PHP, MySQL, Git and GitHub, and finally software development lifecycle, deployment, and DevOps basics with Docker.",
+    category: "Masterclass Cohort",
+    level: "Beginner",
+    duration: "8 weeks",
+    price: 2000,
+    currency: "KES",
+    isFree: false,
+    imageUrl: "/placeholder.svg",
+    instructor: "Lucky Nakola",
+    learningOutcomes: [
+      "Understand how the web, browsers, servers, and HTTP/HTTPS work together.",
+      "Build responsive, accessible interfaces with HTML, CSS, and Tailwind CSS.",
+      "Add interactivity with JavaScript and manage code professionally with Git and GitHub.",
+      "Build server-side logic and store real data with PHP and MySQL.",
+      "Understand the SDLC, deployment, DevOps, and basic Docker containerization.",
+      "Design, build, test, document, and deploy a complete full-stack capstone project.",
+    ],
+    requirements: [
+      "A laptop or computer with internet access.",
+      "No prior coding experience required, beginners are welcome.",
+      "Consistent weekly practice time across the 8 weeks.",
+    ],
+    targetAudience: [
+      "Beginners and university/ICT students exploring software development.",
+      "Aspiring developers who want a stronger practical foundation.",
+      "Students building academic or portfolio projects.",
+      "Entrepreneurs who want to understand how web development actually works.",
+    ],
+    faqs: [
+      {
+        question: "Do I need any coding experience to join?",
+        answer:
+          "No. The masterclass is designed for beginners and builds up week by week, though it is intensive and requires consistent practice.",
+      },
+      {
+        question: "How much does the program cost?",
+        answer: "KES 2,000 for the complete 8-week program, payable via KCB Paybill.",
+      },
+    ],
+    lessons: [],
   }),
 ];
 

@@ -31,6 +31,7 @@ Public:
 - `/about`
 - `/courses`
 - `/courses/:slug`
+- `/courses/web-development-masterclass` (static route, matched before `/courses/:slug`)
 - `/lms`
 - `/webinars`
 - `/events/:eventSlug`
@@ -62,6 +63,9 @@ Student:
 - `/dashboard/support`
 - `/dashboard/profile`
 - `/dashboard/settings`
+- `/dashboard/masterclass` (Web Development Masterclass overview)
+- `/dashboard/masterclass/week/:weekNumber`
+- `/dashboard/masterclass/final-project`
 
 Admin:
 - `/admin`
@@ -74,6 +78,7 @@ Admin:
 - `/admin/articles`
 - `/admin/content`
 - `/admin/lms-control`
+- `/admin/masterclass` (Cohorts / Curriculum / Final Projects / Certificates / Announcements / Attendance)
 - `/admin/settings`
 
 Legacy redirects:
@@ -127,6 +132,17 @@ Articles:
 LMS config:
 - `src/data/lmsConfig.ts`
 
+## Web Development Masterclass
+
+A reusable 8-week cohort program (Program -> Cohort -> Week -> Lesson/Terminology/Quiz/Resources -> Final Project -> Certificate -> Attendance -> Announcements), built to be reused for future cohorts (2027+) without code changes. Full design rationale, security model, and current build status live in `PLAN.md`.
+
+Key points:
+- The 2026 Cohort's payment/enrollment reuses the existing `courses`/`enrollments`/`payments` tables unmodified — it is a `courses` row (`slug: web-development-masterclass`) like any other paid course, linked 1:1 to a `masterclass_cohorts` row. Future cohorts are a new course row + a new cohort row; the curriculum (`masterclass_weeks` and everything beneath it) is keyed to the program, not the cohort, so it is never duplicated.
+- Quiz correct answers are never sent to the browser before submission: students read questions through the `masterclass_quiz_questions_public` view (no answer/explanation columns) and grade via the `submit_masterclass_quiz_attempt` Postgres RPC, which independently re-verifies enrollment server-side.
+- Curriculum content is edited from `/admin/masterclass` (Curriculum tab) — Week 1 ships fully authored (56 terms, 5 lessons, a 14-question quiz) as the reference template; Weeks 2-8 ship with real but lighter content, extensible from the same UI.
+- New Supabase objects live in `supabase/migrations/20260901090000_phase9_masterclass_schema_and_rls.sql` (schema + RLS + the quiz-grading RPC) and `supabase/migrations/20260901091500_phase9_masterclass_seed_content.sql` (seed data) — **these must be applied manually** to a live Supabase project (they are not run automatically); see `PLAN.md` section 29.
+- Until those migrations are applied, the app does not break: every masterclass read falls back to the public-safe content in `src/data/masterclassContent.ts` (program + week metadata only — no gated content ever ships in the client bundle).
+
 ## Project Structure
 
 ```txt
@@ -146,22 +162,27 @@ src/
     courses.ts
     webinars.ts
     lmsConfig.ts
+    masterclassContent.ts
   hooks/
     useSEO.ts
   lib/
     admin/
     student/
     lms/
+    masterclass/
   pages/
     auth/
     admin/system/
+      masterclass/
     student/system/
+      masterclass/
     lms/
     (public pages)
   routes/
     routeConfig.ts
   types/
     lms.ts
+    masterclass.ts
 
 public/
   robots.txt
@@ -285,6 +306,13 @@ Recommended: Vercel
 
 LMS schema migration:
 - `supabase/migrations/20260509190000_phase7_lms_schema_and_rls.sql`
+
+Support/notifications sync:
+- `supabase/migrations/20260518103000_phase8_support_notifications_sync.sql`
+
+Web Development Masterclass (apply manually, in order; not yet applied to the live project — see `PLAN.md` section 29):
+- `supabase/migrations/20260901090000_phase9_masterclass_schema_and_rls.sql`
+- `supabase/migrations/20260901091500_phase9_masterclass_seed_content.sql`
 
 Deployment checklist:
 - `supabase/DEPLOYMENT_CHECKLIST.md`

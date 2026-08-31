@@ -3,7 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect } from "react";
-import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
+import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import WhatsAppButton from "./components/WhatsAppButton";
@@ -39,6 +39,7 @@ import Courses from "./pages/lms/Courses";
 import CourseDetails from "./pages/lms/CourseDetails";
 import PaymentPage from "./pages/lms/PaymentPage";
 import LMSLanding from "./pages/lms/LMSLanding";
+import MasterclassLanding from "./pages/lms/MasterclassLanding";
 import AdminLayout from "./pages/admin/system/AdminLayout";
 import AdminOverviewPage from "./pages/admin/system/AdminOverviewPage";
 import AdminStudentsPage from "./pages/admin/system/AdminStudentsPage";
@@ -65,6 +66,11 @@ import StudentSupportPage from "./pages/student/system/StudentSupportPage";
 import StudentProfilePage from "./pages/student/system/StudentProfilePage";
 import StudentSettingsPage from "./pages/student/system/StudentSettingsPage";
 import AdminSupportPage from "./pages/admin/system/AdminSupportPage";
+import AdminMasterclassLayout from "./pages/admin/system/masterclass/AdminMasterclassLayout";
+import { MasterclassStudentProvider } from "./pages/student/system/masterclass/MasterclassStudentProvider";
+import StudentMasterclassOverviewPage from "./pages/student/system/masterclass/StudentMasterclassOverviewPage";
+import StudentMasterclassWeekPage from "./pages/student/system/masterclass/StudentMasterclassWeekPage";
+import StudentMasterclassFinalProjectPage from "./pages/student/system/masterclass/StudentMasterclassFinalProjectPage";
 import { routes } from "./routes/routeConfig";
 
 const queryClient = new QueryClient();
@@ -90,6 +96,7 @@ const AppRoutes = () => (
     <Route path={routes.public.editorialPolicy} element={<EditorialPolicy />} />
     <Route path={routes.public.lms} element={<LMSLanding />} />
     <Route path={routes.public.courses} element={<Courses />} />
+    <Route path={routes.public.masterclass} element={<MasterclassLanding />} />
     <Route path="/courses/:slug" element={<CourseDetails />} />
     <Route
       path={routes.auth.login}
@@ -140,6 +147,18 @@ const AppRoutes = () => (
       <Route path="support" element={<StudentSupportPage />} />
       <Route path="profile" element={<StudentProfilePage />} />
       <Route path="settings" element={<StudentSettingsPage />} />
+      <Route
+        path="masterclass"
+        element={
+          <MasterclassStudentProvider>
+            <Outlet />
+          </MasterclassStudentProvider>
+        }
+      >
+        <Route index element={<StudentMasterclassOverviewPage />} />
+        <Route path="week/:weekNumber" element={<StudentMasterclassWeekPage />} />
+        <Route path="final-project" element={<StudentMasterclassFinalProjectPage />} />
+      </Route>
     </Route>
     <Route
       path={routes.legacy.myCourses}
@@ -178,6 +197,7 @@ const AppRoutes = () => (
       <Route path="courses" element={<AdminCoursesPage />} />
       <Route path="payments" element={<AdminPaymentsPage />} />
       <Route path="support" element={<AdminSupportPage />} />
+      <Route path="masterclass" element={<AdminMasterclassLayout />} />
       <Route path="finance" element={<AdminFinancePage />} />
       <Route path="webinars" element={<AdminWebinarsPage />} />
       <Route path="articles" element={<AdminArticlesPage />} />

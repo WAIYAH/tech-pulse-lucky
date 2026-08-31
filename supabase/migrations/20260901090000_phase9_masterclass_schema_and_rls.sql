@@ -3,48 +3,6 @@
 -- Safe to run multiple times where possible.
 
 -- =========================================================================
--- Helper functions (enrollment checks, mirrors public.is_admin())
--- =========================================================================
-
-create or replace function public.is_enrolled_in_masterclass_cohort(p_cohort_id uuid, p_user_id uuid default auth.uid())
-returns boolean
-language sql
-stable
-security definer
-set search_path = public
-as $$
-  select exists (
-    select 1
-    from public.masterclass_cohorts c
-    join public.enrollments e on e.course_id = c.course_id
-    where c.id = p_cohort_id
-      and e.user_id = coalesce(p_user_id, auth.uid())
-      and e.access_status in ('approved', 'free')
-  );
-$$;
-
-grant execute on function public.is_enrolled_in_masterclass_cohort(uuid, uuid) to authenticated, anon;
-
-create or replace function public.is_enrolled_in_masterclass_program(p_program_id uuid, p_user_id uuid default auth.uid())
-returns boolean
-language sql
-stable
-security definer
-set search_path = public
-as $$
-  select exists (
-    select 1
-    from public.masterclass_cohorts c
-    join public.enrollments e on e.course_id = c.course_id
-    where c.program_id = p_program_id
-      and e.user_id = coalesce(p_user_id, auth.uid())
-      and e.access_status in ('approved', 'free')
-  );
-$$;
-
-grant execute on function public.is_enrolled_in_masterclass_program(uuid, uuid) to authenticated, anon;
-
--- =========================================================================
 -- Tables
 -- =========================================================================
 
@@ -90,6 +48,47 @@ before update on public.masterclass_cohorts
 for each row execute function public.set_updated_at();
 
 create index if not exists idx_masterclass_cohorts_program on public.masterclass_cohorts(program_id);
+
+-- Helper functions (enrollment checks, mirrors public.is_admin()). Must come after
+-- masterclass_cohorts exists: these are `language sql` functions, which Postgres
+-- validates against the catalog at creation time, unlike plpgsql's deferred binding.
+create or replace function public.is_enrolled_in_masterclass_cohort(p_cohort_id uuid, p_user_id uuid default auth.uid())
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1
+    from public.masterclass_cohorts c
+    join public.enrollments e on e.course_id = c.course_id
+    where c.id = p_cohort_id
+      and e.user_id = coalesce(p_user_id, auth.uid())
+      and e.access_status in ('approved', 'free')
+  );
+$$;
+
+grant execute on function public.is_enrolled_in_masterclass_cohort(uuid, uuid) to authenticated, anon;
+
+create or replace function public.is_enrolled_in_masterclass_program(p_program_id uuid, p_user_id uuid default auth.uid())
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1
+    from public.masterclass_cohorts c
+    join public.enrollments e on e.course_id = c.course_id
+    where c.program_id = p_program_id
+      and e.user_id = coalesce(p_user_id, auth.uid())
+      and e.access_status in ('approved', 'free')
+  );
+$$;
+
+grant execute on function public.is_enrolled_in_masterclass_program(uuid, uuid) to authenticated, anon;
 
 -- Weeks: curriculum shared across all cohorts of a program (Week doubles as the "module" level)
 create table if not exists public.masterclass_weeks (

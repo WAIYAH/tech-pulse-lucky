@@ -50,24 +50,6 @@ begin
 end;
 $$;
 
--- Role helper
-create or replace function public.is_admin(target_user_id uuid default auth.uid())
-returns boolean
-language sql
-stable
-security definer
-set search_path = public
-as $$
-  select exists (
-    select 1
-    from public.profiles
-    where id = coalesce(target_user_id, auth.uid())
-      and role = 'admin'
-  );
-$$;
-
-grant execute on function public.is_admin(uuid) to authenticated, anon;
-
 -- Profiles
 create table if not exists public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
@@ -84,6 +66,26 @@ create trigger trg_profiles_updated_at
 before update on public.profiles
 for each row
 execute function public.set_updated_at();
+
+-- Role helper (must come after public.profiles exists: this is a `language sql`
+-- function, which Postgres validates against the catalog at creation time,
+-- unlike plpgsql's deferred binding)
+create or replace function public.is_admin(target_user_id uuid default auth.uid())
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1
+    from public.profiles
+    where id = coalesce(target_user_id, auth.uid())
+      and role = 'admin'
+  );
+$$;
+
+grant execute on function public.is_admin(uuid) to authenticated, anon;
 
 -- Auto-create profile from auth.users
 create or replace function public.handle_new_user_profile()

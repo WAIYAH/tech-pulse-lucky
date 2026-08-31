@@ -240,16 +240,33 @@ VITE_SITE_URL=https://techpulseinsider.com
 ```
 
 Notes:
-- `VITE_ENABLE_SUPABASE_AUTH=false` enables local auth mode.
-- LMS provider falls back to mock/local data if Supabase is unavailable.
+- `VITE_ENABLE_SUPABASE_AUTH=false` enables local auth mode (bootstrap accounts, no real backend). This project currently runs with it set to `true` against a real Supabase project — see "Supabase Setup Status" below.
+- LMS provider falls back to mock/local data if Supabase is unreachable or a table is missing, so the app never hard-crashes, but real users need the real project configured.
+- `VITE_SUPABASE_PUBLISHABLE_KEY` is the public/anon key — safe to ship to the browser. The database password and the `service_role`/`secret` key (from the Supabase dashboard's API settings) are **never** put in `.env` or any file that ships to the client; they grant full database access bypassing RLS.
+- Set the same variables in your hosting provider's environment settings (e.g. Vercel Project Settings > Environment Variables) for production/preview deploys — `.env` is git-ignored and local-only.
 
-## Test Accounts (Local Auth Mode)
+## Supabase Setup Status
 
-When `VITE_ENABLE_SUPABASE_AUTH=false`, bootstrap users are created for testing:
-- Admin email is seeded from configured admin bootstrap logic.
-- Student test account:
-  - Email: `student@techpulseinsider.com`
-  - Password: `LuckyStudent@2026!`
+This project's own Supabase project (not a demo/placeholder) is live and migrated:
+- Project: TechPulseInsider, region eu-west-2 (London).
+- All four migrations applied, in order: `20260509190000_phase7_lms_schema_and_rls.sql`, `20260518103000_phase8_support_notifications_sync.sql`, `20260901090000_phase9_masterclass_schema_and_rls.sql`, `20260901091500_phase9_masterclass_seed_content.sql`.
+- Real Supabase auth is enabled (`VITE_ENABLE_SUPABASE_AUTH=true`); local mock accounts no longer work.
+
+To set this up again from scratch (a new environment, a staging project, disaster recovery):
+1. Create a project at [supabase.com/dashboard](https://supabase.com/dashboard) (or `supabase projects create <name> --org-id <id> --region <region>` if the CLI is authenticated).
+2. Copy the Project URL and the publishable (anon) key into `.env` (Project Settings > API > "Framework" tab gives you both, formatted for a client library like `@supabase/supabase-js`, which is what this app uses).
+3. Link and push migrations: `supabase link --project-ref <ref>` then `supabase db push` — this applies every file in `supabase/migrations/` in filename order.
+4. Set `VITE_ENABLE_SUPABASE_AUTH=true` and `VITE_ADMIN_EMAILS` to your real admin email(s).
+5. Create your admin account by registering normally at `/register`, then promote it: `update public.profiles set role = 'admin' where email = 'you@example.com';` in the Supabase SQL editor (or pass `user_metadata: { role: "admin" }` when creating the user via the Admin API, which the signup trigger reads automatically).
+6. Restart the dev server (`npm run dev`) — Vite only reads `.env` at startup, not on hot reload.
+
+## Test Accounts
+
+With `VITE_ENABLE_SUPABASE_AUTH=true` (current setup), there are no bootstrap accounts — sign up for a real account at `/register`, or use whatever real admin account was created per the steps above.
+
+With `VITE_ENABLE_SUPABASE_AUTH=false` (local auth mode, no backend needed), bootstrap accounts exist automatically:
+- Admin: seeded from configured admin bootstrap logic.
+- Student: `student@techpulseinsider.com` / `LuckyStudent@2026!`
 
 ## How To Add New Pages
 
@@ -294,13 +311,25 @@ When `VITE_ENABLE_SUPABASE_AUTH=false`, bootstrap users are created for testing:
 Recommended: Vercel
 
 1. Connect repository.
-2. Configure environment variables.
-3. Ensure Supabase migrations are applied if using Supabase provider.
-4. Run production build checks before release.
+2. Configure environment variables (same names as `.env` — see "Environment Variables" above; Vercel does not read your local `.env` file, you re-enter them in its dashboard).
+3. Ensure Supabase migrations are applied (see "Supabase Setup Status" above) — this is done for the current project.
+4. Run production build checks before release: `npm run lint && npm run build`.
 5. Validate:
    - Public routes load and index correctly.
    - Protected routes require auth.
    - `robots.txt` and `sitemap.xml` are reachable.
+   - Login works with a real account (not a stale local-mode test account).
+
+This is a static single-page app (Vite build output = plain HTML/CSS/JS) talking to Supabase directly from the browser — there is no separate backend server to containerize or deploy. **Docker is not required to run or host this project.** Docker only appears in this codebase as *course content* the Masterclass program teaches students in Week 7 (`supabase/migrations/.../phase9...` seeds a lesson on containers/Dockerfiles) — that is unrelated to this platform's own infrastructure.
+
+### What else is actually needed before this is fully production-ready
+
+- **Real KCB Paybill details**: confirm `src/data/lmsConfig.ts`'s `paybillNumber`/`accountNumber`/`accountName` are the real business ones, not placeholders, before advertising paid enrollment.
+- **Domain/DNS/SSL**: only relevant if `techpulseinsider.com` isn't already pointed at the Vercel deployment — not something this repo controls.
+- **Regenerate `src/integrations/supabase/types.ts`**: currently stale/empty (`supabase gen types typescript --project-id <ref> > src/integrations/supabase/types.ts`); every provider in this codebase already works around this with hand-rolled types, so it's a nice-to-have for stronger type safety, not a blocker.
+- **A second admin, if wanted**: add more emails (comma-separated) to `VITE_ADMIN_EMAILS`, or set `role: "admin"` in a user's metadata the same way the first admin account was created.
+- **Automated tests**: none exist in this repo today (no vitest/jest); verification has been manual + scripted-browser (Playwright) checks. Optional to add, not required to ship.
+- **Not needed**: Docker, a separate backend/API server, an ORM (Supabase's client library is used directly), or a message queue/cache layer — this platform's whole backend surface is Supabase (Postgres + Auth + RLS + PostgREST).
 
 ## Supabase Migration Reference
 
@@ -310,9 +339,11 @@ LMS schema migration:
 Support/notifications sync:
 - `supabase/migrations/20260518103000_phase8_support_notifications_sync.sql`
 
-Web Development Masterclass (apply manually, in order; not yet applied to the live project — see `PLAN.md` section 29):
+Web Development Masterclass:
 - `supabase/migrations/20260901090000_phase9_masterclass_schema_and_rls.sql`
 - `supabase/migrations/20260901091500_phase9_masterclass_seed_content.sql`
+
+All four are applied to the current live project (see "Supabase Setup Status" above). To reproduce on a new project, `supabase link --project-ref <ref>` then `supabase db push` applies all of them in filename order in one step.
 
 Deployment checklist:
 - `supabase/DEPLOYMENT_CHECKLIST.md`

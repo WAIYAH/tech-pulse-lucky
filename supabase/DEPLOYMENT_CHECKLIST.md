@@ -29,8 +29,11 @@ supabase link --project-ref <YOUR_PROJECT_REF>
 supabase db push
 ```
 
-- [ ] Verify migration exists in remote history:
+- [ ] Verify migrations exist in remote history:
   - `20260509190000_phase7_lms_schema_and_rls.sql`
+  - `20260518103000_phase8_support_notifications_sync.sql`
+  - `20260901090000_phase9_masterclass_schema_and_rls.sql`
+  - `20260901091500_phase9_masterclass_seed_content.sql`
 
 ## 3) Post-migration DB checks
 

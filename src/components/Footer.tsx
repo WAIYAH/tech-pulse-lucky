@@ -111,7 +111,15 @@ const Footer = () => {
         {/* Bottom Bar */}
         <div className="mt-12 pt-8 border-t border-border text-center">
           <p className="text-sm text-muted-foreground">
-            © {currentYear} Tech Pulse Insider. All rights reserved. | Built with 💙 by Nakola Expert System
+            © {currentYear} Tech Pulse Insider. All rights reserved. | Built with 💙 by{" "}
+            <a
+              href="https://nakolaexpertsystems.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary hover:underline"
+            >
+              Nakola Expert Systems
+            </a>
           </p>
           <p className="text-xs text-muted-foreground mt-2">
             Supporting Kenya Vision 2030 & UN SDGs through Tech Education

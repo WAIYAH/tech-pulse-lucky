@@ -1,8 +1,9 @@
 import { useMemo, useState } from "react";
-import { Download, ExternalLink, Search } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { BookOpenText, Download, ExternalLink, Lightbulb, Search } from "lucide-react";
+import { Badge, type BadgeProps } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { getDidYouKnowOfTheWeek, getWordOfTheDay } from "@/lib/dailyContent";
 import { useStudentPortal } from "./StudentPortalContext";
 
 interface ResourceItem {
@@ -14,9 +15,18 @@ interface ResourceItem {
   type: "pdf" | "zip" | "doc" | "link";
 }
 
+const resourceTypeBadgeVariant: Record<ResourceItem["type"], NonNullable<BadgeProps["variant"]>> = {
+  pdf: "destructive",
+  zip: "warning",
+  doc: "default",
+  link: "accent",
+};
+
 const StudentResourcesPage = () => {
   const { isLoading, enrollments, courseById } = useStudentPortal();
   const [query, setQuery] = useState("");
+  const wordOfTheDay = useMemo(() => getWordOfTheDay(), []);
+  const didYouKnow = useMemo(() => getDidYouKnowOfTheWeek(), []);
 
   const resources = useMemo<ResourceItem[]>(() => {
     const rows: ResourceItem[] = [];
@@ -69,6 +79,29 @@ const StudentResourcesPage = () => {
         </p>
       </section>
 
+      <section className="grid gap-4 md:grid-cols-2">
+        <Card className="overflow-hidden border-accent/30">
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-accent-foreground/70">
+              <BookOpenText className="h-4 w-4" />
+              Word of the Day
+            </div>
+            <p className="mt-3 text-2xl font-bold text-foreground">{wordOfTheDay.term}</p>
+            <p className="mt-2 text-sm text-muted-foreground">{wordOfTheDay.definition}</p>
+          </CardContent>
+        </Card>
+
+        <Card className="overflow-hidden border-primary/30">
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-primary">
+              <Lightbulb className="h-4 w-4" />
+              Did You Know?
+            </div>
+            <p className="mt-3 text-sm text-foreground">{didYouKnow}</p>
+          </CardContent>
+        </Card>
+      </section>
+
       <section>
         <Card>
           <CardHeader>
@@ -101,7 +134,9 @@ const StudentResourcesPage = () => {
                   >
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <p className="font-semibold">{resource.title}</p>
-                      <Badge variant="secondary">{resource.type.toUpperCase()}</Badge>
+                      <Badge variant={resourceTypeBadgeVariant[resource.type]}>
+                        {resource.type.toUpperCase()}
+                      </Badge>
                     </div>
                     <p className="mt-1 text-xs text-muted-foreground">
                       {resource.courseTitle} • Lesson: {resource.lessonTitle}

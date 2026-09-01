@@ -76,20 +76,41 @@ const StudentAssignmentsPage = () => {
       <section className="grid gap-4 sm:grid-cols-3">
         <Card>
           <CardContent className="pt-6">
-            <p className="text-sm text-muted-foreground">Total Assignments</p>
-            <p className="text-3xl font-semibold">{assignments.length}</p>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Total Assignments</p>
+                <p className="text-3xl font-semibold">{assignments.length}</p>
+              </div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/15">
+                <NotebookPen className="h-5 w-5 text-primary" />
+              </div>
+            </div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6">
-            <p className="text-sm text-muted-foreground">Pending</p>
-            <p className="text-3xl font-semibold">{pendingAssignments}</p>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Pending</p>
+                <p className="text-3xl font-semibold">{pendingAssignments}</p>
+              </div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-500/15">
+                <CalendarClock className="h-5 w-5 text-amber-600" />
+              </div>
+            </div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6">
-            <p className="text-sm text-muted-foreground">Completed</p>
-            <p className="text-3xl font-semibold">{completedAssignments}</p>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Completed</p>
+                <p className="text-3xl font-semibold">{completedAssignments}</p>
+              </div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-600/15">
+                <ClipboardCheck className="h-5 w-5 text-emerald-600" />
+              </div>
+            </div>
           </CardContent>
         </Card>
       </section>
@@ -120,7 +141,7 @@ const StudentAssignmentsPage = () => {
                           {assignment.courseTitle}
                         </p>
                       </div>
-                      <Badge variant={assignment.completed ? "secondary" : "outline"}>
+                      <Badge variant={assignment.completed ? "success" : "warning"}>
                         {assignment.completed ? "Completed" : "Pending"}
                       </Badge>
                     </div>

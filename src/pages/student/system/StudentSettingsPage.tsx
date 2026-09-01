@@ -133,7 +133,9 @@ const StudentSettingsPage = () => {
             </label>
 
             <div className="flex flex-wrap gap-2 pt-2">
-              <Button onClick={saveSettings} className="w-full sm:w-auto">Save Settings</Button>
+              <Button variant="accent" onClick={saveSettings} className="w-full sm:w-auto">
+                Save Settings
+              </Button>
               <Button variant="outline" onClick={resetSettings} className="w-full sm:w-auto">
                 <RotateCcw className="mr-2 h-4 w-4" />
                 Reset to Defaults

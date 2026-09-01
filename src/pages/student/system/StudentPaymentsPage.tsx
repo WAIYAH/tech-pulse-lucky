@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, CheckCircle2, Clock3, Copy, Smartphone, XCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -12,7 +12,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useToast } from "@/hooks/use-toast";
+import { lmsConfig } from "@/data/lmsConfig";
 import { routes } from "@/routes/routeConfig";
+import { paymentStatusBadgeVariant } from "@/lib/student/enrollmentStatusBadge";
 import { useStudentPortal } from "./StudentPortalContext";
 
 const formatMoney = (amount: number, currency = "KES") => {
@@ -25,6 +28,20 @@ const formatMoney = (amount: number, currency = "KES") => {
 
 const StudentPaymentsPage = () => {
   const { isLoading, payments, enrollments, courseById } = useStudentPortal();
+  const { toast } = useToast();
+
+  const copyValue = async (label: string, value: string) => {
+    try {
+      await navigator.clipboard.writeText(value);
+      toast({ title: `${label} copied`, description: value });
+    } catch {
+      toast({
+        title: "Couldn't copy",
+        description: `${label}: ${value}`,
+        variant: "destructive",
+      });
+    }
+  };
 
   const pendingCount = payments.filter((payment) => payment.status === "pending").length;
   const approvedCount = payments.filter((payment) => payment.status === "approved").length;
@@ -50,20 +67,127 @@ const StudentPaymentsPage = () => {
       <section className="grid gap-4 sm:grid-cols-3">
         <Card>
           <CardContent className="pt-6">
-            <p className="text-sm text-muted-foreground">Pending Review</p>
-            <p className="text-3xl font-semibold">{pendingCount}</p>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Pending Review</p>
+                <p className="text-3xl font-semibold">{pendingCount}</p>
+              </div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-500/15">
+                <Clock3 className="h-5 w-5 text-amber-600" />
+              </div>
+            </div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6">
-            <p className="text-sm text-muted-foreground">Approved</p>
-            <p className="text-3xl font-semibold">{approvedCount}</p>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Approved</p>
+                <p className="text-3xl font-semibold">{approvedCount}</p>
+              </div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-600/15">
+                <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+              </div>
+            </div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6">
-            <p className="text-sm text-muted-foreground">Rejected</p>
-            <p className="text-3xl font-semibold">{rejectedCount}</p>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Rejected</p>
+                <p className="text-3xl font-semibold">{rejectedCount}</p>
+              </div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-destructive/15">
+                <XCircle className="h-5 w-5 text-destructive" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </section>
+
+      <section>
+        <Card className="overflow-hidden">
+          <CardHeader className="bg-gradient-hero text-primary-foreground">
+            <h2 className="flex items-center gap-2 text-xl font-semibold">
+              <Smartphone className="h-5 w-5" />
+              How to Pay
+            </h2>
+            <p className="text-sm text-primary-foreground/85">
+              {lmsConfig.payment.methodName} — use these details for any paid course.
+            </p>
+          </CardHeader>
+          <CardContent className="grid gap-6 pt-6 lg:grid-cols-2">
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="rounded-xl border border-border bg-background p-4">
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                  Paybill Number
+                </p>
+                <div className="mt-1 flex items-center justify-between gap-2">
+                  <p className="font-mono text-2xl font-bold text-primary">
+                    {lmsConfig.payment.paybillNumber}
+                  </p>
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="ghost"
+                    aria-label="Copy paybill number"
+                    onClick={() => copyValue("Paybill number", lmsConfig.payment.paybillNumber)}
+                  >
+                    <Copy className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+              <div className="rounded-xl border border-border bg-background p-4">
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                  Account Number
+                </p>
+                <div className="mt-1 flex items-center justify-between gap-2">
+                  <p className="font-mono text-2xl font-bold text-primary">
+                    {lmsConfig.payment.accountNumber}
+                  </p>
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="ghost"
+                    aria-label="Copy account number"
+                    onClick={() => copyValue("Account number", lmsConfig.payment.accountNumber)}
+                  >
+                    <Copy className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+              <div className="rounded-xl border border-border bg-background p-4 sm:col-span-2">
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                  Account Name
+                </p>
+                <p className="mt-1 font-semibold">{lmsConfig.payment.accountName}</p>
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-border bg-muted/40 p-4">
+              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Steps
+              </p>
+              <ol className="space-y-1.5 text-sm">
+                {lmsConfig.payment.instructionSteps.map((step, index) => (
+                  <li key={step} className="flex gap-2">
+                    <span className="font-semibold text-primary">{index + 1}.</span>
+                    <span className="text-foreground">
+                      {step.replace("[COURSE_PRICE]", "your course's price")}
+                    </span>
+                  </li>
+                ))}
+              </ol>
+              <p className="mt-3 text-xs text-muted-foreground">
+                To submit your M-Pesa transaction code, open the payment page from the
+                specific course in{" "}
+                <Link to={routes.student.myCourses} className="font-medium text-primary hover:underline">
+                  My Courses
+                </Link>
+                .
+              </p>
+            </div>
           </CardContent>
         </Card>
       </section>
@@ -92,7 +216,7 @@ const StudentPaymentsPage = () => {
                         Access status: {enrollment.accessStatus}
                       </p>
                     </div>
-                    <Button size="sm" variant="outline" asChild className="w-full sm:w-auto">
+                    <Button size="sm" variant="destructive" asChild className="w-full sm:w-auto">
                       <Link to={routes.student.payment(course.slug)}>Open Payment Page</Link>
                     </Button>
                   </div>
@@ -140,7 +264,9 @@ const StudentPaymentsPage = () => {
                           <TableCell>{formatMoney(payment.amount, payment.currency)}</TableCell>
                           <TableCell className="break-all">{payment.transactionCode}</TableCell>
                           <TableCell>
-                            <Badge variant="secondary">{payment.status}</Badge>
+                            <Badge variant={paymentStatusBadgeVariant[payment.status]}>
+                              {payment.status}
+                            </Badge>
                           </TableCell>
                           <TableCell>
                             {new Date(payment.paymentDate).toLocaleDateString("en-KE")}

@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import AvatarUpload from "@/components/student/AvatarUpload";
 import {
   readStudentProfileState,
   saveStudentProfileState,
@@ -16,6 +17,7 @@ import { useStudentPortal } from "./StudentPortalContext";
 const StudentProfilePage = () => {
   const { user } = useStudentPortal();
   const { toast } = useToast();
+  const [avatarUrl, setAvatarUrl] = useState<string | undefined>(user?.avatarUrl);
   const [profile, setProfile] = useState<StudentProfileState>(() =>
     user
       ? readStudentProfileState(user.id)
@@ -48,6 +50,23 @@ const StudentProfilePage = () => {
         <p className="mt-2 text-sm text-muted-foreground">
           Manage your learner profile information and career context.
         </p>
+      </section>
+
+      <section>
+        <Card>
+          <CardHeader>
+            <h2 className="text-xl font-semibold">Profile Picture</h2>
+          </CardHeader>
+          <CardContent>
+            <AvatarUpload
+              userId={user.id}
+              fullName={user.fullName}
+              email={user.email}
+              avatarUrl={avatarUrl}
+              onUploaded={setAvatarUrl}
+            />
+          </CardContent>
+        </Card>
       </section>
 
       <section className="grid gap-4 xl:grid-cols-3">
@@ -155,7 +174,9 @@ const StudentProfilePage = () => {
             </div>
 
             <div className="flex justify-end">
-              <Button onClick={saveProfile} className="w-full sm:w-auto">Save Profile</Button>
+              <Button variant="accent" onClick={saveProfile} className="w-full sm:w-auto">
+                Save Profile
+              </Button>
             </div>
           </CardContent>
         </Card>

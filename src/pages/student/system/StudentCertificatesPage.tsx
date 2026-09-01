@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Award, BadgeCheck, LockKeyhole, Sparkles } from "lucide-react";
+import { Award, BadgeCheck, ListChecks, LockKeyhole, Sparkles, TimerReset } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -78,7 +78,7 @@ const MasterclassCertificateCard = () => {
           </div>
         </div>
         {certificate?.status === "issued" && certificate.certificateUrl ? (
-          <Button size="sm" asChild>
+          <Button size="sm" variant="success" asChild>
             <a href={certificate.certificateUrl} target="_blank" rel="noreferrer">
               <BadgeCheck className="mr-1 h-4 w-4" /> View Certificate
             </a>
@@ -139,22 +139,43 @@ const StudentCertificatesPage = () => {
       <section className="grid gap-4 sm:grid-cols-3">
         <Card>
           <CardContent className="pt-6">
-            <p className="text-sm text-muted-foreground">Eligible Certificates</p>
-            <p className="text-3xl font-semibold">{eligible.length}</p>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Eligible Certificates</p>
+                <p className="text-3xl font-semibold">{eligible.length}</p>
+              </div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-600/15">
+                <Award className="h-5 w-5 text-emerald-600" />
+              </div>
+            </div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6">
-            <p className="text-sm text-muted-foreground">Courses In Progress</p>
-            <p className="text-3xl font-semibold">{inProgress.length}</p>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Courses In Progress</p>
+                <p className="text-3xl font-semibold">{inProgress.length}</p>
+              </div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent/20">
+                <TimerReset className="h-5 w-5 text-accent-foreground" />
+              </div>
+            </div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6">
-            <p className="text-sm text-muted-foreground">Feature Status</p>
-            <p className="text-lg font-semibold">
-              {config.featureFlags.enableCertificates ? "Enabled" : "Disabled"}
-            </p>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Feature Status</p>
+                <p className="text-lg font-semibold">
+                  {config.featureFlags.enableCertificates ? "Enabled" : "Disabled"}
+                </p>
+              </div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/15">
+                <ListChecks className="h-5 w-5 text-primary" />
+              </div>
+            </div>
           </CardContent>
         </Card>
       </section>
@@ -182,7 +203,7 @@ const StudentCertificatesPage = () => {
                     >
                       <div className="flex items-center justify-between gap-2">
                         <p className="font-semibold">{course?.title ?? "Course"}</p>
-                        <Badge variant="secondary">100%</Badge>
+                        <Badge variant="success">100%</Badge>
                       </div>
                       <p className="mt-1 text-xs text-muted-foreground">
                         Completion achieved on this learning path.
@@ -235,7 +256,7 @@ const StudentCertificatesPage = () => {
                       >
                         <div className="flex items-center justify-between gap-2">
                           <p className="font-semibold">{course?.title ?? "Course"}</p>
-                          <Badge variant="outline">{enrollment.progress}%</Badge>
+                          <Badge variant="accent">{enrollment.progress}%</Badge>
                         </div>
                         <p className="mt-1 text-xs text-muted-foreground">
                           Complete this course to unlock certificate eligibility.

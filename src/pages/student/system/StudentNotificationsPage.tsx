@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { BellRing, CheckCheck, CircleDot } from "lucide-react";
+import { Bell, BellRing, CheckCheck, CircleDot, MailOpen } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -8,6 +8,7 @@ import {
   markAllStudentNotificationsRead,
   markStudentNotificationRead,
 } from "@/lib/student/studentPortalState";
+import { notificationTypeBadgeVariant } from "@/lib/student/enrollmentStatusBadge";
 import { useStudentPortal } from "./StudentPortalContext";
 import { useToast } from "@/hooks/use-toast";
 
@@ -65,22 +66,43 @@ const StudentNotificationsPage = () => {
       <section className="grid gap-4 sm:grid-cols-3">
         <Card>
           <CardContent className="pt-6">
-            <p className="text-sm text-muted-foreground">Total</p>
-            <p className="text-3xl font-semibold">{notifications.length}</p>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Total</p>
+                <p className="text-3xl font-semibold">{notifications.length}</p>
+              </div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/15">
+                <Bell className="h-5 w-5 text-primary" />
+              </div>
+            </div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6">
-            <p className="text-sm text-muted-foreground">Unread</p>
-            <p className="text-3xl font-semibold">{unreadNotificationsCount}</p>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Unread</p>
+                <p className="text-3xl font-semibold">{unreadNotificationsCount}</p>
+              </div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-500/15">
+                <BellRing className="h-5 w-5 text-amber-600" />
+              </div>
+            </div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6">
-            <p className="text-sm text-muted-foreground">Read</p>
-            <p className="text-3xl font-semibold">
-              {Math.max(0, notifications.length - unreadNotificationsCount)}
-            </p>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Read</p>
+                <p className="text-3xl font-semibold">
+                  {Math.max(0, notifications.length - unreadNotificationsCount)}
+                </p>
+              </div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-600/15">
+                <MailOpen className="h-5 w-5 text-emerald-600" />
+              </div>
+            </div>
           </CardContent>
         </Card>
       </section>
@@ -139,9 +161,11 @@ const StudentNotificationsPage = () => {
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <p className="font-semibold">{notification.title}</p>
                       <div className="flex items-center gap-2">
-                        <Badge variant="outline">{notification.type}</Badge>
+                        <Badge variant={notificationTypeBadgeVariant[notification.type]}>
+                          {notification.type}
+                        </Badge>
                         {!notification.read && (
-                          <Badge variant="secondary" className="inline-flex items-center gap-1">
+                          <Badge variant="warning" className="inline-flex items-center gap-1">
                             <CircleDot className="h-3 w-3" />
                             Unread
                           </Badge>
@@ -156,7 +180,7 @@ const StudentNotificationsPage = () => {
                       {!notification.read && (
                         <Button
                           size="sm"
-                          variant="outline"
+                          variant="success"
                           onClick={() => void markRead(notification.id)}
                         >
                           Mark as Read

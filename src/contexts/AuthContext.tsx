@@ -142,6 +142,7 @@ const userToProfile = (user: User): LmsProfile => {
     phone: metadata.phone ?? "",
     role: resolveUserRole(metadata.role, email),
     dateJoined: user.created_at ?? new Date().toISOString(),
+    avatarUrl: metadata.avatar_url || undefined,
   };
 };
 

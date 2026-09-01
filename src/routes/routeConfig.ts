@@ -34,6 +34,7 @@ export const routes = {
     overview: "/dashboard/overview",
     progress: "/dashboard/progress",
     myCourses: "/dashboard/my-courses",
+    browseCourses: "/dashboard/browse-courses",
     payments: "/dashboard/payments",
     assignments: "/dashboard/assignments",
     certificates: "/dashboard/certificates",

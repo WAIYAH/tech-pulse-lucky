@@ -6,6 +6,7 @@ const storageKeys = {
   supportLegacy: "student_portal_support_v1",
   support: "student_portal_support_all_v1",
   notifications: "student_portal_notifications_v1",
+  interestedWebinars: "student_portal_interested_webinars_v1",
 } as const;
 
 const isBrowser = typeof window !== "undefined";
@@ -877,6 +878,20 @@ export const markStudentNotificationRead = (
       writeNotifications(next);
     },
   );
+};
+
+export const readInterestedWebinarIds = (userId: string): string[] => {
+  return readArrayState<string>(makeScopedKey(storageKeys.interestedWebinars, userId), []);
+};
+
+export const toggleInterestedWebinar = (userId: string, webinarId: string): string[] => {
+  const current = readInterestedWebinarIds(userId);
+  const next = current.includes(webinarId)
+    ? current.filter((id) => id !== webinarId)
+    : [...current, webinarId];
+  saveArrayState(makeScopedKey(storageKeys.interestedWebinars, userId), next);
+  emitStudentExperienceEvent();
+  return next;
 };
 
 export const markAllStudentNotificationsRead = (userId: string): Promise<void> => {

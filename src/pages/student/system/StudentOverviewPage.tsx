@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import CourseProgress from "@/components/lms/CourseProgress";
 import { routes } from "@/routes/routeConfig";
+import { enrollmentStatusBadgeVariant } from "@/lib/student/enrollmentStatusBadge";
 import { useStudentPortal } from "./StudentPortalContext";
 
 const StudentOverviewPage = () => {
@@ -98,7 +99,7 @@ const StudentOverviewPage = () => {
         title: "Start your first learning track",
         description: "Choose a beginner-friendly course and begin today.",
         ctaLabel: "Explore Courses",
-        href: routes.public.courses,
+        href: routes.student.browseCourses,
       };
     }
 
@@ -118,27 +119,26 @@ const StudentOverviewPage = () => {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+      <section className="rounded-2xl bg-gradient-hero p-5 text-primary-foreground shadow-glow">
         <h1 className="text-2xl font-bold md:text-3xl">
           Welcome back, {user?.fullName ?? "Learner"}
         </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Your student portal tracks progress, access status, payments, and study support
-          in one place.
+        <p className="mt-2 text-sm text-primary-foreground/85">
+          Track progress, access status, payments, and study support in one place.
         </p>
       </section>
 
       {nextBestAction && (
         <section>
-          <Card className="border-primary/30 bg-primary/5">
+          <Card className="border-accent/40 bg-accent/10">
             <CardContent className="pt-6">
-              <p className="text-xs font-semibold uppercase tracking-wide text-primary">
+              <p className="text-xs font-semibold uppercase tracking-wide text-accent-foreground/80">
                 Next Best Action
               </p>
               <h2 className="mt-2 text-xl font-semibold">{nextBestAction.title}</h2>
               <p className="mt-2 text-sm text-muted-foreground">{nextBestAction.description}</p>
               <div className="mt-4">
-                <Button asChild>
+                <Button variant="hero" asChild>
                   <Link to={nextBestAction.href}>{nextBestAction.ctaLabel}</Link>
                 </Button>
               </div>
@@ -155,7 +155,9 @@ const StudentOverviewPage = () => {
                 <p className="text-sm text-muted-foreground">Enrolled Courses</p>
                 <p className="text-3xl font-semibold">{enrollments.length}</p>
               </div>
-              <BookOpenCheck className="h-5 w-5 text-primary" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/15">
+                <BookOpenCheck className="h-5 w-5 text-primary" />
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -166,7 +168,9 @@ const StudentOverviewPage = () => {
                 <p className="text-sm text-muted-foreground">Average Progress</p>
                 <p className="text-3xl font-semibold">{averageProgress}%</p>
               </div>
-              <GraduationCap className="h-5 w-5 text-primary" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent/20">
+                <GraduationCap className="h-5 w-5 text-accent-foreground" />
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -177,7 +181,9 @@ const StudentOverviewPage = () => {
                 <p className="text-sm text-muted-foreground">Payments Submitted</p>
                 <p className="text-3xl font-semibold">{payments.length}</p>
               </div>
-              <CreditCard className="h-5 w-5 text-primary" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-600/15">
+                <CreditCard className="h-5 w-5 text-emerald-600" />
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -188,7 +194,9 @@ const StudentOverviewPage = () => {
                 <p className="text-sm text-muted-foreground">Pending Approvals</p>
                 <p className="text-3xl font-semibold">{pendingPayments}</p>
               </div>
-              <Clock3 className="h-5 w-5 text-amber-600" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-500/15">
+                <Clock3 className="h-5 w-5 text-amber-600" />
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -207,8 +215,8 @@ const StudentOverviewPage = () => {
                 <p className="text-sm text-muted-foreground">
                   You are not enrolled in any course yet. Start with available tracks.
                 </p>
-                <Button asChild>
-                  <Link to={routes.public.courses}>Explore Courses</Link>
+                <Button variant="accent" asChild>
+                  <Link to={routes.student.browseCourses}>Explore Courses</Link>
                 </Button>
               </div>
             ) : (
@@ -237,7 +245,9 @@ const StudentOverviewPage = () => {
                               {course?.lessonsCount ?? 0} lessons
                             </p>
                           </div>
-                          <Badge variant="secondary">{enrollment.accessStatus}</Badge>
+                          <Badge variant={enrollmentStatusBadgeVariant[enrollment.accessStatus]}>
+                            {enrollment.accessStatus}
+                          </Badge>
                         </div>
 
                         <div className="mt-3">

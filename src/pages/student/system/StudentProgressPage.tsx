@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import CourseProgress from "@/components/lms/CourseProgress";
 import { routes } from "@/routes/routeConfig";
+import { enrollmentStatusBadgeVariant } from "@/lib/student/enrollmentStatusBadge";
 import { useStudentPortal } from "./StudentPortalContext";
 
 const StudentProgressPage = () => {
@@ -30,7 +31,9 @@ const StudentProgressPage = () => {
                 <p className="text-sm text-muted-foreground">Average Progress</p>
                 <p className="text-3xl font-semibold">{averageProgress}%</p>
               </div>
-              <TrendingUp className="h-5 w-5 text-primary" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent/20">
+                <TrendingUp className="h-5 w-5 text-accent-foreground" />
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -41,7 +44,9 @@ const StudentProgressPage = () => {
                 <p className="text-sm text-muted-foreground">Completed Courses</p>
                 <p className="text-3xl font-semibold">{completedCourses}</p>
               </div>
-              <Award className="h-5 w-5 text-primary" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-600/15">
+                <Award className="h-5 w-5 text-emerald-600" />
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -52,7 +57,9 @@ const StudentProgressPage = () => {
                 <p className="text-sm text-muted-foreground">Active Tracks</p>
                 <p className="text-3xl font-semibold">{enrollments.length}</p>
               </div>
-              <BookOpenCheck className="h-5 w-5 text-primary" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/15">
+                <BookOpenCheck className="h-5 w-5 text-primary" />
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -72,8 +79,8 @@ const StudentProgressPage = () => {
                   No enrolled courses yet. Once enrolled, your learning milestones appear
                   here.
                 </p>
-                <Button asChild>
-                  <Link to={routes.public.courses}>Browse Courses</Link>
+                <Button variant="accent" asChild>
+                  <Link to={routes.student.browseCourses}>Browse Courses</Link>
                 </Button>
               </div>
             ) : (
@@ -106,7 +113,9 @@ const StudentProgressPage = () => {
                               {completedLessons}/{totalLessons} lessons complete
                             </p>
                           </div>
-                          <Badge variant="secondary">{enrollment.accessStatus}</Badge>
+                          <Badge variant={enrollmentStatusBadgeVariant[enrollment.accessStatus]}>
+                            {enrollment.accessStatus}
+                          </Badge>
                         </div>
 
                         <div className="mt-3">
@@ -135,14 +144,14 @@ const StudentProgressPage = () => {
                             </Button>
                           ) : null}
                           {course && !hasAccess && !course.isFree ? (
-                            <Button size="sm" variant="outline" asChild className="w-full sm:w-auto">
+                            <Button size="sm" variant="destructive" asChild className="w-full sm:w-auto">
                               <Link to={routes.student.payment(course.slug)}>
                                 Resolve Payment Access
                               </Link>
                             </Button>
                           ) : null}
                           {course && !hasAccess && course.isFree ? (
-                            <Button size="sm" variant="outline" asChild className="w-full sm:w-auto">
+                            <Button size="sm" variant="success" asChild className="w-full sm:w-auto">
                               <Link to={routes.public.course(course.slug)}>
                                 Enroll to Start
                               </Link>

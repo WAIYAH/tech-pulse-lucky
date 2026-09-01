@@ -18,6 +18,7 @@ import {
   type SupportTicketPriority,
   updateSupportTicket,
 } from "@/lib/student/studentPortalState";
+import { ticketStatusBadgeVariant } from "@/lib/student/enrollmentStatusBadge";
 import { useStudentPortal } from "./StudentPortalContext";
 import { readAdminSettings } from "@/lib/admin/adminState";
 
@@ -216,7 +217,12 @@ const StudentSupportPage = () => {
               />
             </div>
 
-            <Button onClick={() => void createTicket()} disabled={isSubmitting} className="w-full sm:w-auto">
+            <Button
+              variant="accent"
+              onClick={() => void createTicket()}
+              disabled={isSubmitting}
+              className="w-full sm:w-auto"
+            >
               <LifeBuoy className="mr-2 h-4 w-4" />
               {isSubmitting ? "Submitting..." : "Submit Request"}
             </Button>
@@ -276,7 +282,9 @@ const StudentSupportPage = () => {
                       </div>
                       <div className="flex items-center gap-2">
                         <Badge variant="outline">{ticket.category}</Badge>
-                        <Badge variant="secondary">{ticket.status}</Badge>
+                        <Badge variant={ticketStatusBadgeVariant[ticket.status]}>
+                          {ticket.status}
+                        </Badge>
                       </div>
                     </div>
                     <p className="mt-2 text-sm text-muted-foreground">{ticket.message}</p>
@@ -289,7 +297,7 @@ const StudentSupportPage = () => {
                       <div className="mt-3">
                         <Button
                           size="sm"
-                          variant="outline"
+                          variant="success"
                           onClick={() => void markResolved(ticket.id)}
                         >
                           Mark Resolved

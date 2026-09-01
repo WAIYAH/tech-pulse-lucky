@@ -3,6 +3,7 @@ import {
   BadgeCheck,
   Bell,
   BookOpenCheck,
+  Compass,
   CreditCard,
   GraduationCap,
   LayoutDashboard,
@@ -18,7 +19,6 @@ import { routes } from "@/routes/routeConfig";
 
 export interface StudentNavItem {
   label: string;
-  description: string;
   path: string;
   icon: LucideIcon;
 }
@@ -26,79 +26,77 @@ export interface StudentNavItem {
 export const studentNavItems: StudentNavItem[] = [
   {
     label: "Overview",
-    description: "Your learning dashboard and activity",
     path: routes.student.overview,
     icon: LayoutDashboard,
   },
   {
     label: "Progress",
-    description: "Track milestones and completion",
     path: routes.student.progress,
     icon: GraduationCap,
   },
   {
     label: "My Courses",
-    description: "Manage enrollments and continue learning",
     path: routes.student.myCourses,
     icon: BookOpenCheck,
   },
   {
+    label: "Browse Courses",
+    path: routes.student.browseCourses,
+    icon: Compass,
+  },
+  {
     label: "Masterclass",
-    description: "8-week Web Development Masterclass cohort",
     path: routes.student.masterclass,
     icon: Sparkles,
   },
   {
     label: "Payments",
-    description: "Payment history and approval status",
     path: routes.student.payments,
     icon: CreditCard,
   },
   {
     label: "Assignments",
-    description: "Course tasks and submission readiness",
     path: routes.student.assignments,
     icon: NotebookPen,
   },
   {
     label: "Certificates",
-    description: "Eligibility and earned achievements",
     path: routes.student.certificates,
     icon: BadgeCheck,
   },
   {
     label: "Webinars",
-    description: "Upcoming sessions and watch links",
     path: routes.student.webinars,
     icon: Video,
   },
   {
+    label: "Resources",
+    path: routes.student.resources,
+    icon: WalletCards,
+  },
+];
+
+// Not in the sidebar — reachable via the header's notification icon and the
+// account dropdown instead — but kept here so the header can still show a
+// page title when a student is on one of these routes.
+export const studentSecondaryRouteItems: StudentNavItem[] = [
+  {
     label: "Notifications",
-    description: "Updates on payments, support, and learning",
     path: routes.student.notifications,
     icon: Bell,
   },
   {
-    label: "Resources",
-    description: "Downloads, links, and study materials",
-    path: routes.student.resources,
-    icon: WalletCards,
-  },
-  {
     label: "Support",
-    description: "Help center and support requests",
     path: routes.student.support,
     icon: LifeBuoy,
   },
   {
     label: "Profile",
-    description: "Account details and learning profile",
     path: routes.student.profile,
     icon: UserCircle2,
   },
   {
     label: "Settings",
-    description: "Notifications, preferences, and controls",
     path: routes.student.settings,
     icon: Settings2,
   },

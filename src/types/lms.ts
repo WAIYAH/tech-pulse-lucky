@@ -82,6 +82,7 @@ export interface LmsProfile {
   phone: string;
   role: LmsRole;
   dateJoined: string;
+  avatarUrl?: string;
 }
 
 export interface LmsEnrollment {

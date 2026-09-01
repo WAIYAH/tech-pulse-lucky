@@ -56,6 +56,7 @@ import StudentPortalLayout from "./pages/student/system/StudentPortalLayout";
 import StudentOverviewPage from "./pages/student/system/StudentOverviewPage";
 import StudentProgressPage from "./pages/student/system/StudentProgressPage";
 import StudentCoursesPage from "./pages/student/system/StudentCoursesPage";
+import StudentBrowseCoursesPage from "./pages/student/system/StudentBrowseCoursesPage";
 import StudentPaymentsPage from "./pages/student/system/StudentPaymentsPage";
 import StudentAssignmentsPage from "./pages/student/system/StudentAssignmentsPage";
 import StudentCertificatesPage from "./pages/student/system/StudentCertificatesPage";
@@ -137,6 +138,7 @@ const AppRoutes = () => (
       <Route path="progress" element={<StudentProgressPage />} />
       <Route path="courses" element={<Navigate to={routes.student.myCourses} replace />} />
       <Route path="my-courses" element={<StudentCoursesPage />} />
+      <Route path="browse-courses" element={<StudentBrowseCoursesPage />} />
       <Route path="learn/:courseSlug" element={<LearnCourse />} />
       <Route path="payments" element={<StudentPaymentsPage />} />
       <Route path="assignments" element={<StudentAssignmentsPage />} />

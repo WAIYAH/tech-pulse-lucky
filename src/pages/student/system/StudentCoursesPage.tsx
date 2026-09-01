@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { routes } from "@/routes/routeConfig";
 import CourseProgress from "@/components/lms/CourseProgress";
+import { enrollmentStatusBadgeVariant } from "@/lib/student/enrollmentStatusBadge";
 import { useStudentPortal } from "./StudentPortalContext";
 
 type AccessFilter = "all" | "accessible" | "locked";
@@ -92,8 +93,8 @@ const StudentCoursesPage = () => {
                 <p className="text-sm text-muted-foreground">
                   No course records match your current filters.
                 </p>
-                <Button asChild>
-                  <Link to={routes.public.courses}>Browse Courses</Link>
+                <Button variant="accent" asChild>
+                  <Link to={routes.student.browseCourses}>Browse Courses</Link>
                 </Button>
               </div>
             ) : (
@@ -121,7 +122,9 @@ const StudentCoursesPage = () => {
                               {course?.lessonsCount ?? 0} lessons
                             </p>
                           </div>
-                          <Badge variant="secondary">{enrollment.accessStatus}</Badge>
+                          <Badge variant={enrollmentStatusBadgeVariant[enrollment.accessStatus]}>
+                            {enrollment.accessStatus}
+                          </Badge>
                         </div>
 
                         <div className="mt-3">
@@ -145,7 +148,7 @@ const StudentCoursesPage = () => {
                           ) : null}
 
                           {course && !hasAccess && !course.isFree ? (
-                            <Button size="sm" variant="outline" asChild className="w-full sm:w-auto">
+                            <Button size="sm" variant="destructive" asChild className="w-full sm:w-auto">
                               <Link to={routes.student.payment(course.slug)}>
                                 Resolve Payment Access
                               </Link>

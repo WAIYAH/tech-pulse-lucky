@@ -5,7 +5,7 @@ export const lmsConfig: LmsConfig = {
   brandName: "Tech Pulse Insider",
   supportEmail: "lucky@nakolaexpertsystems.com",
   supportPhone: "+254715674828",
-  whatsappCommunityLink: "https://wa.me/254715674828",
+  whatsappCommunityLink: "https://chat.whatsapp.com/H7Vi2HjcioL3sp4gzER45P",
   payment: {
     methodName: "KCB Bank Paybill",
     paybillNumber: "522522",

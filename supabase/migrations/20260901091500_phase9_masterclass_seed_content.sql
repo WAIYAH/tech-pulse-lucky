@@ -773,7 +773,7 @@ on conflict (quiz_id, question_order) do nothing;
 insert into public.masterclass_resources (program_id, week_id, title, description, resource_type, url, visibility, resource_order)
 select p.id, null, v.title, v.description, v.resource_type, v.url, v.visibility, v.resource_order
 from public.masterclass_programs p, (values
-  (1, 'Cohort WhatsApp Community', 'Join the cohort community group for announcements, peer support, and study groups.', 'link', 'https://wa.me/254715674828', 'public'),
+  (1, 'Cohort WhatsApp Community', 'Join the cohort community group for announcements, peer support, and study groups.', 'link', 'https://chat.whatsapp.com/H7Vi2HjcioL3sp4gzER45P', 'public'),
   (2, 'Program Overview and Curriculum', 'The full public program page with the week-by-week curriculum breakdown.', 'link', '/courses/web-development-masterclass', 'public')
 ) as v(resource_order, title, description, resource_type, url, visibility)
 where p.slug = 'web-development-masterclass'

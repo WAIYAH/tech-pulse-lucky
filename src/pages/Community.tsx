@@ -94,7 +94,7 @@ const Community = () => {
               <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
                 {/* WhatsApp */}
                 <motion.a
-                  href="https://wa.me/254715674828?text=Hi!%20I%20want%20to%20join%20Tech%20Pulse%20Insider%20community!"
+                  href="https://chat.whatsapp.com/H7Vi2HjcioL3sp4gzER45P"
                   target="_blank"
                   rel="noopener noreferrer"
                   whileHover={{ scale: 1.05 }}

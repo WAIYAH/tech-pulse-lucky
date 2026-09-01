@@ -48,6 +48,13 @@ export const routes = {
     payment: (courseSlug: string) => `/payment/${courseSlug}`,
     masterclass: "/dashboard/masterclass",
     masterclassWeek: (weekNumber: number | string) => `/dashboard/masterclass/week/${weekNumber}`,
+    masterclassWeekLessons: (weekNumber: number | string) => `/dashboard/masterclass/week/${weekNumber}/lessons`,
+    masterclassWeekTerminology: (weekNumber: number | string) =>
+      `/dashboard/masterclass/week/${weekNumber}/terminology`,
+    masterclassWeekLive: (weekNumber: number | string) => `/dashboard/masterclass/week/${weekNumber}/live`,
+    masterclassWeekAssignment: (weekNumber: number | string) =>
+      `/dashboard/masterclass/week/${weekNumber}/assignment`,
+    masterclassWeekQuiz: (weekNumber: number | string) => `/dashboard/masterclass/week/${weekNumber}/quiz`,
     masterclassFinalProject: "/dashboard/masterclass/final-project",
   },
   admin: {

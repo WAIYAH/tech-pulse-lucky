@@ -4,6 +4,8 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useAdminMasterclass } from "./AdminMasterclassProvider";
 import AdminMasterclassLessonsPanel from "./AdminMasterclassLessonsPanel";
 import AdminMasterclassTerminologyPanel from "./AdminMasterclassTerminologyPanel";
+import AdminMasterclassResourcesPanel from "./AdminMasterclassResourcesPanel";
+import AdminMasterclassAssignmentPanel from "./AdminMasterclassAssignmentPanel";
 import AdminMasterclassQuizPanel from "./AdminMasterclassQuizPanel";
 
 const AdminMasterclassCurriculumTab = () => {
@@ -41,6 +43,8 @@ const AdminMasterclassCurriculumTab = () => {
         <>
           <AdminMasterclassLessonsPanel week={week} />
           <AdminMasterclassTerminologyPanel week={week} />
+          <AdminMasterclassResourcesPanel week={week} program={program} />
+          <AdminMasterclassAssignmentPanel week={week} />
           <AdminMasterclassQuizPanel week={week} />
         </>
       )}

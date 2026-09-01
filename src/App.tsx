@@ -71,7 +71,12 @@ import AdminSupportPage from "./pages/admin/system/AdminSupportPage";
 import AdminMasterclassLayout from "./pages/admin/system/masterclass/AdminMasterclassLayout";
 import { MasterclassStudentProvider } from "./pages/student/system/masterclass/MasterclassStudentProvider";
 import StudentMasterclassOverviewPage from "./pages/student/system/masterclass/StudentMasterclassOverviewPage";
-import StudentMasterclassWeekPage from "./pages/student/system/masterclass/StudentMasterclassWeekPage";
+import StudentMasterclassWeekLayout from "./pages/student/system/masterclass/StudentMasterclassWeekLayout";
+import StudentMasterclassLessonsPage from "./pages/student/system/masterclass/StudentMasterclassLessonsPage";
+import StudentMasterclassTerminologyPage from "./pages/student/system/masterclass/StudentMasterclassTerminologyPage";
+import StudentMasterclassLiveAndResourcesPage from "./pages/student/system/masterclass/StudentMasterclassLiveAndResourcesPage";
+import StudentMasterclassAssignmentPage from "./pages/student/system/masterclass/StudentMasterclassAssignmentPage";
+import StudentMasterclassQuizPage from "./pages/student/system/masterclass/StudentMasterclassQuizPage";
 import StudentMasterclassFinalProjectPage from "./pages/student/system/masterclass/StudentMasterclassFinalProjectPage";
 import { routes } from "./routes/routeConfig";
 
@@ -159,7 +164,14 @@ const AppRoutes = () => (
         }
       >
         <Route index element={<StudentMasterclassOverviewPage />} />
-        <Route path="week/:weekNumber" element={<StudentMasterclassWeekPage />} />
+        <Route path="week/:weekNumber" element={<StudentMasterclassWeekLayout />}>
+          <Route index element={<Navigate to="lessons" replace />} />
+          <Route path="lessons" element={<StudentMasterclassLessonsPage />} />
+          <Route path="terminology" element={<StudentMasterclassTerminologyPage />} />
+          <Route path="live" element={<StudentMasterclassLiveAndResourcesPage />} />
+          <Route path="assignment" element={<StudentMasterclassAssignmentPage />} />
+          <Route path="quiz" element={<StudentMasterclassQuizPage />} />
+        </Route>
         <Route path="final-project" element={<StudentMasterclassFinalProjectPage />} />
       </Route>
     </Route>

@@ -1,5 +1,10 @@
 import { emitMasterclassExperienceEvent, supabase, withMasterclassFallback } from "./client";
-import type { MasterclassFinalProjectStages, MasterclassLessonProgress } from "@/types/masterclass";
+import type {
+  MasterclassFinalProjectStages,
+  MasterclassLessonProgress,
+  MasterclassWeek,
+  MasterclassWeekAccess,
+} from "@/types/masterclass";
 
 interface LessonProgressRow extends Record<string, unknown> {
   id: string;
@@ -90,6 +95,10 @@ export interface WeekProgressInput {
   practicalCompleted: boolean;
   hasPractical: boolean;
   quizScorePercent: number | null;
+  hasQuiz: boolean;
+  quizPassed: boolean;
+  hasAssignment: boolean;
+  assignmentSubmitted: boolean;
 }
 
 export const computeWeekLearningPercent = (input: WeekProgressInput): number => {
@@ -135,4 +144,63 @@ export const computeOverallMasterclassProgress = (input: {
 
   const overall = avgLearning * 0.6 + avgQuiz * 0.2 + avgPractical * 0.1 + capstone * 0.1;
   return Math.round(Math.min(100, Math.max(0, overall)));
+};
+
+/**
+ * "Finished the current week" for gating purposes — independent from the weighted display
+ * percentage above. Each signal is skipped if that week has no lessons/quiz/assignment at all,
+ * so a week isn't permanently unfinishable because a section hasn't been authored yet.
+ */
+export const isMasterclassWeekComplete = (input: WeekProgressInput): boolean => {
+  const learningDone =
+    input.totalLearningLessons === 0 || input.completedLearningLessons === input.totalLearningLessons;
+  const practicalDone = !input.hasPractical || input.practicalCompleted;
+  const quizDone = !input.hasQuiz || input.quizPassed;
+  const assignmentDone = !input.hasAssignment || input.assignmentSubmitted;
+  return learningDone && practicalDone && quizDone && assignmentDone;
+};
+
+/** Week N unlocks (cohortStartDate + (N-1) weeks) — a simple weekly cadence from the cohort start. */
+export const computeMasterclassWeekUnlockDate = (cohortStartDate: string, weekNumber: number): string => {
+  const start = new Date(cohortStartDate);
+  start.setUTCDate(start.getUTCDate() + (weekNumber - 1) * 7);
+  return start.toISOString();
+};
+
+/**
+ * A week is unlocked only when both its scheduled date has arrived AND the previous week is
+ * complete (week 1 has no previous-week gate, but is still date-gated by the cohort's own start
+ * date — the course does not open early).
+ */
+export const buildMasterclassWeekAccessMap = (
+  weeks: MasterclassWeek[],
+  weekProgress: Record<number, WeekProgressInput>,
+  cohortStartDate: string,
+  now: Date = new Date(),
+): Record<number, MasterclassWeekAccess> => {
+  const sorted = [...weeks].sort((a, b) => a.weekNumber - b.weekNumber);
+  const map: Record<number, MasterclassWeekAccess> = {};
+  let previousComplete = true;
+
+  for (const week of sorted) {
+    const unlockDate = computeMasterclassWeekUnlockDate(cohortStartDate, week.weekNumber);
+    const isDateReached = now.getTime() >= new Date(unlockDate).getTime();
+    const progress = weekProgress[week.weekNumber];
+    const isComplete = progress ? isMasterclassWeekComplete(progress) : false;
+    const isUnlocked = isDateReached && previousComplete;
+
+    map[week.weekNumber] = {
+      weekNumber: week.weekNumber,
+      isComplete,
+      unlockDate,
+      isDateReached,
+      isPreviousWeekComplete: previousComplete,
+      isUnlocked,
+      lockReason: isUnlocked ? null : !isDateReached ? "date" : "previous-week",
+    };
+
+    previousComplete = isComplete;
+  }
+
+  return map;
 };

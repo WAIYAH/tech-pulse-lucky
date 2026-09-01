@@ -8,3 +8,4 @@ export * from "./certificates";
 export * from "./announcements";
 export * from "./attendance";
 export * from "./enrollmentSync";
+export * from "./assignments";

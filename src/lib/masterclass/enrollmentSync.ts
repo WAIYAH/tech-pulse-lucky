@@ -1,3 +1,4 @@
+import { readMasterclassAssignmentForWeek, readMasterclassAssignmentSubmission } from "./assignments";
 import { supabase } from "./client";
 import { readMasterclassLessons } from "./curriculum";
 import { readMasterclassFinalProject } from "./finalProjects";
@@ -13,13 +14,15 @@ import type { MasterclassLessonProgress, MasterclassWeek } from "@/types/masterc
 export const buildMasterclassWeekProgressInputs = async (
   weeks: MasterclassWeek[],
   userId: string,
+  cohortId: string,
   lessonProgressRows: MasterclassLessonProgress[],
 ): Promise<WeekProgressInput[]> => {
   return Promise.all(
     weeks.map(async (week) => {
-      const [lessons, quiz] = await Promise.all([
+      const [lessons, quiz, assignment] = await Promise.all([
         readMasterclassLessons(week.id),
         readMasterclassQuizForWeek(week.id),
+        readMasterclassAssignmentForWeek(week.id),
       ]);
 
       const learningLessons = lessons.filter((lesson) => lesson.lessonType !== "practical");
@@ -32,11 +35,19 @@ export const buildMasterclassWeekProgressInputs = async (
         : false;
 
       let quizScorePercent: number | null = null;
+      let quizPassed = false;
       if (quiz) {
         const attempts = await readMasterclassQuizAttempts(quiz.id, userId);
         if (attempts.length > 0) {
           quizScorePercent = Math.max(...attempts.map((attempt) => attempt.score));
+          quizPassed = attempts.some((attempt) => attempt.passed);
         }
+      }
+
+      let assignmentSubmitted = false;
+      if (assignment) {
+        const submission = await readMasterclassAssignmentSubmission(userId, cohortId, assignment.id);
+        assignmentSubmitted = submission?.status === "submitted";
       }
 
       return {
@@ -46,6 +57,10 @@ export const buildMasterclassWeekProgressInputs = async (
         practicalCompleted,
         hasPractical: Boolean(practicalLesson),
         quizScorePercent,
+        hasQuiz: Boolean(quiz),
+        quizPassed,
+        hasAssignment: Boolean(assignment),
+        assignmentSubmitted,
       };
     }),
   );
@@ -71,7 +86,7 @@ export const syncMasterclassEnrollmentProgress = async (input: {
     if (weeks.length === 0) return;
 
     const lessonProgressRows = await readMasterclassLessonProgress(userId, cohortId);
-    const weekInputs = await buildMasterclassWeekProgressInputs(weeks, userId, lessonProgressRows);
+    const weekInputs = await buildMasterclassWeekProgressInputs(weeks, userId, cohortId, lessonProgressRows);
     const finalProjectRow = await readMasterclassFinalProject(userId, cohortId);
     const progress = computeOverallMasterclassProgress({
       weeks: weekInputs,

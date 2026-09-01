@@ -67,6 +67,7 @@ interface ResourceRow extends Record<string, unknown> {
   url: string;
   visibility: MasterclassResource["visibility"];
   resource_order: number;
+  is_live_link: boolean;
 }
 
 const mapProgramRow = (row: ProgramRow): MasterclassProgram => ({
@@ -128,6 +129,7 @@ const mapResourceRow = (row: ResourceRow): MasterclassResource => ({
   url: row.url,
   visibility: row.visibility,
   resourceOrder: row.resource_order,
+  isLiveLink: row.is_live_link ?? false,
 });
 
 export const PROGRAM_SLUG = "web-development-masterclass";
@@ -372,6 +374,7 @@ export interface ResourceInput {
   url: string;
   visibility: MasterclassResource["visibility"];
   resourceOrder: number;
+  isLiveLink?: boolean;
 }
 
 export const createMasterclassResource = async (input: ResourceInput): Promise<MasterclassResource> => {
@@ -386,10 +389,35 @@ export const createMasterclassResource = async (input: ResourceInput): Promise<M
       url: input.url,
       visibility: input.visibility,
       resource_order: input.resourceOrder,
+      is_live_link: input.isLiveLink ?? false,
     })
     .select("*")
     .single();
   if (error || !data) throw new Error(error?.message ?? "Unable to create this resource.");
+  emitMasterclassExperienceEvent();
+  return mapResourceRow(data);
+};
+
+export const updateMasterclassResource = async (
+  resourceId: string,
+  input: Partial<Omit<ResourceInput, "programId" | "weekId">>,
+): Promise<MasterclassResource> => {
+  const payload: Record<string, unknown> = {};
+  if (input.title !== undefined) payload.title = input.title;
+  if (input.description !== undefined) payload.description = input.description;
+  if (input.resourceType !== undefined) payload.resource_type = input.resourceType;
+  if (input.url !== undefined) payload.url = input.url;
+  if (input.visibility !== undefined) payload.visibility = input.visibility;
+  if (input.resourceOrder !== undefined) payload.resource_order = input.resourceOrder;
+  if (input.isLiveLink !== undefined) payload.is_live_link = input.isLiveLink;
+
+  const { data, error } = await supabase
+    .from<ResourceRow>("masterclass_resources")
+    .update(payload)
+    .eq("id", resourceId)
+    .select("*")
+    .single();
+  if (error || !data) throw new Error(error?.message ?? "Unable to update this resource.");
   emitMasterclassExperienceEvent();
   return mapResourceRow(data);
 };

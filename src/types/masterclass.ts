@@ -15,6 +15,8 @@ export type MasterclassResourceVisibility = "public" | "enrolled";
 export type MasterclassFinalProjectStatus = "not_started" | "in_progress" | "submitted" | "approved";
 export type MasterclassCertificateStatus = "not_eligible" | "eligible" | "issued" | "revoked";
 export type MasterclassAttendanceStatus = "present" | "absent";
+export type MasterclassAssignmentSubmissionStatus = "not_started" | "submitted";
+export type MasterclassWeekLockReason = "date" | "previous-week" | null;
 
 export interface MasterclassProgram {
   id: string;
@@ -145,6 +147,7 @@ export interface MasterclassResource {
   url: string;
   visibility: MasterclassResourceVisibility;
   resourceOrder: number;
+  isLiveLink: boolean;
 }
 
 export interface MasterclassLessonProgress {
@@ -224,4 +227,40 @@ export interface MasterclassWeekCompletion {
   practicalCompletePercent: number;
   capstonePercent: number;
   weekPercent: number;
+}
+
+export interface MasterclassAssignment {
+  id: string;
+  weekId: string;
+  title: string;
+  brief: string;
+  requirements: string;
+  submissionInstructions: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MasterclassAssignmentSubmission {
+  id: string;
+  assignmentId: string;
+  userId: string;
+  cohortId: string;
+  githubUrl?: string;
+  notes?: string;
+  status: MasterclassAssignmentSubmissionStatus;
+  adminFeedback?: string;
+  submittedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** Gating result for a single week — whether it's currently open to the student. */
+export interface MasterclassWeekAccess {
+  weekNumber: number;
+  isComplete: boolean;
+  unlockDate: string;
+  isDateReached: boolean;
+  isPreviousWeekComplete: boolean;
+  isUnlocked: boolean;
+  lockReason: MasterclassWeekLockReason;
 }

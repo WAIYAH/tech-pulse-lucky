@@ -3,14 +3,23 @@ import { useAuth } from "@/contexts/AuthContext";
 import { lmsProvider } from "@/lib/lms";
 import {
   PROGRAM_SLUG,
+  buildMasterclassWeekAccessMap,
+  buildMasterclassWeekProgressInputs,
   readMasterclassCohorts,
+  readMasterclassLessonProgress,
   readMasterclassProgram,
   readMasterclassWeeks,
   resolveCohortForCourseId,
   resolvePrimaryCohort,
+  type WeekProgressInput,
 } from "@/lib/masterclass";
 import type { LmsEnrollment } from "@/types/lms";
-import type { MasterclassCohort, MasterclassProgram, MasterclassWeek } from "@/types/masterclass";
+import type {
+  MasterclassCohort,
+  MasterclassProgram,
+  MasterclassWeek,
+  MasterclassWeekAccess,
+} from "@/types/masterclass";
 
 interface MasterclassStudentContextValue {
   isLoading: boolean;
@@ -19,7 +28,11 @@ interface MasterclassStudentContextValue {
   weeks: MasterclassWeek[];
   enrollment: LmsEnrollment | null;
   hasAccess: boolean;
+  weekProgress: Record<number, WeekProgressInput>;
+  weekAccess: Record<number, MasterclassWeekAccess>;
+  isLoadingProgress: boolean;
   refresh: () => Promise<void>;
+  refreshProgress: () => Promise<void>;
 }
 
 const MasterclassStudentContext = createContext<MasterclassStudentContextValue | undefined>(undefined);
@@ -31,6 +44,9 @@ export const MasterclassStudentProvider = ({ children }: { children: ReactNode }
   const [cohort, setCohort] = useState<MasterclassCohort | null>(null);
   const [weeks, setWeeks] = useState<MasterclassWeek[]>([]);
   const [enrollment, setEnrollment] = useState<LmsEnrollment | null>(null);
+  const [weekProgress, setWeekProgress] = useState<Record<number, WeekProgressInput>>({});
+  const [weekAccess, setWeekAccess] = useState<Record<number, MasterclassWeekAccess>>({});
+  const [isLoadingProgress, setIsLoadingProgress] = useState(true);
 
   const refresh = useCallback(async () => {
     setIsLoading(true);
@@ -73,9 +89,57 @@ export const MasterclassStudentProvider = ({ children }: { children: ReactNode }
 
   const hasAccess = enrollment?.accessStatus === "approved" || enrollment?.accessStatus === "free";
 
+  const refreshProgress = useCallback(async () => {
+    if (!user || !cohort || !hasAccess || weeks.length === 0) {
+      setWeekProgress({});
+      setWeekAccess({});
+      setIsLoadingProgress(false);
+      return;
+    }
+
+    setIsLoadingProgress(true);
+    try {
+      const lessonProgressRows = await readMasterclassLessonProgress(user.id, cohort.id);
+      const weekInputs = await buildMasterclassWeekProgressInputs(weeks, user.id, cohort.id, lessonProgressRows);
+      const progressByNumber = Object.fromEntries(weekInputs.map((input) => [input.weekNumber, input]));
+      setWeekProgress(progressByNumber);
+      setWeekAccess(buildMasterclassWeekAccessMap(weeks, progressByNumber, cohort.startDate));
+    } finally {
+      setIsLoadingProgress(false);
+    }
+  }, [user, cohort, hasAccess, weeks]);
+
+  useEffect(() => {
+    void refreshProgress();
+  }, [refreshProgress]);
+
   const value = useMemo<MasterclassStudentContextValue>(
-    () => ({ isLoading, program, cohort, weeks, enrollment, hasAccess, refresh }),
-    [isLoading, program, cohort, weeks, enrollment, hasAccess, refresh],
+    () => ({
+      isLoading,
+      program,
+      cohort,
+      weeks,
+      enrollment,
+      hasAccess,
+      weekProgress,
+      weekAccess,
+      isLoadingProgress,
+      refresh,
+      refreshProgress,
+    }),
+    [
+      isLoading,
+      program,
+      cohort,
+      weeks,
+      enrollment,
+      hasAccess,
+      weekProgress,
+      weekAccess,
+      isLoadingProgress,
+      refresh,
+      refreshProgress,
+    ],
   );
 
   return <MasterclassStudentContext.Provider value={value}>{children}</MasterclassStudentContext.Provider>;
@@ -87,4 +151,9 @@ export const useMasterclassStudent = (): MasterclassStudentContextValue => {
     throw new Error("useMasterclassStudent must be used within a MasterclassStudentProvider");
   }
   return context;
+};
+
+export const useMasterclassWeekAccess = (weekNumber: number): MasterclassWeekAccess | null => {
+  const { weekAccess } = useMasterclassStudent();
+  return weekAccess[weekNumber] ?? null;
 };

@@ -1,19 +1,16 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { BadgeCheck, Bell, CalendarDays, ClipboardList, Lock, Sparkles } from "lucide-react";
+import { BadgeCheck, Bell, CalendarDays, CheckCircle2, ClipboardList, Lock, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { useAuth } from "@/contexts/AuthContext";
 import {
-  buildMasterclassWeekProgressInputs,
   computeOverallMasterclassProgress,
   computeWeekOverallPercent,
   readMasterclassAnnouncements,
   readMasterclassFinalProject,
-  readMasterclassLessonProgress,
-  type WeekProgressInput,
 } from "@/lib/masterclass";
 import { cohortStatusBadgeVariant } from "@/lib/statusBadges";
 import { routes } from "@/routes/routeConfig";
@@ -22,46 +19,32 @@ import { useMasterclassStudent } from "./MasterclassStudentProvider";
 
 const StudentMasterclassOverviewPage = () => {
   const { user } = useAuth();
-  const { isLoading, program, cohort, weeks, enrollment, hasAccess } = useMasterclassStudent();
+  const { isLoading, program, cohort, weeks, enrollment, hasAccess, weekProgress, weekAccess, isLoadingProgress } =
+    useMasterclassStudent();
 
-  const [weekProgress, setWeekProgress] = useState<Record<number, WeekProgressInput>>({});
   const [announcements, setAnnouncements] = useState<MasterclassAnnouncement[]>([]);
   const [finalProjectStages, setFinalProjectStages] = useState<MasterclassFinalProjectStages | null>(null);
-  const [isLoadingProgress, setIsLoadingProgress] = useState(true);
 
   useEffect(() => {
     let isMounted = true;
 
     const load = async () => {
-      if (!user || !cohort || !hasAccess || weeks.length === 0) {
-        setIsLoadingProgress(false);
-        return;
-      }
+      if (!user || !cohort || !hasAccess) return;
 
-      setIsLoadingProgress(true);
-      const [lessonProgressRows, announcementRows, finalProjectRow] = await Promise.all([
-        readMasterclassLessonProgress(user.id, cohort.id),
+      const [announcementRows, finalProjectRow] = await Promise.all([
         readMasterclassAnnouncements(cohort.id),
         readMasterclassFinalProject(user.id, cohort.id),
       ]);
       if (!isMounted) return;
       setAnnouncements(announcementRows);
       setFinalProjectStages(finalProjectRow?.stages ?? null);
-
-      const weekInputs = await buildMasterclassWeekProgressInputs(weeks, user.id, lessonProgressRows);
-
-      if (!isMounted) return;
-      setWeekProgress(
-        Object.fromEntries(weekInputs.map((input) => [input.weekNumber, input])),
-      );
-      setIsLoadingProgress(false);
     };
 
     void load();
     return () => {
       isMounted = false;
     };
-  }, [user?.id, cohort?.id, hasAccess, weeks]);
+  }, [user?.id, cohort?.id, hasAccess]);
 
   if (isLoading) {
     return (
@@ -159,34 +142,51 @@ const StudentMasterclassOverviewPage = () => {
           {weeks.map((week) => {
             const progress = weekProgress[week.weekNumber];
             const percent = progress ? computeWeekOverallPercent(progress) : null;
+            const access = weekAccess[week.weekNumber];
+            const isWeekLocked = hasAccess && !isLoadingProgress && access && !access.isUnlocked;
+            const isWeekComplete = hasAccess && access?.isComplete;
+
             return (
-              <Card key={week.id} className={!hasAccess ? "opacity-70" : undefined}>
+              <Card key={week.id} className={!hasAccess || isWeekLocked ? "opacity-70" : undefined}>
                 <CardHeader className="pb-2">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-semibold uppercase text-muted-foreground">Week {week.weekNumber}</span>
-                    {hasAccess ? (
-                      <BadgeCheck className="h-4 w-4 text-primary" />
-                    ) : (
+                    {!hasAccess || isWeekLocked ? (
                       <Lock className="h-4 w-4 text-muted-foreground" />
+                    ) : isWeekComplete ? (
+                      <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                    ) : (
+                      <BadgeCheck className="h-4 w-4 text-primary" />
                     )}
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <p className="text-sm font-semibold">{week.title}</p>
                   <p className="text-xs text-muted-foreground">{week.theme}</p>
-                  {hasAccess && percent !== null && (
+                  {hasAccess && !isWeekLocked && percent !== null && (
                     <div className="flex items-center gap-2">
                       <Progress value={percent} className="h-1.5 flex-1" />
                       <span className="text-xs font-medium">{percent}%</span>
                     </div>
                   )}
-                  {hasAccess ? (
-                    <Button size="sm" variant="outline" asChild className="w-full">
-                      <Link to={routes.student.masterclassWeek(week.weekNumber)}>Open Week</Link>
-                    </Button>
-                  ) : (
+                  {isWeekComplete && (
+                    <Badge variant="success" className="w-fit">
+                      Completed
+                    </Badge>
+                  )}
+                  {!hasAccess ? (
                     <Button size="sm" variant="outline" disabled className="w-full">
                       Locked
+                    </Button>
+                  ) : isWeekLocked ? (
+                    <Button size="sm" variant="outline" disabled className="w-full">
+                      {access?.lockReason === "date"
+                        ? `Opens ${new Date(access.unlockDate).toLocaleDateString("en-KE", { month: "short", day: "numeric" })}`
+                        : "Finish previous week"}
+                    </Button>
+                  ) : (
+                    <Button size="sm" variant="outline" asChild className="w-full">
+                      <Link to={routes.student.masterclassWeek(week.weekNumber)}>Open Week</Link>
                     </Button>
                   )}
                 </CardContent>

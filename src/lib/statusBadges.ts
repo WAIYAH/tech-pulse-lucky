@@ -2,6 +2,7 @@ import type { BadgeProps } from "@/components/ui/badge";
 import type { EnrollmentAccessStatus, PaymentStatus } from "@/types/lms";
 import type { StudentNotificationType } from "@/lib/student/studentPortalState";
 import type {
+  MasterclassAssignmentSubmissionStatus,
   MasterclassAttendanceStatus,
   MasterclassCertificateStatus,
   MasterclassCohortStatus,
@@ -68,4 +69,9 @@ export const lessonTypeBadgeVariant: Record<MasterclassLessonType, BadgeVariant>
   intro: "accent",
   concept: "default",
   practical: "success",
+};
+
+export const assignmentSubmissionStatusBadgeVariant: Record<MasterclassAssignmentSubmissionStatus, BadgeVariant> = {
+  not_started: "secondary",
+  submitted: "success",
 };

@@ -10,7 +10,7 @@ export const lmsConfig: LmsConfig = {
     methodName: "KCB Bank Paybill",
     paybillNumber: "522522",
     accountNumber: "1315657899",
-    accountName: "Tech Pulse Insider",
+    accountName: "LUCKY LOONKISHU NAKOLA",
     currency: "KES",
     instructionSteps: [
       "Go to M-Pesa",

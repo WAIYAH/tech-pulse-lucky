@@ -10,7 +10,6 @@ import {
   LifeBuoy,
   NotebookPen,
   Settings2,
-  Sparkles,
   UserCircle2,
   Video,
   WalletCards,
@@ -43,11 +42,6 @@ export const studentNavItems: StudentNavItem[] = [
     label: "Browse Courses",
     path: routes.student.browseCourses,
     icon: Compass,
-  },
-  {
-    label: "Masterclass",
-    path: routes.student.masterclass,
-    icon: Sparkles,
   },
   {
     label: "Payments",

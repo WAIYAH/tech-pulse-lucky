@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import CourseProgress from "@/components/lms/CourseProgress";
+import { MASTERCLASS_COURSE_SLUG } from "@/lib/masterclass";
 import { routes } from "@/routes/routeConfig";
 import { enrollmentStatusBadgeVariant } from "@/lib/statusBadges";
 import { useStudentPortal } from "./StudentPortalContext";
@@ -138,7 +139,13 @@ const StudentProgressPage = () => {
                         <div className="mt-3 flex flex-wrap gap-2">
                           {course && hasAccess ? (
                             <Button size="sm" asChild className="w-full sm:w-auto">
-                              <Link to={routes.student.learn(course.slug)}>
+                              <Link
+                                to={
+                                  course.slug === MASTERCLASS_COURSE_SLUG
+                                    ? routes.student.masterclass
+                                    : routes.student.learn(course.slug)
+                                }
+                              >
                                 {enrollment.progress > 0 ? "Continue Course" : "Start Course"}
                               </Link>
                             </Button>

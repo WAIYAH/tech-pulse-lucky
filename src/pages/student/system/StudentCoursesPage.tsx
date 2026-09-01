@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { routes } from "@/routes/routeConfig";
 import CourseProgress from "@/components/lms/CourseProgress";
+import { MASTERCLASS_COURSE_SLUG } from "@/lib/masterclass";
 import { enrollmentStatusBadgeVariant } from "@/lib/statusBadges";
 import { useStudentPortal } from "./StudentPortalContext";
 
@@ -141,7 +142,13 @@ const StudentCoursesPage = () => {
                         <div className="mt-3 flex flex-wrap gap-2">
                           {course && hasAccess ? (
                             <Button size="sm" asChild className="w-full sm:w-auto">
-                              <Link to={routes.student.learn(course.slug)}>
+                              <Link
+                                to={
+                                  course.slug === MASTERCLASS_COURSE_SLUG
+                                    ? routes.student.masterclass
+                                    : routes.student.learn(course.slug)
+                                }
+                              >
                                 {enrollment.progress > 0 ? "Continue Learning" : "Start Learning"}
                               </Link>
                             </Button>

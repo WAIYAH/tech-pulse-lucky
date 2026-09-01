@@ -34,6 +34,7 @@ import {
   readMasterclassResources,
   readMasterclassTerminology,
   submitMasterclassQuizAttempt,
+  syncMasterclassEnrollmentProgress,
 } from "@/lib/masterclass";
 import type {
   MasterclassLesson,
@@ -46,6 +47,7 @@ import type {
   MasterclassTerm,
 } from "@/types/masterclass";
 import { useMasterclassStudent } from "./MasterclassStudentProvider";
+import { useStudentPortal } from "../StudentPortalContext";
 
 const StudentMasterclassWeekPage = () => {
   const { weekNumber: weekNumberParam } = useParams<{ weekNumber: string }>();
@@ -53,6 +55,7 @@ const StudentMasterclassWeekPage = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const { program, cohort, weeks, hasAccess, isLoading: isPortalLoading } = useMasterclassStudent();
+  const { refresh: refreshStudentPortal } = useStudentPortal();
 
   const week = weeks.find((row) => row.weekNumber === weekNumber);
 
@@ -128,6 +131,13 @@ const StudentMasterclassWeekPage = () => {
         }
         return [...prev, { id: `local-${lessonId}`, userId: user.id, lessonId, cohortId: cohort.id, completed }];
       });
+      await syncMasterclassEnrollmentProgress({
+        userId: user.id,
+        courseId: cohort.courseId,
+        cohortId: cohort.id,
+        weeks,
+      });
+      await refreshStudentPortal();
     } catch (error) {
       toast({
         title: "Update failed",
@@ -138,13 +148,20 @@ const StudentMasterclassWeekPage = () => {
   };
 
   const handleSubmitQuiz = async () => {
-    if (!quiz || !user) return;
+    if (!quiz || !user || !cohort) return;
     setIsSubmittingQuiz(true);
     try {
       const submission = await submitMasterclassQuizAttempt(quiz.id, answers);
       setResult(submission);
       const refreshedAttempts = await readMasterclassQuizAttempts(quiz.id, user.id);
       setAttempts(refreshedAttempts);
+      await syncMasterclassEnrollmentProgress({
+        userId: user.id,
+        courseId: cohort.courseId,
+        cohortId: cohort.id,
+        weeks,
+      });
+      await refreshStudentPortal();
       toast({
         title: submission.passed ? "Quiz passed" : "Quiz submitted",
         description: `Score: ${submission.score}% (passing score: ${quiz.passingScore}%)`,

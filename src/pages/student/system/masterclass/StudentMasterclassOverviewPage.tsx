@@ -7,18 +7,17 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { useAuth } from "@/contexts/AuthContext";
 import {
+  buildMasterclassWeekProgressInputs,
   computeOverallMasterclassProgress,
   computeWeekOverallPercent,
   readMasterclassAnnouncements,
+  readMasterclassFinalProject,
   readMasterclassLessonProgress,
-  readMasterclassLessons,
-  readMasterclassQuizAttempts,
-  readMasterclassQuizForWeek,
   type WeekProgressInput,
 } from "@/lib/masterclass";
 import { cohortStatusBadgeVariant } from "@/lib/statusBadges";
 import { routes } from "@/routes/routeConfig";
-import type { MasterclassAnnouncement } from "@/types/masterclass";
+import type { MasterclassAnnouncement, MasterclassFinalProjectStages } from "@/types/masterclass";
 import { useMasterclassStudent } from "./MasterclassStudentProvider";
 
 const StudentMasterclassOverviewPage = () => {
@@ -27,6 +26,7 @@ const StudentMasterclassOverviewPage = () => {
 
   const [weekProgress, setWeekProgress] = useState<Record<number, WeekProgressInput>>({});
   const [announcements, setAnnouncements] = useState<MasterclassAnnouncement[]>([]);
+  const [finalProjectStages, setFinalProjectStages] = useState<MasterclassFinalProjectStages | null>(null);
   const [isLoadingProgress, setIsLoadingProgress] = useState(true);
 
   useEffect(() => {
@@ -39,51 +39,21 @@ const StudentMasterclassOverviewPage = () => {
       }
 
       setIsLoadingProgress(true);
-      const [lessonProgressRows, announcementRows] = await Promise.all([
+      const [lessonProgressRows, announcementRows, finalProjectRow] = await Promise.all([
         readMasterclassLessonProgress(user.id, cohort.id),
         readMasterclassAnnouncements(cohort.id),
+        readMasterclassFinalProject(user.id, cohort.id),
       ]);
       if (!isMounted) return;
       setAnnouncements(announcementRows);
+      setFinalProjectStages(finalProjectRow?.stages ?? null);
 
-      const entries = await Promise.all(
-        weeks.map(async (week) => {
-          const [lessons, quiz] = await Promise.all([
-            readMasterclassLessons(week.id),
-            readMasterclassQuizForWeek(week.id),
-          ]);
-
-          const learningLessons = lessons.filter((lesson) => lesson.lessonType !== "practical");
-          const practicalLesson = lessons.find((lesson) => lesson.lessonType === "practical");
-          const completedLearning = learningLessons.filter((lesson) =>
-            lessonProgressRows.some((row) => row.lessonId === lesson.id && row.completed),
-          ).length;
-          const practicalCompleted = practicalLesson
-            ? lessonProgressRows.some((row) => row.lessonId === practicalLesson.id && row.completed)
-            : false;
-
-          let quizScorePercent: number | null = null;
-          if (quiz) {
-            const attempts = await readMasterclassQuizAttempts(quiz.id, user.id);
-            if (attempts.length > 0) {
-              quizScorePercent = Math.max(...attempts.map((attempt) => attempt.score));
-            }
-          }
-
-          const input: WeekProgressInput = {
-            weekNumber: week.weekNumber,
-            completedLearningLessons: completedLearning,
-            totalLearningLessons: learningLessons.length,
-            practicalCompleted,
-            hasPractical: Boolean(practicalLesson),
-            quizScorePercent,
-          };
-          return [week.weekNumber, input] as const;
-        }),
-      );
+      const weekInputs = await buildMasterclassWeekProgressInputs(weeks, user.id, lessonProgressRows);
 
       if (!isMounted) return;
-      setWeekProgress(Object.fromEntries(entries));
+      setWeekProgress(
+        Object.fromEntries(weekInputs.map((input) => [input.weekNumber, input])),
+      );
       setIsLoadingProgress(false);
     };
 
@@ -111,7 +81,10 @@ const StudentMasterclassOverviewPage = () => {
 
   const overallProgress =
     hasAccess && Object.keys(weekProgress).length > 0
-      ? computeOverallMasterclassProgress({ weeks: Object.values(weekProgress), finalProjectStages: null })
+      ? computeOverallMasterclassProgress({
+          weeks: Object.values(weekProgress),
+          finalProjectStages,
+        })
       : 0;
 
   return (

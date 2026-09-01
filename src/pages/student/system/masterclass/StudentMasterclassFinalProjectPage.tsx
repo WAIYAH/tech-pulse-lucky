@@ -9,10 +9,16 @@ import { Slider } from "@/components/ui/slider";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
-import { computeFinalProjectPercent, readMasterclassFinalProject, saveMasterclassFinalProject } from "@/lib/masterclass";
+import {
+  computeFinalProjectPercent,
+  readMasterclassFinalProject,
+  saveMasterclassFinalProject,
+  syncMasterclassEnrollmentProgress,
+} from "@/lib/masterclass";
 import { finalProjectStatusBadgeVariant } from "@/lib/statusBadges";
 import type { MasterclassFinalProject, MasterclassFinalProjectStages } from "@/types/masterclass";
 import { useMasterclassStudent } from "./MasterclassStudentProvider";
+import { useStudentPortal } from "../StudentPortalContext";
 
 const defaultStages: MasterclassFinalProjectStages = {
   proposal: 0,
@@ -37,7 +43,8 @@ const stageLabels: Array<{ key: keyof MasterclassFinalProjectStages; label: stri
 const StudentMasterclassFinalProjectPage = () => {
   const { user } = useAuth();
   const { toast } = useToast();
-  const { cohort, hasAccess, isLoading: isPortalLoading } = useMasterclassStudent();
+  const { cohort, weeks, hasAccess, isLoading: isPortalLoading } = useMasterclassStudent();
+  const { refresh: refreshStudentPortal } = useStudentPortal();
 
   const [project, setProject] = useState<MasterclassFinalProject | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -96,6 +103,13 @@ const StudentMasterclassFinalProjectPage = () => {
         status: submit ? "submitted" : project?.status === "not_started" || !project ? "in_progress" : (project.status as "in_progress" | "submitted"),
       });
       setProject(saved);
+      await syncMasterclassEnrollmentProgress({
+        userId: user.id,
+        courseId: cohort.courseId,
+        cohortId: cohort.id,
+        weeks,
+      });
+      await refreshStudentPortal();
       toast({ title: submit ? "Project submitted for review" : "Progress saved" });
     } catch (error) {
       toast({

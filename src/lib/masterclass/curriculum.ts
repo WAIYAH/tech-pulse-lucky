@@ -132,6 +132,13 @@ const mapResourceRow = (row: ResourceRow): MasterclassResource => ({
 
 export const PROGRAM_SLUG = "web-development-masterclass";
 
+/**
+ * Alias of PROGRAM_SLUG for call sites outside this module that need "is this course row the
+ * masterclass" (course.slug comparison), not "which program". Guaranteed identical: the phase9
+ * seed migration sets both courses.slug and masterclass_programs.slug to this same literal.
+ */
+export const MASTERCLASS_COURSE_SLUG = PROGRAM_SLUG;
+
 export const readMasterclassProgram = (slug: string = PROGRAM_SLUG): Promise<MasterclassProgram | null> => {
   return withMasterclassFallback(
     "readMasterclassProgram",

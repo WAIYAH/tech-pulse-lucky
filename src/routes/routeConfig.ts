@@ -56,6 +56,7 @@ export const routes = {
     students: "/admin/students",
     courses: "/admin/courses",
     payments: "/admin/payments",
+    notifications: "/admin/notifications",
     support: "/admin/support",
     finance: "/admin/finance",
     webinars: "/admin/webinars",

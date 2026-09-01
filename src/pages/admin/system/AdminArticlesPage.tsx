@@ -1,3 +1,4 @@
+import { Clock3, FileText, Tags } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -28,25 +29,46 @@ const AdminArticlesPage = () => {
       <section className="grid gap-4 sm:grid-cols-3">
         <Card>
           <CardContent className="pt-6">
-            <p className="text-sm text-muted-foreground">Published Articles</p>
-            <p className="text-3xl font-semibold">{sorted.length}</p>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Published Articles</p>
+                <p className="text-3xl font-semibold">{sorted.length}</p>
+              </div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/15">
+                <FileText className="h-5 w-5 text-primary" />
+              </div>
+            </div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6">
-            <p className="text-sm text-muted-foreground">Unique Tags</p>
-            <p className="text-3xl font-semibold">{totalTags}</p>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Unique Tags</p>
+                <p className="text-3xl font-semibold">{totalTags}</p>
+              </div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent/20">
+                <Tags className="h-5 w-5 text-accent-foreground" />
+              </div>
+            </div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6">
-            <p className="text-sm text-muted-foreground">Average Reading Time</p>
-            <p className="text-3xl font-semibold">
-              {Math.round(
-                sorted.reduce((sum, item) => sum + item.readingTime, 0) / sorted.length,
-              )}
-              m
-            </p>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Average Reading Time</p>
+                <p className="text-3xl font-semibold">
+                  {Math.round(
+                    sorted.reduce((sum, item) => sum + item.readingTime, 0) / sorted.length,
+                  )}
+                  m
+                </p>
+              </div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-500/15">
+                <Clock3 className="h-5 w-5 text-amber-600" />
+              </div>
+            </div>
           </CardContent>
         </Card>
       </section>

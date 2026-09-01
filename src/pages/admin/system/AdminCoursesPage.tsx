@@ -313,8 +313,7 @@ const AdminCoursesPage = () => {
       <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
         <h1 className="text-2xl font-bold md:text-3xl">Course Management</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Full CRUD controls for course catalog metadata, audience details, and lesson
-          structures.
+          Create, edit, and manage everything in the course catalog.
         </p>
       </section>
 
@@ -351,7 +350,7 @@ const AdminCoursesPage = () => {
                   >
                     <div className="flex items-center justify-between gap-2">
                       <p className="font-medium">{course.title}</p>
-                      <Badge variant={course.isFree ? "secondary" : "default"}>
+                      <Badge variant={course.isFree ? "success" : "default"}>
                         {course.isFree ? "Free" : "Paid"}
                       </Badge>
                     </div>
@@ -666,7 +665,7 @@ const AdminCoursesPage = () => {
               </div>
 
               <div className="flex flex-wrap gap-2">
-                <Button type="submit" disabled={isSaving} className="w-full sm:w-auto">
+                <Button type="submit" variant="accent" disabled={isSaving} className="w-full sm:w-auto">
                   {isSaving
                     ? "Saving..."
                     : selectedCourse

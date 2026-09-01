@@ -1,4 +1,5 @@
 import { useState } from "react";
+import AvatarUpload from "@/components/AvatarUpload";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -17,6 +18,7 @@ const AdminSettingsPage = () => {
   const { user, authMode, logout } = useAuth();
   const { toast } = useToast();
   const [form, setForm] = useState<AdminSettingsState>(() => readAdminSettings());
+  const [avatarUrl, setAvatarUrl] = useState<string | undefined>(user?.avatarUrl);
 
   const saveSettings = () => {
     saveAdminSettings(form);
@@ -37,6 +39,23 @@ const AdminSettingsPage = () => {
         <p className="mt-2 text-sm text-muted-foreground">
           Manage platform defaults, payment review policy, and admin operational settings.
         </p>
+      </section>
+
+      <section>
+        <Card>
+          <CardHeader>
+            <h2 className="text-xl font-semibold">Profile Picture</h2>
+          </CardHeader>
+          <CardContent>
+            <AvatarUpload
+              userId={user?.id ?? ""}
+              fullName={user?.fullName}
+              email={user?.email}
+              avatarUrl={avatarUrl}
+              onUploaded={setAvatarUrl}
+            />
+          </CardContent>
+        </Card>
       </section>
 
       <section className="grid gap-4 xl:grid-cols-3">
@@ -149,7 +168,9 @@ const AdminSettingsPage = () => {
             </div>
 
             <div className="flex justify-end">
-              <Button onClick={saveSettings} className="w-full sm:w-auto">Save Admin Settings</Button>
+              <Button variant="accent" onClick={saveSettings} className="w-full sm:w-auto">
+                Save Admin Settings
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -164,7 +185,7 @@ const AdminSettingsPage = () => {
               <p className="text-muted-foreground">{user?.fullName}</p>
               <p className="break-all text-xs text-muted-foreground">{user?.email}</p>
               <div className="mt-2">
-                <Badge variant="secondary">{user?.role ?? "guest"}</Badge>
+                <Badge variant="default">{user?.role ?? "guest"}</Badge>
               </div>
             </div>
 
@@ -174,14 +195,10 @@ const AdminSettingsPage = () => {
             </div>
 
             <div className="rounded-lg border border-border bg-muted/40 p-3">
-              <p className="font-medium">Policy Snapshot</p>
-              <p className="text-muted-foreground">
-                Rejection note policy is currently{" "}
-                <span className="font-semibold">
-                  {form.requireRejectionNote ? "enabled" : "disabled"}
-                </span>
-                .
-              </p>
+              <p className="font-medium">Rejection Note Required</p>
+              <Badge variant={form.requireRejectionNote ? "success" : "outline"} className="mt-1">
+                {form.requireRejectionNote ? "Required" : "Optional"}
+              </Badge>
             </div>
 
             <Button variant="outline" className="w-full" onClick={clearSession}>

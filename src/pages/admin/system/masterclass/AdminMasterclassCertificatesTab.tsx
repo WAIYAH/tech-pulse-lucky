@@ -8,6 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useToast } from "@/hooks/use-toast";
 import { lmsProvider } from "@/lib/lms";
 import { readAllMasterclassCertificates, setMasterclassCertificateStatus } from "@/lib/masterclass";
+import { certificateStatusBadgeVariant } from "@/lib/statusBadges";
 import type { AdminUserOverview } from "@/types/lms";
 import type { MasterclassCertificate, MasterclassCertificateStatus } from "@/types/masterclass";
 import { useAdminMasterclass } from "./AdminMasterclassProvider";
@@ -96,7 +97,10 @@ const AdminMasterclassCertificatesTab = () => {
                         <p className="text-xs text-muted-foreground">{user.email}</p>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="secondary" className="capitalize">
+                        <Badge
+                          variant={certificateStatusBadgeVariant[certificate?.status ?? "not_eligible"]}
+                          className="capitalize"
+                        >
                           {(certificate?.status ?? "not_eligible").replace("_", " ")}
                         </Badge>
                       </TableCell>

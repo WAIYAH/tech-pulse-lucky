@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { CheckCircle2, Clock3, Search, Wrench, XCircle } from "lucide-react";
+import { CheckCircle2, Clock3, ListChecks, Search, Wrench, XCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -14,6 +14,7 @@ import {
   type SupportTicketStatus,
   updateSupportTicket,
 } from "@/lib/student/studentPortalState";
+import { ticketStatusBadgeVariant } from "@/lib/statusBadges";
 
 type StatusFilter = "all" | SupportTicketStatus;
 
@@ -176,26 +177,54 @@ const AdminSupportPage = () => {
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Card>
           <CardContent className="pt-6">
-            <p className="text-sm text-muted-foreground">Total Tickets</p>
-            <p className="text-3xl font-semibold">{summary.total}</p>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Total Tickets</p>
+                <p className="text-3xl font-semibold">{summary.total}</p>
+              </div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/15">
+                <ListChecks className="h-5 w-5 text-primary" />
+              </div>
+            </div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6">
-            <p className="text-sm text-muted-foreground">Open</p>
-            <p className="text-3xl font-semibold">{summary.open}</p>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Open</p>
+                <p className="text-3xl font-semibold">{summary.open}</p>
+              </div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-500/15">
+                <Clock3 className="h-5 w-5 text-amber-600" />
+              </div>
+            </div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6">
-            <p className="text-sm text-muted-foreground">In Progress</p>
-            <p className="text-3xl font-semibold">{summary.inProgress}</p>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">In Progress</p>
+                <p className="text-3xl font-semibold">{summary.inProgress}</p>
+              </div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/15">
+                <Wrench className="h-5 w-5 text-primary" />
+              </div>
+            </div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6">
-            <p className="text-sm text-muted-foreground">Resolved</p>
-            <p className="text-3xl font-semibold">{summary.resolved}</p>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Resolved</p>
+                <p className="text-3xl font-semibold">{summary.resolved}</p>
+              </div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-600/15">
+                <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+              </div>
+            </div>
           </CardContent>
         </Card>
       </section>
@@ -263,7 +292,7 @@ const AdminSupportPage = () => {
                       <div className="flex flex-wrap items-center gap-2">
                         <Badge variant="outline">{ticket.category}</Badge>
                         <Badge variant="outline">{ticket.priority}</Badge>
-                        <Badge variant="secondary" className="capitalize">
+                        <Badge variant={ticketStatusBadgeVariant[ticket.status]} className="capitalize">
                           {ticket.status === "in_progress"
                             ? "in progress"
                             : ticket.status}
@@ -312,7 +341,7 @@ const AdminSupportPage = () => {
                       </Button>
                       <Button
                         size="sm"
-                        variant="destructive"
+                        variant="success"
                         onClick={() => void updateTicket(ticket, "resolved")}
                         className="w-full sm:w-auto"
                       >

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Pin } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -172,7 +173,7 @@ const AdminMasterclassAnnouncementsTab = () => {
             <Switch checked={isPinned} onCheckedChange={setIsPinned} />
             <Label>Pin to top</Label>
           </div>
-          <Button onClick={() => void submit()} disabled={isSaving}>
+          <Button variant="accent" onClick={() => void submit()} disabled={isSaving}>
             {isSaving ? "Publishing..." : "Publish Announcement"}
           </Button>
         </CardContent>
@@ -192,7 +193,12 @@ const AdminMasterclassAnnouncementsTab = () => {
               <div key={announcement.id} className="rounded-xl border border-border bg-background p-4">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
-                    {announcement.isPinned && <Badge>Pinned</Badge>}
+                    {announcement.isPinned && (
+                      <Badge variant="accent" className="gap-1">
+                        <Pin className="h-3 w-3" />
+                        Pinned
+                      </Badge>
+                    )}
                     <p className="font-semibold">{announcement.title}</p>
                   </div>
                   <span className="text-xs text-muted-foreground">

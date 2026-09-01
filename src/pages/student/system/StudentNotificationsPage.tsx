@@ -8,7 +8,7 @@ import {
   markAllStudentNotificationsRead,
   markStudentNotificationRead,
 } from "@/lib/student/studentPortalState";
-import { notificationTypeBadgeVariant } from "@/lib/student/enrollmentStatusBadge";
+import { notificationTypeBadgeVariant } from "@/lib/statusBadges";
 import { useStudentPortal } from "./StudentPortalContext";
 import { useToast } from "@/hooks/use-toast";
 

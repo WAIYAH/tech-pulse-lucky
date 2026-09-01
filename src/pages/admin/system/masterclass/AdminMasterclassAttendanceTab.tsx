@@ -9,6 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { lmsProvider } from "@/lib/lms";
 import { readAllMasterclassAttendance, recordMasterclassAttendance } from "@/lib/masterclass";
+import { attendanceStatusBadgeVariant } from "@/lib/statusBadges";
 import type { AdminUserOverview } from "@/types/lms";
 import type { MasterclassAttendanceRecord } from "@/types/masterclass";
 import { useAdminMasterclass } from "./AdminMasterclassProvider";
@@ -116,7 +117,7 @@ const AdminMasterclassAttendanceTab = () => {
                       <TableCell>{student.fullName}</TableCell>
                       <TableCell>
                         {status ? (
-                          <Badge variant={status === "present" ? "secondary" : "outline"} className="capitalize">
+                          <Badge variant={attendanceStatusBadgeVariant[status]} className="capitalize">
                             {status}
                           </Badge>
                         ) : (
@@ -125,10 +126,10 @@ const AdminMasterclassAttendanceTab = () => {
                       </TableCell>
                       <TableCell>
                         <div className="flex gap-2">
-                          <Button size="sm" variant="outline" onClick={() => void mark(student.id, "present")}>
+                          <Button size="sm" variant="success" onClick={() => void mark(student.id, "present")}>
                             Present
                           </Button>
-                          <Button size="sm" variant="outline" onClick={() => void mark(student.id, "absent")}>
+                          <Button size="sm" variant="destructive" onClick={() => void mark(student.id, "absent")}>
                             Absent
                           </Button>
                         </div>

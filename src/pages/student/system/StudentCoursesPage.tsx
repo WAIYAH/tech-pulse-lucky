@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { routes } from "@/routes/routeConfig";
 import CourseProgress from "@/components/lms/CourseProgress";
-import { enrollmentStatusBadgeVariant } from "@/lib/student/enrollmentStatusBadge";
+import { enrollmentStatusBadgeVariant } from "@/lib/statusBadges";
 import { useStudentPortal } from "./StudentPortalContext";
 
 type AccessFilter = "all" | "accessible" | "locked";

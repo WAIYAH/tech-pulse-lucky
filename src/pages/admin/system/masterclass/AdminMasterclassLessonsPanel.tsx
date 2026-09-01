@@ -14,8 +14,15 @@ import {
   updateMasterclassLesson,
 } from "@/lib/masterclass";
 import type { MasterclassLesson, MasterclassLessonType, MasterclassWeek } from "@/types/masterclass";
+import type { BadgeProps } from "@/components/ui/badge";
 
 const lessonTypes: MasterclassLessonType[] = ["intro", "concept", "practical"];
+
+const lessonTypeBadgeVariant: Record<MasterclassLessonType, NonNullable<BadgeProps["variant"]>> = {
+  intro: "accent",
+  concept: "default",
+  practical: "success",
+};
 
 interface LessonFormState {
   id?: string;
@@ -139,7 +146,7 @@ const AdminMasterclassLessonsPanel = ({ week }: { week: MasterclassWeek }) => {
             lessons.map((lesson) => (
               <div key={lesson.id} className="rounded-xl border border-border bg-background p-3">
                 <div className="flex items-center justify-between gap-2">
-                  <Badge variant="outline" className="capitalize">
+                  <Badge variant={lessonTypeBadgeVariant[lesson.lessonType]} className="capitalize">
                     {lesson.lessonType}
                   </Badge>
                   <span className="text-xs text-muted-foreground">#{lesson.lessonOrder}</span>
@@ -205,7 +212,7 @@ const AdminMasterclassLessonsPanel = ({ week }: { week: MasterclassWeek }) => {
             />
           </div>
           <div className="flex gap-2">
-            <Button onClick={() => void saveLesson()} disabled={isSaving}>
+            <Button variant="accent" onClick={() => void saveLesson()} disabled={isSaving}>
               {form.id ? (isSaving ? "Saving..." : "Save Changes") : isSaving ? "Creating..." : "Add Lesson"}
             </Button>
             {form.id && (

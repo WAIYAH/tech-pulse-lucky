@@ -172,8 +172,8 @@ const AdminLmsControlPage = () => {
         </Card>
       </section>
 
-      <section className="grid gap-4 xl:grid-cols-3">
-        <Card className="xl:col-span-2">
+      <section>
+        <Card>
           <CardHeader>
             <h2 className="text-xl font-semibold">Payment Rail Configuration</h2>
           </CardHeader>
@@ -201,41 +201,9 @@ const AdminLmsControlPage = () => {
               <Button onClick={runHealthCheck} variant="outline" className="w-full sm:w-auto">
                 Run LMS Health Check
               </Button>
-              <Button onClick={saveControls} className="w-full sm:w-auto">Save LMS Controls</Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <h2 className="text-xl font-semibold">Feature Flags</h2>
-          </CardHeader>
-          <CardContent className="space-y-2 text-sm">
-            <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border p-2">
-              <span>Certificates</span>
-              <Badge variant={controlState.enableCertificates ? "secondary" : "outline"}>
-                {controlState.enableCertificates ? "On" : "Off"}
-              </Badge>
-            </div>
-            <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border p-2">
-              <span>Email Notifications</span>
-              <Badge
-                variant={controlState.enableEmailNotifications ? "secondary" : "outline"}
-              >
-                {controlState.enableEmailNotifications ? "On" : "Off"}
-              </Badge>
-            </div>
-            <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border p-2">
-              <span>Live Classes</span>
-              <Badge variant={controlState.enableLiveClasses ? "secondary" : "outline"}>
-                {controlState.enableLiveClasses ? "On" : "Off"}
-              </Badge>
-            </div>
-            <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border p-2">
-              <span>Waitlist Mode</span>
-              <Badge variant={controlState.enableWaitlist ? "secondary" : "outline"}>
-                {controlState.enableWaitlist ? "On" : "Off"}
-              </Badge>
+              <Button onClick={saveControls} variant="accent" className="w-full sm:w-auto">
+                Save LMS Controls
+              </Button>
             </div>
           </CardContent>
         </Card>

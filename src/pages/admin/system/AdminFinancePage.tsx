@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { ArrowDownRight, ArrowUpRight, CalendarDays, Landmark } from "lucide-react";
+import { ArrowUpRight, CalendarDays, Landmark, Percent } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
@@ -11,6 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { lmsProvider } from "@/lib/lms";
+import { paymentStatusBadgeVariant } from "@/lib/statusBadges";
 import type { LmsPayment } from "@/types/lms";
 
 const formatMoney = (amount: number, currency = "KES") => {
@@ -133,7 +134,9 @@ const AdminFinancePage = () => {
                 <p className="text-sm text-muted-foreground">Gross Submitted</p>
                 <p className="text-2xl font-semibold">{formatMoney(totals.submitted)}</p>
               </div>
-              <Landmark className="h-5 w-5 text-primary" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/15">
+                <Landmark className="h-5 w-5 text-primary" />
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -144,7 +147,9 @@ const AdminFinancePage = () => {
                 <p className="text-sm text-muted-foreground">Approved Revenue</p>
                 <p className="text-2xl font-semibold">{formatMoney(totals.approved)}</p>
               </div>
-              <ArrowUpRight className="h-5 w-5 text-green-600" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-600/15">
+                <ArrowUpRight className="h-5 w-5 text-emerald-600" />
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -155,7 +160,9 @@ const AdminFinancePage = () => {
                 <p className="text-sm text-muted-foreground">Pending Value</p>
                 <p className="text-2xl font-semibold">{formatMoney(totals.pending)}</p>
               </div>
-              <CalendarDays className="h-5 w-5 text-amber-600" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-500/15">
+                <CalendarDays className="h-5 w-5 text-amber-600" />
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -168,7 +175,9 @@ const AdminFinancePage = () => {
                   {totals.conversionRate.toFixed(1)}%
                 </p>
               </div>
-              <ArrowDownRight className="h-5 w-5 text-primary" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent/20">
+                <Percent className="h-5 w-5 text-accent-foreground" />
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -240,7 +249,9 @@ const AdminFinancePage = () => {
                     <p className="font-medium">{payment.fullName}</p>
                     <p className="break-all text-xs text-muted-foreground">{payment.email}</p>
                     <div className="mt-2 flex items-center justify-between">
-                      <Badge variant="secondary">{payment.status}</Badge>
+                      <Badge variant={paymentStatusBadgeVariant[payment.status]}>
+                        {payment.status}
+                      </Badge>
                       <p className="text-sm font-medium">
                         {formatMoney(payment.amount, payment.currency)}
                       </p>

@@ -32,15 +32,15 @@ const AdminContentPage = () => {
   };
 
   const robotsMode = useMemo(() => {
-    return form.blockSearchIndexing ? "noindex active" : "index active";
+    return form.blockSearchIndexing ? "Hidden from search engines" : "Visible to search engines";
   }, [form.blockSearchIndexing]);
 
   return (
     <div className="space-y-6">
       <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
-        <h1 className="text-2xl font-bold md:text-3xl">Website Content Admin</h1>
+        <h1 className="text-2xl font-bold md:text-3xl">Website Content</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Configure homepage messaging, metadata, crawl behavior, and publication notes.
+          Homepage messaging and search engine visibility.
         </p>
       </section>
 
@@ -111,9 +111,7 @@ const AdminContentPage = () => {
                 <SearchCheck className="h-4 w-4 text-primary" />
                 Crawl Mode
               </div>
-              <p className="mt-1 text-muted-foreground">
-                Current robots profile: <span className="font-semibold">{robotsMode}</span>
-              </p>
+              <p className="mt-1 text-muted-foreground">{robotsMode}</p>
             </div>
             <div className="rounded-lg border border-border bg-muted/40 p-3">
               <div className="flex items-center gap-2 font-medium">
@@ -205,7 +203,7 @@ const AdminContentPage = () => {
               <p className="mt-2 text-sm text-foreground">{form.seoDescription}</p>
             </div>
             <div className="mt-3 flex flex-wrap gap-2">
-              <Badge variant={form.blockSearchIndexing ? "destructive" : "secondary"}>
+              <Badge variant={form.blockSearchIndexing ? "destructive" : "success"}>
                 {form.blockSearchIndexing ? "Noindex" : "Indexing Enabled"}
               </Badge>
               <Badge variant="outline">
@@ -217,7 +215,9 @@ const AdminContentPage = () => {
       </section>
 
       <div className="flex justify-end">
-        <Button onClick={saveContent} className="w-full sm:w-auto">Save Content Settings</Button>
+        <Button variant="accent" onClick={saveContent} className="w-full sm:w-auto">
+          Save Content Settings
+        </Button>
       </div>
     </div>
   );

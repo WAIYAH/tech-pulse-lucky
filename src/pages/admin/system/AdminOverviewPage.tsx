@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { lmsProvider } from "@/lib/lms";
+import { paymentStatusBadgeVariant } from "@/lib/statusBadges";
 import { routes } from "@/routes/routeConfig";
 import type { AdminUserOverview, LmsCourse, LmsPayment } from "@/types/lms";
 import { adminNavItems } from "./adminNavigation";
@@ -104,7 +105,9 @@ const AdminOverviewPage = () => {
                 <p className="text-sm text-muted-foreground">Active Learners</p>
                 <p className="text-3xl font-semibold">{stats.activeLearners}</p>
               </div>
-              <Users className="h-5 w-5 text-primary" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/15">
+                <Users className="h-5 w-5 text-primary" />
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -118,7 +121,9 @@ const AdminOverviewPage = () => {
                   {stats.freeCourses} free • {stats.paidCourses} paid
                 </p>
               </div>
-              <BookOpen className="h-5 w-5 text-primary" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent/20">
+                <BookOpen className="h-5 w-5 text-accent-foreground" />
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -131,7 +136,9 @@ const AdminOverviewPage = () => {
                   {formatMoney(stats.approvedRevenue)}
                 </p>
               </div>
-              <CircleDollarSign className="h-5 w-5 text-primary" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-600/15">
+                <CircleDollarSign className="h-5 w-5 text-emerald-600" />
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -142,7 +149,9 @@ const AdminOverviewPage = () => {
                 <p className="text-sm text-muted-foreground">Pending Approval Value</p>
                 <p className="text-2xl font-semibold">{formatMoney(stats.pendingRevenue)}</p>
               </div>
-              <Clock3 className="h-5 w-5 text-amber-600" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-500/15">
+                <Clock3 className="h-5 w-5 text-amber-600" />
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -175,7 +184,9 @@ const AdminOverviewPage = () => {
                         </p>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Badge variant="secondary">{payment.status}</Badge>
+                        <Badge variant={paymentStatusBadgeVariant[payment.status]}>
+                          {payment.status}
+                        </Badge>
                         <p className="text-sm font-medium">
                           {formatMoney(payment.amount, payment.currency)}
                         </p>

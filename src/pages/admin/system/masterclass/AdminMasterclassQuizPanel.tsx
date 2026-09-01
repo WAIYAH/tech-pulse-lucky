@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Badge } from "@/components/ui/badge";
+import { Badge, type BadgeProps } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -26,6 +26,12 @@ import type {
 
 const questionTypes: MasterclassQuestionType[] = ["mcq", "true_false", "scenario"];
 const OPTION_IDS = ["a", "b", "c", "d"] as const;
+
+const questionTypeBadgeVariant: Record<MasterclassQuestionType, NonNullable<BadgeProps["variant"]>> = {
+  mcq: "default",
+  true_false: "accent",
+  scenario: "warning",
+};
 
 interface QuestionFormState {
   id?: string;
@@ -281,7 +287,7 @@ const AdminMasterclassQuizPanel = ({ week }: { week: MasterclassWeek }) => {
             />
           </div>
           <div className="sm:col-span-2 lg:col-span-4">
-            <Button onClick={() => void saveQuizMeta()} disabled={isSavingQuiz}>
+            <Button variant="accent" onClick={() => void saveQuizMeta()} disabled={isSavingQuiz}>
               {quiz ? (isSavingQuiz ? "Saving..." : "Save Quiz Settings") : isSavingQuiz ? "Creating..." : "Create Quiz"}
             </Button>
           </div>
@@ -294,7 +300,7 @@ const AdminMasterclassQuizPanel = ({ week }: { week: MasterclassWeek }) => {
               {questions.map((question) => (
                 <div key={question.id} className="rounded-xl border border-border bg-background p-3">
                   <div className="flex items-center justify-between gap-2">
-                    <Badge variant="outline" className="capitalize">
+                    <Badge variant={questionTypeBadgeVariant[question.questionType]} className="capitalize">
                       {question.questionType.replace("_", " ")}
                     </Badge>
                     <span className="text-xs text-muted-foreground">#{question.questionOrder}</span>
@@ -434,7 +440,7 @@ const AdminMasterclassQuizPanel = ({ week }: { week: MasterclassWeek }) => {
               </div>
 
               <div className="flex gap-2">
-                <Button onClick={() => void saveQuestion()} disabled={isSavingQuestion}>
+                <Button variant="accent" onClick={() => void saveQuestion()} disabled={isSavingQuestion}>
                   {questionForm.id
                     ? isSavingQuestion
                       ? "Saving..."

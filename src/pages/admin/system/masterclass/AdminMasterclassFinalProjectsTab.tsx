@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { lmsProvider } from "@/lib/lms";
 import { computeFinalProjectPercent, readAllMasterclassFinalProjects, reviewMasterclassFinalProject } from "@/lib/masterclass";
+import { finalProjectStatusBadgeVariant } from "@/lib/statusBadges";
 import type { MasterclassFinalProject } from "@/types/masterclass";
 import { useAdminMasterclass } from "./AdminMasterclassProvider";
 
@@ -90,7 +91,7 @@ const AdminMasterclassFinalProjectsTab = () => {
                     <p className="font-semibold">{names[project.userId] ?? project.userId}</p>
                     <p className="text-xs text-muted-foreground">{project.projectType || "Untitled project"}</p>
                   </div>
-                  <Badge variant="secondary" className="capitalize">
+                  <Badge variant={finalProjectStatusBadgeVariant[project.status]} className="capitalize">
                     {project.status.replace("_", " ")}
                   </Badge>
                 </div>
@@ -128,6 +129,7 @@ const AdminMasterclassFinalProjectsTab = () => {
                     </Button>
                     <Button
                       size="sm"
+                      variant="success"
                       onClick={() => void submitReview(project, true)}
                       disabled={project.status === "approved"}
                     >

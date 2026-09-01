@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Pencil, Plus, Search, Trash2 } from "lucide-react";
+import { CircleDollarSign, Gift, Pencil, Plus, Search, Trash2, Video } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -311,27 +311,48 @@ const AdminWebinarsPage = () => {
       <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
         <h1 className="text-2xl font-bold md:text-3xl">Webinar Management</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Full CRUD controls for webinar metadata, booking links, topics, and seat counts.
+          Create, edit, and manage everything in the webinar catalog.
         </p>
       </section>
 
       <section className="grid gap-4 sm:grid-cols-3">
         <Card>
           <CardContent className="pt-6">
-            <p className="text-sm text-muted-foreground">Total Webinars</p>
-            <p className="text-3xl font-semibold">{webinars.length}</p>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Total Webinars</p>
+                <p className="text-3xl font-semibold">{webinars.length}</p>
+              </div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/15">
+                <Video className="h-5 w-5 text-primary" />
+              </div>
+            </div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6">
-            <p className="text-sm text-muted-foreground">Free Sessions</p>
-            <p className="text-3xl font-semibold">{freeCount}</p>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Free Sessions</p>
+                <p className="text-3xl font-semibold">{freeCount}</p>
+              </div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-600/15">
+                <Gift className="h-5 w-5 text-emerald-600" />
+              </div>
+            </div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6">
-            <p className="text-sm text-muted-foreground">Paid Sessions</p>
-            <p className="text-3xl font-semibold">{paidCount}</p>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Paid Sessions</p>
+                <p className="text-3xl font-semibold">{paidCount}</p>
+              </div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent/20">
+                <CircleDollarSign className="h-5 w-5 text-accent-foreground" />
+              </div>
+            </div>
           </CardContent>
         </Card>
       </section>
@@ -368,7 +389,7 @@ const AdminWebinarsPage = () => {
                   >
                     <div className="flex items-center justify-between gap-2">
                       <p className="font-medium">{webinar.title}</p>
-                      <Badge variant={webinar.type === "paid" ? "default" : "secondary"}>
+                      <Badge variant={webinar.type === "paid" ? "default" : "success"}>
                         {webinar.type}
                       </Badge>
                     </div>
@@ -650,7 +671,7 @@ const AdminWebinarsPage = () => {
                     Cancel Edit
                   </Button>
                 )}
-                <Button type="submit" disabled={isSaving} className="w-full sm:w-auto">
+                <Button type="submit" variant="accent" disabled={isSaving} className="w-full sm:w-auto">
                   {isSaving
                     ? "Saving..."
                     : selectedWebinar

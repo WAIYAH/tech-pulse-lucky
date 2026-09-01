@@ -9,6 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useToast } from "@/hooks/use-toast";
 import { lmsProvider } from "@/lib/lms";
 import { updateMasterclassCohort } from "@/lib/masterclass";
+import { cohortStatusBadgeVariant, paymentStatusBadgeVariant } from "@/lib/statusBadges";
 import type { AdminUserOverview } from "@/types/lms";
 import type { MasterclassCohortStatus } from "@/types/masterclass";
 import { useAdminMasterclass } from "./AdminMasterclassProvider";
@@ -96,7 +97,7 @@ const AdminMasterclassCohortsTab = () => {
                 onClick={() => setSelectedCohortId(cohort.id)}
               >
                 {cohort.cohortLabel}
-                <Badge variant="secondary" className="ml-2 capitalize">
+                <Badge variant={cohortStatusBadgeVariant[cohort.status]} className="ml-2 capitalize">
                   {cohort.status}
                 </Badge>
               </Button>
@@ -139,7 +140,7 @@ const AdminMasterclassCohortsTab = () => {
                 />
               </div>
               <div className="sm:col-span-2 lg:col-span-4">
-                <Button onClick={() => void saveCohort()} disabled={isSaving}>
+                <Button variant="accent" onClick={() => void saveCohort()} disabled={isSaving}>
                   {isSaving ? "Saving..." : "Save Cohort"}
                 </Button>
               </div>
@@ -177,7 +178,18 @@ const AdminMasterclassCohortsTab = () => {
                     <TableRow key={user.id}>
                       <TableCell>{user.fullName}</TableCell>
                       <TableCell className="break-all">{user.email}</TableCell>
-                      <TableCell className="capitalize">{user.latestPaymentStatus ?? "-"}</TableCell>
+                      <TableCell>
+                        {user.latestPaymentStatus ? (
+                          <Badge
+                            variant={paymentStatusBadgeVariant[user.latestPaymentStatus]}
+                            className="capitalize"
+                          >
+                            {user.latestPaymentStatus}
+                          </Badge>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">&mdash;</span>
+                        )}
+                      </TableCell>
                       <TableCell>{new Date(user.dateJoined).toLocaleDateString("en-KE")}</TableCell>
                     </TableRow>
                   ))}

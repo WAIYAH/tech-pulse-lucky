@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { CheckCircle2, Clock3, Search, XCircle } from "lucide-react";
+import { CheckCircle2, CircleDollarSign, Clock3, Search, XCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { readAdminSettings } from "@/lib/admin/adminState";
 import { lmsProvider } from "@/lib/lms";
 import { createStudentNotification } from "@/lib/student/studentPortalState";
+import { paymentStatusBadgeVariant } from "@/lib/statusBadges";
 import { routes } from "@/routes/routeConfig";
 import type { LmsCourse, LmsPayment, PaymentStatus } from "@/types/lms";
 
@@ -171,26 +172,54 @@ const AdminPaymentsPage = () => {
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Card>
           <CardContent className="pt-6">
-            <p className="text-sm text-muted-foreground">Total Submission Value</p>
-            <p className="text-2xl font-semibold">{formatMoney(summary.totalValue)}</p>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Total Submission Value</p>
+                <p className="text-2xl font-semibold">{formatMoney(summary.totalValue)}</p>
+              </div>
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/15">
+                <CircleDollarSign className="h-5 w-5 text-primary" />
+              </div>
+            </div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6">
-            <p className="text-sm text-muted-foreground">Pending</p>
-            <p className="text-2xl font-semibold">{summary.pendingCount}</p>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Pending</p>
+                <p className="text-2xl font-semibold">{summary.pendingCount}</p>
+              </div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-500/15">
+                <Clock3 className="h-5 w-5 text-amber-600" />
+              </div>
+            </div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6">
-            <p className="text-sm text-muted-foreground">Approved</p>
-            <p className="text-2xl font-semibold">{summary.approvedCount}</p>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Approved</p>
+                <p className="text-2xl font-semibold">{summary.approvedCount}</p>
+              </div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-600/15">
+                <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+              </div>
+            </div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6">
-            <p className="text-sm text-muted-foreground">Rejected</p>
-            <p className="text-2xl font-semibold">{summary.rejectedCount}</p>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Rejected</p>
+                <p className="text-2xl font-semibold">{summary.rejectedCount}</p>
+              </div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-destructive/15">
+                <XCircle className="h-5 w-5 text-destructive" />
+              </div>
+            </div>
           </CardContent>
         </Card>
       </section>
@@ -270,7 +299,7 @@ const AdminPaymentsPage = () => {
                           </p>
                         </div>
                         <div className="flex items-center gap-2">
-                          <Badge variant="secondary" className="capitalize">
+                          <Badge variant={paymentStatusBadgeVariant[payment.status]} className="capitalize">
                             {payment.status}
                           </Badge>
                           {statusIcon(payment.status)}
@@ -295,6 +324,7 @@ const AdminPaymentsPage = () => {
                       <div className="mt-3 flex flex-wrap gap-2">
                         <Button
                           size="sm"
+                          variant="success"
                           disabled={isUpdating}
                           onClick={() => handleStatusUpdate(payment, "approved")}
                           className="w-full sm:w-auto"

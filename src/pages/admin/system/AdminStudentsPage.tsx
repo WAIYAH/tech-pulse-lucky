@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { Clock3, GraduationCap, ShieldCheck, UserCheck, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -12,6 +13,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { lmsProvider } from "@/lib/lms";
+import { paymentStatusBadgeVariant } from "@/lib/statusBadges";
 import type { AdminUserOverview, LmsCourse, LmsRole } from "@/types/lms";
 
 type RoleFilter = "all" | LmsRole;
@@ -84,32 +86,67 @@ const AdminStudentsPage = () => {
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
         <Card>
           <CardContent className="pt-6">
-            <p className="text-sm text-muted-foreground">Total Accounts</p>
-            <p className="text-2xl font-semibold">{totals.total}</p>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Total Accounts</p>
+                <p className="text-2xl font-semibold">{totals.total}</p>
+              </div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/15">
+                <Users className="h-5 w-5 text-primary" />
+              </div>
+            </div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6">
-            <p className="text-sm text-muted-foreground">Students</p>
-            <p className="text-2xl font-semibold">{totals.students}</p>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Students</p>
+                <p className="text-2xl font-semibold">{totals.students}</p>
+              </div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/15">
+                <GraduationCap className="h-5 w-5 text-primary" />
+              </div>
+            </div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6">
-            <p className="text-sm text-muted-foreground">Admins</p>
-            <p className="text-2xl font-semibold">{totals.admins}</p>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Admins</p>
+                <p className="text-2xl font-semibold">{totals.admins}</p>
+              </div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent/20">
+                <ShieldCheck className="h-5 w-5 text-accent-foreground" />
+              </div>
+            </div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6">
-            <p className="text-sm text-muted-foreground">Active Learners</p>
-            <p className="text-2xl font-semibold">{totals.active}</p>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Active Learners</p>
+                <p className="text-2xl font-semibold">{totals.active}</p>
+              </div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-600/15">
+                <UserCheck className="h-5 w-5 text-emerald-600" />
+              </div>
+            </div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6">
-            <p className="text-sm text-muted-foreground">Pending Enrollments</p>
-            <p className="text-2xl font-semibold">{totals.pending}</p>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Pending Enrollments</p>
+                <p className="text-2xl font-semibold">{totals.pending}</p>
+              </div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-500/15">
+                <Clock3 className="h-5 w-5 text-amber-600" />
+              </div>
+            </div>
           </CardContent>
         </Card>
       </section>
@@ -196,7 +233,9 @@ const AdminStudentsPage = () => {
                         </TableCell>
                         <TableCell>
                           {user.latestPaymentStatus ? (
-                            <Badge variant="secondary">{user.latestPaymentStatus}</Badge>
+                            <Badge variant={paymentStatusBadgeVariant[user.latestPaymentStatus]}>
+                              {user.latestPaymentStatus}
+                            </Badge>
                           ) : (
                             <span className="text-xs text-muted-foreground">No payments</span>
                           )}

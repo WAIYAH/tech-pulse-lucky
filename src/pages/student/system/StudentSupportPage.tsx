@@ -18,7 +18,7 @@ import {
   type SupportTicketPriority,
   updateSupportTicket,
 } from "@/lib/student/studentPortalState";
-import { ticketStatusBadgeVariant } from "@/lib/student/enrollmentStatusBadge";
+import { ticketStatusBadgeVariant } from "@/lib/statusBadges";
 import { useStudentPortal } from "./StudentPortalContext";
 import { readAdminSettings } from "@/lib/admin/adminState";
 

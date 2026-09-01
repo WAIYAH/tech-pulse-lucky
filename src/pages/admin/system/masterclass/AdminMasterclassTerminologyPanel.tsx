@@ -199,7 +199,7 @@ const AdminMasterclassTerminologyPanel = ({ week }: { week: MasterclassWeek }) =
             </div>
           </div>
           <div className="flex gap-2">
-            <Button onClick={() => void saveTerm()} disabled={isSaving}>
+            <Button variant="accent" onClick={() => void saveTerm()} disabled={isSaving}>
               {form.id ? (isSaving ? "Saving..." : "Save Changes") : isSaving ? "Creating..." : "Add Term"}
             </Button>
             {form.id && (

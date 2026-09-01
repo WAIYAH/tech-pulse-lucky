@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import CourseProgress from "@/components/lms/CourseProgress";
 import { routes } from "@/routes/routeConfig";
-import { enrollmentStatusBadgeVariant } from "@/lib/student/enrollmentStatusBadge";
+import { enrollmentStatusBadgeVariant } from "@/lib/statusBadges";
 import { useStudentPortal } from "./StudentPortalContext";
 
 const StudentOverviewPage = () => {

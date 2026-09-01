@@ -15,7 +15,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { lmsConfig } from "@/data/lmsConfig";
 import { routes } from "@/routes/routeConfig";
-import { paymentStatusBadgeVariant } from "@/lib/student/enrollmentStatusBadge";
+import { paymentStatusBadgeVariant } from "@/lib/statusBadges";
 import { useStudentPortal } from "./StudentPortalContext";
 
 const formatMoney = (amount: number, currency = "KES") => {

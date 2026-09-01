@@ -6,7 +6,7 @@ Production-ready React + TypeScript platform for:
 - Student portal
 - Admin operations dashboard
 
-Live domain target: `https://techpulseinsider.com`
+Live domain target: `https://gettechy.nakolaexpertsystems.com`
 
 ## Platform Overview
 
@@ -236,7 +236,7 @@ VITE_SUPABASE_PROJECT_ID=...
 VITE_ENABLE_SUPABASE_AUTH=true
 VITE_LMS_DATA_PROVIDER=supabase
 VITE_ADMIN_EMAILS=admin@example.com
-VITE_SITE_URL=https://techpulseinsider.com
+VITE_SITE_URL=https://gettechy.nakolaexpertsystems.com
 ```
 
 Notes:
@@ -266,7 +266,7 @@ With `VITE_ENABLE_SUPABASE_AUTH=true` (current setup), there are no bootstrap ac
 
 With `VITE_ENABLE_SUPABASE_AUTH=false` (local auth mode, no backend needed), bootstrap accounts exist automatically:
 - Admin: seeded from configured admin bootstrap logic.
-- Student: `student@techpulseinsider.com` / `LuckyStudent@2026!`
+- Student: `student@nakolaexpertsystems.com` / `LuckyStudent@2026!`
 
 ## How To Add New Pages
 
@@ -308,24 +308,40 @@ With `VITE_ENABLE_SUPABASE_AUTH=false` (local auth mode, no backend needed), boo
 
 ## Deployment
 
-Recommended: Vercel
+Recommended: Cloudflare Pages, connected to this repo's GitHub remote.
 
-1. Connect repository.
-2. Configure environment variables (same names as `.env` — see "Environment Variables" above; Vercel does not read your local `.env` file, you re-enter them in its dashboard).
-3. Ensure Supabase migrations are applied (see "Supabase Setup Status" above) — this is done for the current project.
-4. Run production build checks before release: `npm run lint && npm run build`.
-5. Validate:
+1. Cloudflare dashboard → Workers & Pages → Create → Pages → Connect to Git → select this repository, branch `main`.
+2. Build command `npm run build`, output directory `dist` (`.nvmrc` pins the Node version automatically).
+3. Configure environment variables (same names as `.env` — see "Environment Variables" above; Cloudflare Pages does not read your local `.env` file, you re-enter them in its dashboard) for both Production and Preview.
+4. Ensure Supabase migrations are applied (see "Supabase Setup Status" above) — this is done for the current project.
+5. Deploy, then add the custom domain under the Pages project's "Custom domains" settings (`gettechy.nakolaexpertsystems.com`) and add the DNS record Cloudflare provides wherever the domain's DNS is managed.
+6. Run production build checks before release: `npm run lint && npm run build`.
+7. Validate:
    - Public routes load and index correctly.
+   - Direct-loading a deep link (e.g. `/about`) works via the `public/_redirects` SPA fallback.
    - Protected routes require auth.
    - `robots.txt` and `sitemap.xml` are reachable.
    - Login works with a real account (not a stale local-mode test account).
+
+`public/_redirects` and `public/_headers` provide the SPA routing fallback and security headers for Cloudflare Pages (Cloudflare does not read `vercel.json`, which remains in the repo only for reference/rollback to Vercel).
+
+### Alternative: deploy from the CLI
+
+`wrangler.jsonc` and the `wrangler` devDependency are already set up, so a one-off deploy doesn't require the Git integration at all:
+
+```bash
+npx wrangler login   # once, opens a browser to authorize this machine
+npm run cf:deploy     # builds and pushes dist/ straight to Cloudflare Pages
+```
+
+This creates/updates the `gettechy` Pages project directly. Environment variables still need to be set in the Cloudflare dashboard (Pages project → Settings → Environment variables) since `wrangler pages deploy` doesn't read `.env`.
 
 This is a static single-page app (Vite build output = plain HTML/CSS/JS) talking to Supabase directly from the browser — there is no separate backend server to containerize or deploy. **Docker is not required to run or host this project.** Docker only appears in this codebase as *course content* the Masterclass program teaches students in Week 7 (`supabase/migrations/.../phase9...` seeds a lesson on containers/Dockerfiles) — that is unrelated to this platform's own infrastructure.
 
 ### What else is actually needed before this is fully production-ready
 
 - **Real KCB Paybill details**: confirm `src/data/lmsConfig.ts`'s `paybillNumber`/`accountNumber`/`accountName` are the real business ones, not placeholders, before advertising paid enrollment.
-- **Domain/DNS/SSL**: only relevant if `techpulseinsider.com` isn't already pointed at the Vercel deployment — not something this repo controls.
+- **Domain/DNS/SSL**: only relevant if `gettechy.nakolaexpertsystems.com` isn't already pointed at the Cloudflare Pages deployment — not something this repo controls.
 - **Regenerate `src/integrations/supabase/types.ts`**: currently stale/empty (`supabase gen types typescript --project-id <ref> > src/integrations/supabase/types.ts`); every provider in this codebase already works around this with hand-rolled types, so it's a nice-to-have for stronger type safety, not a blocker.
 - **A second admin, if wanted**: add more emails (comma-separated) to `VITE_ADMIN_EMAILS`, or set `role: "admin"` in a user's metadata the same way the first admin account was created.
 - **Automated tests**: none exist in this repo today (no vitest/jest); verification has been manual + scripted-browser (Playwright) checks. Optional to add, not required to ship.

@@ -407,7 +407,7 @@ const MediaKit = () => {
             </Button>
           </div>
           <p className="text-sm text-muted-foreground mt-6">
-            Email: <a href="mailto:partnerships@techpulseinsider.com" className="text-primary hover:underline">partnerships@techpulseinsider.com</a>
+            Email: <a href="mailto:partnerships@nakolaexpertsystems.com" className="text-primary hover:underline">partnerships@nakolaexpertsystems.com</a>
           </p>
         </motion.div>
       </div>

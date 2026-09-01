@@ -92,7 +92,7 @@ const ArticleDetail = () => {
           },
           datePublished: article.publishDate,
           image: article.coverImage,
-          mainEntityOfPage: `https://techpulseinsider.com${routes.public.article(article.slug)}`,
+          mainEntityOfPage: `https://gettechy.nakolaexpertsystems.com${routes.public.article(article.slug)}`,
           publisher: {
             "@type": "Organization",
             name: "Tech Pulse Insider",

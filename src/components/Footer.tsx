@@ -51,7 +51,7 @@ const Footer = () => {
                 <Instagram size={20} />
               </a>
               <a
-                href="mailto:lucky@techpulseinsider.com"
+                href="mailto:lucky@nakolaexpertsystems.com"
                 className="text-muted-foreground hover:text-primary transition-colors"
                 aria-label="Email"
               >
@@ -111,7 +111,7 @@ const Footer = () => {
         {/* Bottom Bar */}
         <div className="mt-12 pt-8 border-t border-border text-center">
           <p className="text-sm text-muted-foreground">
-            © {currentYear} Tech Pulse Insider. All rights reserved. | Built with 💙 by Lucky Nakola
+            © {currentYear} Tech Pulse Insider. All rights reserved. | Built with 💙 by Nakola Expert System
           </p>
           <p className="text-xs text-muted-foreground mt-2">
             Supporting Kenya Vision 2030 & UN SDGs through Tech Education

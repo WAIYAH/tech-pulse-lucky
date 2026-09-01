@@ -354,7 +354,7 @@ const TermsOfService = () => {
             
             <div className="bg-muted p-4 rounded-lg space-y-2 text-foreground">
               <p><strong>Tech Pulse Insider</strong></p>
-              <p>📧 Email: <a href="mailto:legal@techpulseinsider.com" className="text-primary hover:underline">legal@techpulseinsider.com</a></p>
+              <p>📧 Email: <a href="mailto:legal@nakolaexpertsystems.com" className="text-primary hover:underline">legal@nakolaexpertsystems.com</a></p>
               <p>💬 WhatsApp: <a href="https://wa.me/254715674828" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">+254 715 674 828</a></p>
               <p>📍 Kenya</p>
             </div>

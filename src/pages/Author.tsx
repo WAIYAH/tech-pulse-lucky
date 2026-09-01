@@ -50,12 +50,12 @@ const authors: Record<string, {
     image: luckyProfile,
     location: "Nairobi, Kenya",
     joinedDate: "January 2024",
-    website: "https://techpulseinsider.com",
+    website: "https://gettechy.nakolaexpertsystems.com",
     social: {
       twitter: "https://twitter.com/techpulseinsider",
       linkedin: "https://linkedin.com/in/luckynakola",
       github: "https://github.com/luckynakola",
-      email: "lucky@techpulseinsider.com",
+      email: "lucky@nakolaexpertsystems.com",
     },
     stats: {
       articles: 50,

@@ -255,7 +255,7 @@ const PrivacyPolicy = () => {
             </div>
             
             <p className="text-foreground mt-4">
-              To exercise these rights, contact us at <a href="mailto:privacy@techpulseinsider.com" className="text-primary hover:underline">privacy@techpulseinsider.com</a> with your request and verification details.
+              To exercise these rights, contact us at <a href="mailto:privacy@nakolaexpertsystems.com" className="text-primary hover:underline">privacy@nakolaexpertsystems.com</a> with your request and verification details.
             </p>
           </Card>
 
@@ -300,7 +300,7 @@ const PrivacyPolicy = () => {
             <ul className="list-disc list-inside text-foreground space-y-2 ml-2">
               <li>Clicking "Unsubscribe" in any email we send</li>
               <li>Updating your preferences in your account settings</li>
-              <li>Contacting us directly at <a href="mailto:hello@techpulseinsider.com" className="text-primary hover:underline">hello@techpulseinsider.com</a></li>
+              <li>Contacting us directly at <a href="mailto:hello@nakolaexpertsystems.com" className="text-primary hover:underline">hello@nakolaexpertsystems.com</a></li>
             </ul>
             
             <p className="text-foreground mt-4">
@@ -375,7 +375,7 @@ const PrivacyPolicy = () => {
             
             <div className="bg-muted p-4 rounded-lg space-y-2 text-foreground">
               <p><strong>Tech Pulse Insider</strong></p>
-              <p>📧 Email: <a href="mailto:privacy@techpulseinsider.com" className="text-primary hover:underline">privacy@techpulseinsider.com</a></p>
+              <p>📧 Email: <a href="mailto:privacy@nakolaexpertsystems.com" className="text-primary hover:underline">privacy@nakolaexpertsystems.com</a></p>
               <p>💬 WhatsApp: <a href="https://wa.me/254715674828" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">+254 715 674 828</a></p>
               <p>📍 Kenya</p>
               <p className="text-sm">Response time: We aim to respond to privacy inquiries within 14 days.</p>

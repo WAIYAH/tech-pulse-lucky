@@ -200,7 +200,7 @@ const AdminContentPage = () => {
             <div className="rounded-xl border border-border bg-background p-4">
               <p className="line-clamp-2 text-base font-medium text-primary">{form.seoTitle}</p>
               <p className="mt-1 text-xs text-muted-foreground">
-                https://techpulseinsider.com
+                https://gettechy.nakolaexpertsystems.com
               </p>
               <p className="mt-2 text-sm text-foreground">{form.seoDescription}</p>
             </div>

@@ -11,7 +11,7 @@ interface SEOInput {
   noindex?: boolean;
 }
 
-const SITE_URL = import.meta.env.VITE_SITE_URL ?? "https://techpulseinsider.com";
+const SITE_URL = import.meta.env.VITE_SITE_URL ?? "https://gettechy.nakolaexpertsystems.com";
 const DEFAULT_IMAGE = `${SITE_URL}/og-cover.webp`;
 const DEFAULT_IMAGE_ALT = "Tech Pulse Insider learning platform";
 

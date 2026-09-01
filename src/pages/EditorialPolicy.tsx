@@ -415,7 +415,7 @@ const EditorialPolicy = () => {
             
             <div className="bg-muted p-4 rounded-lg space-y-2 text-foreground">
               <p><strong>Editorial Team</strong></p>
-              <p>📧 Email: <a href="mailto:editorial@techpulseinsider.com" className="text-primary hover:underline">editorial@techpulseinsider.com</a></p>
+              <p>📧 Email: <a href="mailto:editorial@nakolaexpertsystems.com" className="text-primary hover:underline">editorial@nakolaexpertsystems.com</a></p>
               <p>💬 WhatsApp: <a href="https://wa.me/254715674828" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">+254 715 674 828</a></p>
               <p>📍 Kenya</p>
               <p className="text-sm">Response time: We aim to respond within 7 business days</p>

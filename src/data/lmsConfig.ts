@@ -3,7 +3,7 @@ import type { LmsConfig } from "@/types/lms";
 export const lmsConfig: LmsConfig = {
   platformName: "Get Techy With Lucky LMS",
   brandName: "Tech Pulse Insider",
-  supportEmail: "lucky@techpulseinsider.com",
+  supportEmail: "lucky@nakolaexpertsystems.com",
   supportPhone: "+254715674828",
   whatsappCommunityLink: "https://wa.me/254715674828",
   payment: {

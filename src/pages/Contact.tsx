@@ -104,8 +104,8 @@ const Contact = () => {
     {
       icon: Mail,
       title: "Email",
-      value: "lucky@techpulseinsider.com",
-      link: "mailto:lucky@techpulseinsider.com",
+      value: "lucky@nakolaexpertsystems.com",
+      link: "mailto:lucky@nakolaexpertsystems.com",
     },
     {
       icon: MessageCircle,

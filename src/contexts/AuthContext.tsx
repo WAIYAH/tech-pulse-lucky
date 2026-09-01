@@ -79,7 +79,7 @@ type LocalLoginAttemptMap = Record<string, LocalLoginAttemptEntry>;
 const LOCAL_BOOTSTRAP_ADMIN: LocalAuthUserRecord = {
   id: "local-admin-bootstrap",
   fullName: "Lucky LMS Admin",
-  email: "admin@techpulseinsider.com",
+  email: "admin@nakolaexpertsystems.com",
   phone: "+254715674828",
   role: "admin",
   dateJoined: "2026-05-09T00:00:00.000Z",
@@ -90,7 +90,7 @@ const LOCAL_BOOTSTRAP_ADMIN: LocalAuthUserRecord = {
 const LOCAL_BOOTSTRAP_STUDENT: LocalAuthUserRecord = {
   id: "local-student-bootstrap",
   fullName: "Lucky LMS Learner",
-  email: "student@techpulseinsider.com",
+  email: "student@nakolaexpertsystems.com",
   phone: "+254700000001",
   role: "student",
   dateJoined: "2026-05-12T00:00:00.000Z",

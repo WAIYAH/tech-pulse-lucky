@@ -323,7 +323,9 @@ Recommended: Cloudflare Pages, connected to this repo's GitHub remote.
    - `robots.txt` and `sitemap.xml` are reachable.
    - Login works with a real account (not a stale local-mode test account).
 
-`public/_redirects` and `public/_headers` provide the SPA routing fallback and security headers for Cloudflare Pages (Cloudflare does not read `vercel.json`, which remains in the repo only for reference/rollback to Vercel).
+`public/_redirects` and `public/_headers` provide a SPA routing fallback and security headers; `wrangler.jsonc`'s `assets.not_found_handling: "single-page-application"` does the same SPA-fallback job at the platform level (Cloudflare does not read `vercel.json`, which remains in the repo only for reference/rollback to Vercel).
+
+Because a `wrangler.jsonc` exists in the repo, Cloudflare's Git-integration build runs `npx wrangler deploy` (not the older `wrangler pages deploy`) as its deploy step — this serves the site as a Worker with static assets rather than classic Pages, but behaves identically from a hosting perspective (same custom domain setup, same dashboard project view under "Workers & Pages").
 
 ### Alternative: deploy from the CLI
 
@@ -331,10 +333,10 @@ Recommended: Cloudflare Pages, connected to this repo's GitHub remote.
 
 ```bash
 npx wrangler login   # once, opens a browser to authorize this machine
-npm run cf:deploy     # builds and pushes dist/ straight to Cloudflare Pages
+npm run cf:deploy     # builds and pushes dist/ straight to Cloudflare
 ```
 
-This creates/updates the `gettechy` Pages project directly. Environment variables still need to be set in the Cloudflare dashboard (Pages project → Settings → Environment variables) since `wrangler pages deploy` doesn't read `.env`.
+This creates/updates the `gettechy` project directly. Environment variables still need to be set in the Cloudflare dashboard (project → Settings → Variables and Secrets) since `wrangler deploy` doesn't read `.env`.
 
 This is a static single-page app (Vite build output = plain HTML/CSS/JS) talking to Supabase directly from the browser — there is no separate backend server to containerize or deploy. **Docker is not required to run or host this project.** Docker only appears in this codebase as *course content* the Masterclass program teaches students in Week 7 (`supabase/migrations/.../phase9...` seeds a lesson on containers/Dockerfiles) — that is unrelated to this platform's own infrastructure.
 

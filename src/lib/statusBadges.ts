@@ -6,6 +6,7 @@ import type {
   MasterclassCertificateStatus,
   MasterclassCohortStatus,
   MasterclassFinalProjectStatus,
+  MasterclassLessonType,
 } from "@/types/masterclass";
 
 type BadgeVariant = NonNullable<BadgeProps["variant"]>;
@@ -61,4 +62,10 @@ export const certificateStatusBadgeVariant: Record<MasterclassCertificateStatus,
 export const attendanceStatusBadgeVariant: Record<MasterclassAttendanceStatus, BadgeVariant> = {
   present: "success",
   absent: "destructive",
+};
+
+export const lessonTypeBadgeVariant: Record<MasterclassLessonType, BadgeVariant> = {
+  intro: "accent",
+  concept: "default",
+  practical: "success",
 };

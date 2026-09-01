@@ -22,6 +22,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { lessonTypeBadgeVariant } from "@/lib/statusBadges";
 import { routes } from "@/routes/routeConfig";
 import {
   markMasterclassLessonComplete,
@@ -280,7 +281,7 @@ const StudentMasterclassWeekPage = () => {
                     <div className="flex flex-wrap items-start justify-between gap-2">
                       <div>
                         <div className="flex items-center gap-2">
-                          <Badge variant="outline" className="capitalize">
+                          <Badge variant={lessonTypeBadgeVariant[lesson.lessonType]} className="capitalize">
                             {lesson.lessonType}
                           </Badge>
                           <p className="font-semibold">{lesson.title}</p>
@@ -289,7 +290,7 @@ const StudentMasterclassWeekPage = () => {
                       </div>
                       <Button
                         size="sm"
-                        variant={isComplete ? "secondary" : "outline"}
+                        variant={isComplete ? "success" : "outline"}
                         onClick={() => void toggleLesson(lesson.id, !isComplete)}
                       >
                         {isComplete ? (

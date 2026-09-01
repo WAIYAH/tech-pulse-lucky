@@ -16,6 +16,7 @@ import {
   readMasterclassQuizForWeek,
   type WeekProgressInput,
 } from "@/lib/masterclass";
+import { cohortStatusBadgeVariant } from "@/lib/statusBadges";
 import { routes } from "@/routes/routeConfig";
 import type { MasterclassAnnouncement } from "@/types/masterclass";
 import { useMasterclassStudent } from "./MasterclassStudentProvider";
@@ -120,6 +121,9 @@ const StudentMasterclassOverviewPage = () => {
           <Sparkles className="h-5 w-5 text-accent" />
           <h1 className="text-2xl font-bold md:text-3xl">{program.title}</h1>
           <Badge variant="secondary">{cohort.cohortLabel}</Badge>
+          <Badge variant={cohortStatusBadgeVariant[cohort.status]} className="capitalize">
+            {cohort.status}
+          </Badge>
         </div>
         <p className="mt-2 text-sm text-muted-foreground">{program.tagline}</p>
         <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">

@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { computeFinalProjectPercent, readMasterclassFinalProject, saveMasterclassFinalProject } from "@/lib/masterclass";
+import { finalProjectStatusBadgeVariant } from "@/lib/statusBadges";
 import type { MasterclassFinalProject, MasterclassFinalProjectStages } from "@/types/masterclass";
 import { useMasterclassStudent } from "./MasterclassStudentProvider";
 
@@ -136,7 +137,7 @@ const StudentMasterclassFinalProjectPage = () => {
             </p>
           </div>
           {project && (
-            <Badge variant="secondary" className="capitalize">
+            <Badge variant={finalProjectStatusBadgeVariant[project.status]} className="capitalize">
               {project.status.replace("_", " ")}
             </Badge>
           )}
@@ -221,7 +222,11 @@ const StudentMasterclassFinalProjectPage = () => {
         <Button variant="outline" onClick={() => void save(false)} disabled={isSaving}>
           {isSaving ? "Saving..." : "Save Progress"}
         </Button>
-        <Button onClick={() => void save(true)} disabled={isSaving || project?.status === "approved"}>
+        <Button
+          variant="accent"
+          onClick={() => void save(true)}
+          disabled={isSaving || project?.status === "approved"}
+        >
           Submit for Review
         </Button>
       </div>

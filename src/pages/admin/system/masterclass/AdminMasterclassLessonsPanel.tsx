@@ -13,16 +13,10 @@ import {
   readMasterclassLessons,
   updateMasterclassLesson,
 } from "@/lib/masterclass";
+import { lessonTypeBadgeVariant } from "@/lib/statusBadges";
 import type { MasterclassLesson, MasterclassLessonType, MasterclassWeek } from "@/types/masterclass";
-import type { BadgeProps } from "@/components/ui/badge";
 
 const lessonTypes: MasterclassLessonType[] = ["intro", "concept", "practical"];
-
-const lessonTypeBadgeVariant: Record<MasterclassLessonType, NonNullable<BadgeProps["variant"]>> = {
-  intro: "accent",
-  concept: "default",
-  practical: "success",
-};
 
 interface LessonFormState {
   id?: string;

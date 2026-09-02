@@ -5,17 +5,21 @@ import {
   BookOpen,
   CircleDollarSign,
   Clock3,
+  Lightbulb,
   ShieldAlert,
   Users,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import EmptyState from "@/components/student/EmptyState";
 import { lmsProvider } from "@/lib/lms";
 import { paymentStatusBadgeVariant } from "@/lib/statusBadges";
 import { routes } from "@/routes/routeConfig";
-import type { AdminUserOverview, LmsCourse, LmsPayment } from "@/types/lms";
+import type { AdminUserOverview, LmsCourse, LmsEnrollment, LmsPayment } from "@/types/lms";
 import { adminNavItems } from "./adminNavigation";
+import { computeInsights } from "./reports/insightsEngine";
+import noPaymentsImage from "@/assets/empty-states/no-payments.svg";
 
 const formatMoney = (amount: number, currency = "KES") => {
   return new Intl.NumberFormat("en-KE", {
@@ -29,24 +33,33 @@ const AdminOverviewPage = () => {
   const [courses, setCourses] = useState<LmsCourse[]>([]);
   const [payments, setPayments] = useState<LmsPayment[]>([]);
   const [users, setUsers] = useState<AdminUserOverview[]>([]);
+  const [enrollments, setEnrollments] = useState<LmsEnrollment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const loadData = async () => {
-      const [courseRows, paymentRows, userRows] = await Promise.all([
+      const [courseRows, paymentRows, userRows, enrollmentRows] = await Promise.all([
         lmsProvider.listCourses(),
         lmsProvider.getAllPayments(),
         lmsProvider.listUsers(),
+        lmsProvider.getAllEnrollments(),
       ]);
 
       setCourses(courseRows);
       setPayments(paymentRows);
       setUsers(userRows);
+      setEnrollments(enrollmentRows);
       setIsLoading(false);
     };
 
     loadData();
   }, []);
+
+  const topInsight = useMemo(() => {
+    if (isLoading) return null;
+    const insights = computeInsights({ courses, payments, users, enrollments });
+    return insights.find((insight) => insight.severity !== "info") ?? null;
+  }, [isLoading, courses, payments, users, enrollments]);
 
   const stats = useMemo(() => {
     const pendingCount = payments.filter((row) => row.status === "pending").length;
@@ -89,13 +102,25 @@ const AdminOverviewPage = () => {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+      <section className="animate-fade-in rounded-2xl border border-border bg-card p-5 shadow-sm">
         <h1 className="text-2xl font-bold md:text-3xl">Admin Dashboard</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Central operations panel for students, courses, payments, finance, and LMS
           controls.
         </p>
       </section>
+
+      {topInsight && (
+        <section className="animate-fade-in flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-amber-300/50 bg-amber-100/30 p-4">
+          <div className="flex items-start gap-3">
+            <Lightbulb className="mt-0.5 h-4 w-4 shrink-0 text-amber-700" />
+            <p className="text-sm text-amber-900">{topInsight.title}</p>
+          </div>
+          <Button size="sm" variant="outline" asChild className="shrink-0">
+            <Link to={routes.admin.reports}>View Reports</Link>
+          </Button>
+        </section>
+      )}
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Card>
@@ -166,9 +191,11 @@ const AdminOverviewPage = () => {
             {isLoading ? (
               <p className="text-sm text-muted-foreground">Loading admin analytics...</p>
             ) : latestPayments.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No payment activity yet. New submissions will appear here.
-              </p>
+              <EmptyState
+                image={noPaymentsImage}
+                title="No payment activity yet"
+                description="New submissions will appear here."
+              />
             ) : (
               <div className="space-y-3">
                 {latestPayments.map((payment) => (

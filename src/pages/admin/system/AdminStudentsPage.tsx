@@ -12,9 +12,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import EmptyState from "@/components/student/EmptyState";
 import { lmsProvider } from "@/lib/lms";
 import { paymentStatusBadgeVariant } from "@/lib/statusBadges";
-import type { AdminUserOverview, LmsCourse, LmsRole } from "@/types/lms";
+import { isAtRiskEnrollment } from "./reports/insightsEngine";
+import noResultsImage from "@/assets/empty-states/no-results.svg";
+import type { AdminUserOverview, LmsCourse, LmsEnrollment, LmsRole } from "@/types/lms";
 
 type RoleFilter = "all" | LmsRole;
 
@@ -22,23 +25,31 @@ const AdminStudentsPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [users, setUsers] = useState<AdminUserOverview[]>([]);
   const [courses, setCourses] = useState<LmsCourse[]>([]);
+  const [enrollments, setEnrollments] = useState<LmsEnrollment[]>([]);
   const [query, setQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState<RoleFilter>("all");
 
   useEffect(() => {
     const load = async () => {
-      const [userRows, courseRows] = await Promise.all([
+      const [userRows, courseRows, enrollmentRows] = await Promise.all([
         lmsProvider.listUsers(),
         lmsProvider.listCourses(),
+        lmsProvider.getAllEnrollments(),
       ]);
 
       setUsers(userRows);
       setCourses(courseRows);
+      setEnrollments(enrollmentRows);
       setIsLoading(false);
     };
 
     load();
   }, []);
+
+  const atRiskUserIds = useMemo(
+    () => new Set(enrollments.filter(isAtRiskEnrollment).map((row) => row.userId)),
+    [enrollments],
+  );
 
   const courseTitleById = useMemo(() => {
     return courses.reduce<Record<string, string>>((acc, course) => {
@@ -76,7 +87,7 @@ const AdminStudentsPage = () => {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+      <section className="animate-fade-in rounded-2xl border border-border bg-card p-5 shadow-sm">
         <h1 className="text-2xl font-bold md:text-3xl">Student Management</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Track learner growth, account health, and enrollment progress from one place.
@@ -189,9 +200,7 @@ const AdminStudentsPage = () => {
             {isLoading ? (
               <p className="text-sm text-muted-foreground">Loading students...</p>
             ) : filteredUsers.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No users matched your filters.
-              </p>
+              <EmptyState image={noResultsImage} title="No users matched your filters" />
             ) : (
               <div className="overflow-x-auto">
                 <Table className="min-w-[980px]">
@@ -209,7 +218,14 @@ const AdminStudentsPage = () => {
                     {filteredUsers.map((user) => (
                       <TableRow key={user.id}>
                         <TableCell>
-                          <p className="font-medium">{user.fullName}</p>
+                          <div className="flex items-center gap-2">
+                            <p className="font-medium">{user.fullName}</p>
+                            {atRiskUserIds.has(user.id) && (
+                              <Badge variant="warning" className="shrink-0">
+                                At Risk
+                              </Badge>
+                            )}
+                          </div>
                           <p className="break-all text-xs text-muted-foreground">{user.email}</p>
                           <p className="break-all text-xs text-muted-foreground">
                             {user.phone || "No phone on file"}

@@ -10,6 +10,7 @@ import LessonSidebar from "@/components/lms/LessonSidebar";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { lmsProvider } from "@/lib/lms";
+import { isCourseLocked, lockedCourseNotice } from "@/lib/lms/enrollmentFocus";
 import { getCourseBySlug } from "@/data/courses";
 import { formatKesAmount, lmsConfig } from "@/data/lmsConfig";
 import type {
@@ -180,6 +181,11 @@ const LearnCourse = () => {
 
   const handleEnrollFree = async () => {
     if (!course || !user) return;
+
+    if (isCourseLocked(course.slug)) {
+      toast({ title: "Enrollment paused", description: lockedCourseNotice() });
+      return;
+    }
 
     try {
       await lmsProvider.enrollInFreeCourse(user.id, course.slug);

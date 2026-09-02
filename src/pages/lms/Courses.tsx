@@ -1,12 +1,18 @@
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { Search } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Search, Sparkles } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import SEO from "@/components/common/SEO";
 import CourseCard from "@/components/lms/CourseCard";
 import { lmsProvider } from "@/lib/lms";
+import {
+  enrollmentReopenLabel,
+  isCourseLocked,
+  isEnrollmentFocusActive,
+} from "@/lib/lms/enrollmentFocus";
 import { getCourseLevels } from "@/data/courses";
 import { routes } from "@/routes/routeConfig";
 import type { CourseLevel, LmsCourse, LmsCourseFilters } from "@/types/lms";
@@ -49,7 +55,7 @@ const Courses = () => {
 
     const normalizedQuery = (filters.query ?? "").trim().toLowerCase();
 
-    return allRows.filter((course) => {
+    const matches = allRows.filter((course) => {
       if (filters.category && course.category !== filters.category) return false;
       if (filters.pricing === "free" && !course.isFree) return false;
       if (filters.pricing === "paid" && course.isFree) return false;
@@ -63,6 +69,12 @@ const Courses = () => {
         course.category.toLowerCase().includes(normalizedQuery)
       );
     });
+
+    // While enrollment is focused on the masterclass, the courses that are still
+    // open lead and the locked ones settle at the bottom of the grid.
+    return matches.sort(
+      (a, b) => Number(isCourseLocked(a.slug)) - Number(isCourseLocked(b.slug)),
+    );
   }, [allRows, category, level, pricing, query]);
 
   const resetFilters = () => {
@@ -94,6 +106,31 @@ const Courses = () => {
             cybersecurity, AI, and more.
           </p>
         </motion.div>
+
+        {isEnrollmentFocusActive() && (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-8 flex flex-col gap-3 rounded-2xl border-2 border-primary/30 bg-primary/5 p-5 sm:flex-row sm:items-center sm:justify-between"
+          >
+            <div className="flex items-start gap-3">
+              <Sparkles className="mt-0.5 h-5 w-5 shrink-0 text-accent" />
+              <div>
+                <p className="font-semibold">
+                  We are running one cohort at a time
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  The Web Development Masterclass is the only course open for
+                  enrollment right now. Everything else reopens on{" "}
+                  {enrollmentReopenLabel()}.
+                </p>
+              </div>
+            </div>
+            <Button asChild className="shrink-0">
+              <Link to={routes.public.masterclass}>View the Masterclass</Link>
+            </Button>
+          </motion.div>
+        )}
 
         <div className="bg-card border border-border rounded-2xl p-4 md:p-6 mb-8">
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -168,7 +205,11 @@ const Courses = () => {
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filtered.map((course) => (
-              <CourseCard key={course.id} course={course} />
+              <CourseCard
+                key={course.id}
+                course={course}
+                locked={isCourseLocked(course.slug)}
+              />
             ))}
           </div>
         )}

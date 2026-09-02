@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { Search } from "lucide-react";
+import { Lock, Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
@@ -16,6 +16,11 @@ import { useToast } from "@/hooks/use-toast";
 import { formatKesAmount } from "@/data/lmsConfig";
 import { getCourseLevels } from "@/data/courses";
 import { lmsProvider } from "@/lib/lms";
+import {
+  enrollmentReopenLabel,
+  isCourseLocked,
+  lockedCourseNotice,
+} from "@/lib/lms/enrollmentFocus";
 import { routes } from "@/routes/routeConfig";
 import type { CourseLevel } from "@/types/lms";
 import { useStudentPortal } from "./StudentPortalContext";
@@ -67,6 +72,10 @@ const StudentBrowseCoursesPage = () => {
 
   const handleEnrollFree = async (courseId: string, slug: string) => {
     if (!user) return;
+    if (isCourseLocked(slug)) {
+      toast({ title: "Enrollment paused", description: lockedCourseNotice() });
+      return;
+    }
     setEnrollingId(courseId);
     try {
       await lmsProvider.enrollInFreeCourse(user.id, slug);
@@ -167,24 +176,40 @@ const StudentBrowseCoursesPage = () => {
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {filtered.map((course) => {
                 const isEnrolled = Boolean(enrollmentByCourseId[course.id]);
+                // Already-enrolled students keep their course; the lock only
+                // stops new enrollments while the masterclass cohort runs.
+                const locked = isCourseLocked(course.slug) && !isEnrolled;
 
                 return (
                   <Card
                     key={course.id}
-                    className="flex flex-col overflow-hidden border-2 transition-all duration-200 hover:-translate-y-0.5 hover:border-accent/60 hover:shadow-lg"
+                    className={`flex flex-col overflow-hidden border-2 transition-all duration-200 ${
+                      locked
+                        ? "border-muted bg-muted/30"
+                        : "hover:-translate-y-0.5 hover:border-accent/60 hover:shadow-lg"
+                    }`}
                   >
                     <div className="flex h-40 items-center justify-center bg-gradient-to-r from-primary/10 to-accent/20">
                       <img
                         src={course.imageUrl}
                         alt={course.title}
-                        className="h-full w-full object-cover"
+                        className={`h-full w-full object-cover ${
+                          locked ? "opacity-50 grayscale" : ""
+                        }`}
                       />
                     </div>
                     <CardHeader className="space-y-2">
                       <div className="flex items-center justify-between gap-2">
-                        <Badge variant={course.isFree ? "success" : "default"}>
-                          {course.isFree ? "FREE" : "PAID"}
-                        </Badge>
+                        {locked ? (
+                          <Badge variant="outline" className="gap-1">
+                            <Lock className="h-3 w-3" />
+                            Opens {enrollmentReopenLabel()}
+                          </Badge>
+                        ) : (
+                          <Badge variant={course.isFree ? "success" : "default"}>
+                            {course.isFree ? "FREE" : "PAID"}
+                          </Badge>
+                        )}
                         <Badge variant="outline">{course.level}</Badge>
                       </div>
                       <h3 className="font-bold leading-tight">{course.title}</h3>
@@ -208,6 +233,11 @@ const StudentBrowseCoursesPage = () => {
                         {isEnrolled ? (
                           <Button size="sm" variant="secondary" asChild>
                             <Link to={routes.student.myCourses}>Enrolled</Link>
+                          </Button>
+                        ) : locked ? (
+                          <Button size="sm" variant="outline" disabled>
+                            <Lock className="mr-1 h-3 w-3" />
+                            Paused
                           </Button>
                         ) : course.isFree ? (
                           <Button

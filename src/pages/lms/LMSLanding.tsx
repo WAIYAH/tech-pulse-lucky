@@ -8,6 +8,11 @@ import SEO from "@/components/common/SEO";
 import CourseCard from "@/components/lms/CourseCard";
 import { getCourseStats } from "@/data/courses";
 import { lmsProvider } from "@/lib/lms";
+import {
+  FOCUSED_COURSE_SLUG,
+  isCourseLocked,
+  isEnrollmentFocusActive,
+} from "@/lib/lms/enrollmentFocus";
 import { routes } from "@/routes/routeConfig";
 import type { LmsCourse } from "@/types/lms";
 
@@ -17,6 +22,17 @@ const LMSLanding = () => {
   useEffect(() => {
     const loadFeatured = async () => {
       const rows = await lmsProvider.getFeaturedCourses(4);
+
+      // The curated featured list does not include the masterclass, so while
+      // enrollment is focused on it, lead with it instead of a row of locks.
+      if (isEnrollmentFocusActive()) {
+        const masterclass = await lmsProvider.getCourseBySlug(FOCUSED_COURSE_SLUG);
+        if (masterclass && !rows.some((row) => row.id === masterclass.id)) {
+          setFeaturedCourses([masterclass, ...rows.slice(0, 3)]);
+          return;
+        }
+      }
+
       setFeaturedCourses(rows);
     };
 
@@ -135,7 +151,11 @@ const LMSLanding = () => {
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {featuredCourses.map((course) => (
-              <CourseCard key={course.id} course={course} />
+              <CourseCard
+                key={course.id}
+                course={course}
+                locked={isCourseLocked(course.slug)}
+              />
             ))}
           </div>
         </div>

@@ -12,6 +12,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { getCourseBySlug } from "@/data/courses";
 import { formatKesAmount, lmsConfig } from "@/data/lmsConfig";
 import { lmsProvider } from "@/lib/lms";
+import { isCourseLocked, lockedCourseNotice } from "@/lib/lms/enrollmentFocus";
 import { createStudentNotification } from "@/lib/student/studentPortalState";
 import { routes } from "@/routes/routeConfig";
 import type { EnrollmentAccessStatus, LmsCourse, LmsPayment } from "@/types/lms";
@@ -169,8 +170,15 @@ const PaymentPage = () => {
     return null;
   }
 
+  // New payments are refused while the masterclass cohort has the floor, but a
+  // student whose access is already approved is never blocked out of their course.
+  const isEnrollmentPaused =
+    isCourseLocked(course.slug) && accessStatus !== "approved";
+
   const isFormLocked =
-    accessStatus === "approved" || accessStatus === "pending_payment";
+    accessStatus === "approved" ||
+    accessStatus === "pending_payment" ||
+    isEnrollmentPaused;
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -189,6 +197,15 @@ const PaymentPage = () => {
       toast({
         title: "Invalid Course Price",
         description: "This course price is not configured correctly yet.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (isCourseLocked(course.slug)) {
+      toast({
+        title: "Enrollment paused",
+        description: lockedCourseNotice(),
         variant: "destructive",
       });
       return;
@@ -323,6 +340,16 @@ const PaymentPage = () => {
                         Admin note: {latestPayment.adminNote}
                       </p>
                     )}
+                  </div>
+                )}
+
+                {isEnrollmentPaused && (
+                  <div className="mb-4 rounded-xl border border-dashed border-border bg-muted/40 p-4">
+                    <p className="text-sm font-semibold">Enrollment paused</p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {lockedCourseNotice()} Please do not send payment for this
+                      course yet.
+                    </p>
                   </div>
                 )}
 

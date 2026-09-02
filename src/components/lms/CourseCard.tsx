@@ -1,31 +1,47 @@
 import { Link } from "react-router-dom";
-import { Clock3, Layers3, User2 } from "lucide-react";
+import { Clock3, Layers3, Lock, User2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { formatKesAmount } from "@/data/lmsConfig";
+import { enrollmentReopenLabel } from "@/lib/lms/enrollmentFocus";
 import { routes } from "@/routes/routeConfig";
 import type { LmsCourse } from "@/types/lms";
 
 interface CourseCardProps {
   course: LmsCourse;
+  /** Enrollment is paused for this course; render it as unavailable. */
+  locked?: boolean;
 }
 
-const CourseCard = ({ course }: CourseCardProps) => {
+const CourseCard = ({ course, locked = false }: CourseCardProps) => {
   return (
-    <Card className="h-full flex flex-col border-2 hover:border-primary/40 transition-colors">
+    <Card
+      className={`h-full flex flex-col border-2 transition-colors ${
+        locked ? "border-muted bg-muted/30" : "hover:border-primary/40"
+      }`}
+    >
       <div className="h-40 rounded-t-xl bg-gradient-to-r from-primary/10 to-accent/20 flex items-center justify-center">
         <img
           src={course.imageUrl}
           alt={course.title}
-          className="h-full w-full object-cover rounded-t-xl"
+          className={`h-full w-full object-cover rounded-t-xl ${
+            locked ? "opacity-50 grayscale" : ""
+          }`}
         />
       </div>
       <CardHeader className="space-y-3">
         <div className="flex items-center justify-between gap-2">
-          <Badge variant={course.isFree ? "secondary" : "default"}>
-            {course.isFree ? "FREE" : "PAID"}
-          </Badge>
+          {locked ? (
+            <Badge variant="outline" className="gap-1">
+              <Lock className="h-3 w-3" />
+              Opens {enrollmentReopenLabel()}
+            </Badge>
+          ) : (
+            <Badge variant={course.isFree ? "secondary" : "default"}>
+              {course.isFree ? "FREE" : "PAID"}
+            </Badge>
+          )}
           <Badge variant="outline">{course.level}</Badge>
         </div>
         <h3 className="text-xl font-bold leading-tight">{course.title}</h3>
@@ -49,12 +65,19 @@ const CourseCard = ({ course }: CourseCardProps) => {
         </div>
       </CardContent>
       <CardFooter className="flex items-center justify-between gap-3">
-        <p className="font-bold text-primary">
+        <p className={`font-bold ${locked ? "text-muted-foreground" : "text-primary"}`}>
           {course.isFree ? "Free" : formatKesAmount(course.price)}
         </p>
-        <Button asChild>
-          <Link to={routes.public.course(course.slug)}>View Details</Link>
-        </Button>
+        {locked ? (
+          <Button variant="outline" disabled>
+            <Lock className="mr-1 h-4 w-4" />
+            Enrollment Paused
+          </Button>
+        ) : (
+          <Button asChild>
+            <Link to={routes.public.course(course.slug)}>View Details</Link>
+          </Button>
+        )}
       </CardFooter>
     </Card>
   );

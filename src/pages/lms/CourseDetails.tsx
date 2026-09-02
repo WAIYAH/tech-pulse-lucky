@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Clock3, Layers3, User2 } from "lucide-react";
+import { Clock3, Layers3, Lock, User2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -9,6 +9,7 @@ import SEO from "@/components/common/SEO";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { lmsProvider } from "@/lib/lms";
+import { isCourseLocked, lockedCourseNotice } from "@/lib/lms/enrollmentFocus";
 import { getCourseBySlug } from "@/data/courses";
 import { lmsConfig, formatKesAmount } from "@/data/lmsConfig";
 import { routes } from "@/routes/routeConfig";
@@ -130,6 +131,11 @@ const CourseDetails = () => {
   }
 
   const handleEnrollFree = async () => {
+    if (isCourseLocked(course.slug)) {
+      toast({ title: "Enrollment paused", description: lockedCourseNotice() });
+      return;
+    }
+
     if (!isAuthenticated || !user) {
       navigate(routes.auth.login, { state: { from: routes.public.course(course.slug) } });
       return;
@@ -156,6 +162,11 @@ const CourseDetails = () => {
   };
 
   const handlePaidCTA = () => {
+    if (isCourseLocked(course.slug)) {
+      toast({ title: "Enrollment paused", description: lockedCourseNotice() });
+      return;
+    }
+
     if (!isAuthenticated) {
       navigate(routes.auth.login, { state: { from: routes.public.course(course.slug) } });
       return;
@@ -163,6 +174,10 @@ const CourseDetails = () => {
 
     navigate(routes.student.payment(course.slug));
   };
+
+  // Students who already hold access keep it -- the lock only stops new sign-ups.
+  const hasExistingAccess = accessStatus === "approved" || accessStatus === "free";
+  const showLockedNotice = isCourseLocked(course.slug) && !hasExistingAccess;
 
   return (
     <div className="min-h-screen py-16 bg-gradient-to-b from-background via-background to-primary/5">
@@ -280,7 +295,20 @@ const CourseDetails = () => {
                     </div>
                   </div>
 
-                  {course.isFree ? (
+                  {showLockedNotice ? (
+                    <div className="space-y-3 rounded-xl border border-dashed border-border bg-muted/40 p-4 text-center">
+                      <Lock className="mx-auto h-6 w-6 text-muted-foreground" />
+                      <p className="text-sm font-semibold">Enrollment paused</p>
+                      <p className="text-xs text-muted-foreground">
+                        {lockedCourseNotice()}
+                      </p>
+                      <Button variant="outline" className="w-full" asChild>
+                        <Link to={routes.public.masterclass}>
+                          See the Masterclass
+                        </Link>
+                      </Button>
+                    </div>
+                  ) : course.isFree ? (
                     accessStatus === "free" ? (
                       <div className="space-y-2">
                         <Button variant="hero" className="w-full" disabled>

@@ -30,6 +30,7 @@ import heroVideoPoster from "@/assets/hero-video-poster.webp";
 import heroImage from "@/assets/hero-image.webp";
 import heroImageAlt from "@/assets/hero-image-alt.webp";
 import luckyProfile from "@/assets/lucky-profile-thumb.webp";
+import ctaBackgroundImage from "@/assets/global-showcase-coach.webp";
 import githubLogo from "@/assets/logos/github.svg";
 import googleCloudLogo from "@/assets/logos/google-cloud.svg";
 import openSourceInitiativeLogo from "@/assets/logos/open-source-initiative.svg";
@@ -636,7 +637,7 @@ const Home = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.08 }}
-                className="relative p-6 bg-card border border-border rounded-2xl text-center"
+                className="relative p-6 bg-card border border-border rounded-2xl text-center transition-all hover:shadow-lg hover:border-primary/50"
               >
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold">
                   {index + 1}
@@ -763,7 +764,7 @@ const Home = () => {
       <section className="py-20 relative overflow-hidden">
         <div className="absolute inset-0">
           <img
-            src={heroImage}
+            src={ctaBackgroundImage}
             alt=""
             aria-hidden="true"
             width={1920}

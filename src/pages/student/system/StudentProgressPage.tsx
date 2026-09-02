@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import CourseProgress from "@/components/lms/CourseProgress";
 import EmptyState from "@/components/student/EmptyState";
+import ListSkeleton from "@/components/student/ListSkeleton";
 import { MASTERCLASS_COURSE_SLUG } from "@/lib/masterclass";
 import { routes } from "@/routes/routeConfig";
 import { enrollmentStatusBadgeVariant } from "@/lib/statusBadges";
@@ -19,7 +20,7 @@ const StudentProgressPage = () => {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+      <section className="animate-fade-in rounded-2xl border border-border bg-card p-5 shadow-sm">
         <h1 className="text-2xl font-bold md:text-3xl">Learning Progress</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Monitor your progress by course, lesson completion, and mastery milestones.
@@ -75,7 +76,7 @@ const StudentProgressPage = () => {
           </CardHeader>
           <CardContent>
             {isLoading ? (
-              <p className="text-sm text-muted-foreground">Loading progress data...</p>
+              <ListSkeleton rows={4} />
             ) : enrollments.length === 0 ? (
               <EmptyState
                 image={notEnrolledImage}

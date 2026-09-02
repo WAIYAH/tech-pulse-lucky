@@ -18,6 +18,7 @@ import { routes } from "@/routes/routeConfig";
 import { paymentStatusBadgeVariant } from "@/lib/statusBadges";
 import { useStudentPortal } from "./StudentPortalContext";
 import EmptyState from "@/components/student/EmptyState";
+import ListSkeleton from "@/components/student/ListSkeleton";
 import noPaymentsImage from "@/assets/empty-states/no-payments.svg";
 
 const formatMoney = (amount: number, currency = "KES") => {
@@ -59,7 +60,7 @@ const StudentPaymentsPage = () => {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+      <section className="animate-fade-in rounded-2xl border border-border bg-card p-5 shadow-sm">
         <h1 className="text-2xl font-bold md:text-3xl">Payments</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Track all payment submissions and your paid course approval outcomes.
@@ -236,7 +237,7 @@ const StudentPaymentsPage = () => {
           </CardHeader>
           <CardContent>
             {isLoading ? (
-              <p className="text-sm text-muted-foreground">Loading payments...</p>
+              <ListSkeleton rows={4} />
             ) : payments.length === 0 ? (
               <EmptyState image={noPaymentsImage} title="You have not submitted any payment requests yet" />
             ) : (

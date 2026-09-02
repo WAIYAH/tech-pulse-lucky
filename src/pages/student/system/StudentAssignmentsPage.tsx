@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import EmptyState from "@/components/student/EmptyState";
+import ListSkeleton from "@/components/student/ListSkeleton";
 import { routes } from "@/routes/routeConfig";
 import { useStudentPortal } from "./StudentPortalContext";
 import noAssignmentsImage from "@/assets/empty-states/no-assignments.svg";
@@ -68,7 +69,7 @@ const StudentAssignmentsPage = () => {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+      <section className="animate-fade-in rounded-2xl border border-border bg-card p-5 shadow-sm">
         <h1 className="text-2xl font-bold md:text-3xl">Assignments</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Review practical tasks in your courses and track completion status.
@@ -124,7 +125,7 @@ const StudentAssignmentsPage = () => {
           </CardHeader>
           <CardContent>
             {isLoading ? (
-              <p className="text-sm text-muted-foreground">Loading assignments...</p>
+              <ListSkeleton rows={4} />
             ) : assignments.length === 0 ? (
               <EmptyState
                 image={noAssignmentsImage}

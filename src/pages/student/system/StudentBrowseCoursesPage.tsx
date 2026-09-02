@@ -19,6 +19,7 @@ import { lmsProvider } from "@/lib/lms";
 import { routes } from "@/routes/routeConfig";
 import type { CourseLevel } from "@/types/lms";
 import { useStudentPortal } from "./StudentPortalContext";
+import CourseCardGridSkeleton from "@/components/student/CourseCardGridSkeleton";
 import EmptyState from "@/components/student/EmptyState";
 import noResultsImage from "@/assets/empty-states/no-results.svg";
 
@@ -84,7 +85,7 @@ const StudentBrowseCoursesPage = () => {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-2xl bg-gradient-hero p-5 text-primary-foreground shadow-glow">
+      <section className="animate-fade-in rounded-2xl bg-gradient-hero p-5 text-primary-foreground shadow-glow">
         <h1 className="text-2xl font-bold md:text-3xl">Browse Courses</h1>
         <p className="mt-2 text-sm text-primary-foreground/85">
           Explore the full catalog and enroll without leaving your dashboard.
@@ -151,7 +152,7 @@ const StudentBrowseCoursesPage = () => {
 
         <CardContent>
           {isLoading ? (
-            <p className="text-sm text-muted-foreground">Loading courses...</p>
+            <CourseCardGridSkeleton />
           ) : filtered.length === 0 ? (
             <EmptyState
               image={noResultsImage}
@@ -170,7 +171,7 @@ const StudentBrowseCoursesPage = () => {
                 return (
                   <Card
                     key={course.id}
-                    className="flex flex-col overflow-hidden border-2 transition-colors hover:border-accent/60"
+                    className="flex flex-col overflow-hidden border-2 transition-all duration-200 hover:-translate-y-0.5 hover:border-accent/60 hover:shadow-lg"
                   >
                     <div className="flex h-40 items-center justify-center bg-gradient-to-r from-primary/10 to-accent/20">
                       <img

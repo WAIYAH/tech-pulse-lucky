@@ -65,7 +65,7 @@ const StudentWebinarsPage = () => {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+      <section className="animate-fade-in rounded-2xl border border-border bg-card p-5 shadow-sm">
         <h1 className="text-2xl font-bold md:text-3xl">Webinars & Live Sessions</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Stay connected with live mentor sessions, workshops, and upcoming cohort events.

@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import CourseProgress from "@/components/lms/CourseProgress";
 import EmptyState from "@/components/student/EmptyState";
+import ListSkeleton from "@/components/student/ListSkeleton";
 import { MASTERCLASS_COURSE_SLUG } from "@/lib/masterclass";
 import { routes } from "@/routes/routeConfig";
 import { enrollmentStatusBadgeVariant } from "@/lib/statusBadges";
@@ -123,7 +124,7 @@ const StudentOverviewPage = () => {
 
   return (
     <div className="space-y-6">
-      <section className="relative overflow-hidden rounded-2xl bg-gradient-hero p-5 text-primary-foreground shadow-glow">
+      <section className="relative animate-fade-in overflow-hidden rounded-2xl bg-gradient-hero p-5 text-primary-foreground shadow-glow">
         <div className="relative z-10 max-w-lg">
           <h1 className="text-2xl font-bold md:text-3xl">
             Welcome back, {user?.fullName ?? "Learner"}
@@ -220,7 +221,7 @@ const StudentOverviewPage = () => {
           </CardHeader>
           <CardContent>
             {isLoading ? (
-              <p className="text-sm text-muted-foreground">Loading your portal...</p>
+              <ListSkeleton rows={3} />
             ) : enrollments.length === 0 ? (
               <EmptyState
                 image={notEnrolledImage}

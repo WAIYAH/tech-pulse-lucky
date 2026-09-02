@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { routes } from "@/routes/routeConfig";
 import CourseProgress from "@/components/lms/CourseProgress";
 import EmptyState from "@/components/student/EmptyState";
+import ListSkeleton from "@/components/student/ListSkeleton";
 import { MASTERCLASS_COURSE_SLUG } from "@/lib/masterclass";
 import { enrollmentStatusBadgeVariant } from "@/lib/statusBadges";
 import { useStudentPortal } from "./StudentPortalContext";
@@ -45,7 +46,7 @@ const StudentCoursesPage = () => {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+      <section className="animate-fade-in rounded-2xl border border-border bg-card p-5 shadow-sm">
         <h1 className="text-2xl font-bold md:text-3xl">Course Access</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Manage enrolled courses, access approvals, and learning entry points.
@@ -90,7 +91,7 @@ const StudentCoursesPage = () => {
           </CardHeader>
           <CardContent>
             {isLoading ? (
-              <p className="text-sm text-muted-foreground">Loading enrollments...</p>
+              <ListSkeleton rows={4} />
             ) : filtered.length === 0 ? (
               <EmptyState
                 image={noResultsImage}

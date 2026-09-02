@@ -4,6 +4,7 @@ import { Badge, type BadgeProps } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import EmptyState from "@/components/student/EmptyState";
+import ListSkeleton from "@/components/student/ListSkeleton";
 import { getDidYouKnowOfTheWeek, getWordOfTheDay } from "@/lib/dailyContent";
 import { useStudentPortal } from "./StudentPortalContext";
 import noResourcesImage from "@/assets/empty-states/no-resources.svg";
@@ -74,7 +75,7 @@ const StudentResourcesPage = () => {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+      <section className="animate-fade-in rounded-2xl border border-border bg-card p-5 shadow-sm">
         <h1 className="text-2xl font-bold md:text-3xl">Learning Resources</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Access downloadable files and reference links attached to your lessons.
@@ -122,7 +123,7 @@ const StudentResourcesPage = () => {
           </CardHeader>
           <CardContent>
             {isLoading ? (
-              <p className="text-sm text-muted-foreground">Loading resources...</p>
+              <ListSkeleton rows={4} />
             ) : filteredResources.length === 0 ? (
               <EmptyState image={noResourcesImage} title="No resources found for your courses yet" />
             ) : (

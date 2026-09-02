@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import EmptyState from "@/components/student/EmptyState";
+import ListSkeleton from "@/components/student/ListSkeleton";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   PROGRAM_SLUG,
@@ -117,7 +118,7 @@ const StudentCertificatesPage = () => {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+      <section className="animate-fade-in rounded-2xl border border-border bg-card p-5 shadow-sm">
         <h1 className="text-2xl font-bold md:text-3xl">Certificates</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           View certificate readiness and completion achievements for finished courses.
@@ -190,7 +191,7 @@ const StudentCertificatesPage = () => {
           </CardHeader>
           <CardContent>
             {isLoading ? (
-              <p className="text-sm text-muted-foreground">Loading certificates...</p>
+              <ListSkeleton rows={3} />
             ) : eligible.length === 0 ? (
               <EmptyState
                 image={noCertificatesImage}

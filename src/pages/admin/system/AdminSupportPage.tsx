@@ -5,7 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import EmptyState from "@/components/student/EmptyState";
 import { useToast } from "@/hooks/use-toast";
+import noSupportTicketsImage from "@/assets/empty-states/no-support-tickets.svg";
 import {
   createStudentNotification,
   readAllSupportTickets,
@@ -167,7 +169,7 @@ const AdminSupportPage = () => {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+      <section className="animate-fade-in rounded-2xl border border-border bg-card p-5 shadow-sm">
         <h1 className="text-2xl font-bold md:text-3xl">Support Operations</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Manage learner support tickets, respond quickly, and track resolution progress.
@@ -269,9 +271,7 @@ const AdminSupportPage = () => {
           </CardHeader>
           <CardContent>
             {filteredTickets.length === 0 ? (
-              <div className="rounded-xl border border-border bg-background p-4 text-sm text-muted-foreground">
-                No support tickets match your current filters.
-              </div>
+              <EmptyState image={noSupportTicketsImage} title="No support tickets match your current filters" />
             ) : (
               <div className="space-y-4">
                 {filteredTickets.map((ticket) => (

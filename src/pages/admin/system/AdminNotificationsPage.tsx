@@ -4,8 +4,11 @@ import { Bell, BellRing, CheckCircle2, CircleDollarSign, Headset } from "lucide-
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import EmptyState from "@/components/student/EmptyState";
 import { readAdminActivityFeed, type AdminActivityItem } from "@/lib/admin/adminNotifications";
 import { subscribeStudentExperience } from "@/lib/student/studentPortalState";
+import allCaughtUpImage from "@/assets/empty-states/all-caught-up.svg";
+import noNotificationsImage from "@/assets/empty-states/no-notifications.svg";
 
 type ActivityFilter = "all" | "needs-action";
 
@@ -43,7 +46,7 @@ const AdminNotificationsPage = () => {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+      <section className="animate-fade-in rounded-2xl border border-border bg-card p-5 shadow-sm">
         <h1 className="text-2xl font-bold md:text-3xl">Notifications</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           A live feed of payment submissions and support tickets that need your attention.
@@ -121,15 +124,15 @@ const AdminNotificationsPage = () => {
             {isLoading ? (
               <p className="text-sm text-muted-foreground">Loading activity...</p>
             ) : filtered.length === 0 ? (
-              <div className="rounded-xl border border-border bg-background p-6 text-sm text-muted-foreground">
-                <div className="mb-2 flex items-center gap-2 text-foreground">
-                  <BellRing className="h-4 w-4 text-primary" />
-                  {filter === "needs-action" ? "Nothing needs action" : "No activity yet"}
-                </div>
-                {filter === "needs-action"
-                  ? "You're all caught up on payments and support tickets."
-                  : "New payment submissions and support tickets will appear here."}
-              </div>
+              <EmptyState
+                image={filter === "needs-action" ? allCaughtUpImage : noNotificationsImage}
+                title={filter === "needs-action" ? "Nothing needs action" : "No activity yet"}
+                description={
+                  filter === "needs-action"
+                    ? "You're all caught up on payments and support tickets."
+                    : "New payment submissions and support tickets will appear here."
+                }
+              />
             ) : (
               <div className="space-y-3">
                 {filtered.map((item) => {

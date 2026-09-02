@@ -7,9 +7,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import EmptyState from "@/components/student/EmptyState";
 import { useToast } from "@/hooks/use-toast";
 import type { WebinarRecord, WebinarType } from "@/data/webinars";
 import { lmsProvider } from "@/lib/lms";
+import noWebinarsImage from "@/assets/empty-states/no-webinars.svg";
 import { createBulkStudentNotifications } from "@/lib/student/studentPortalState";
 import {
   formatWebinarDate,
@@ -308,7 +310,7 @@ const AdminWebinarsPage = () => {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+      <section className="animate-fade-in rounded-2xl border border-border bg-card p-5 shadow-sm">
         <h1 className="text-2xl font-bold md:text-3xl">Webinar Management</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Create, edit, and manage everything in the webinar catalog.
@@ -379,7 +381,7 @@ const AdminWebinarsPage = () => {
           </CardHeader>
           <CardContent>
             {filteredWebinars.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No webinars matched your search.</p>
+              <EmptyState image={noWebinarsImage} title="No webinars matched your search" />
             ) : (
               <div className="space-y-3">
                 {filteredWebinars.map((webinar) => (

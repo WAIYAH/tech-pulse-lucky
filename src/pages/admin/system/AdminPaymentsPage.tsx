@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import EmptyState from "@/components/student/EmptyState";
 import { useToast } from "@/hooks/use-toast";
 import { readAdminSettings } from "@/lib/admin/adminState";
 import { lmsProvider } from "@/lib/lms";
@@ -12,6 +13,7 @@ import { createStudentNotification } from "@/lib/student/studentPortalState";
 import { paymentStatusBadgeVariant } from "@/lib/statusBadges";
 import { routes } from "@/routes/routeConfig";
 import type { LmsCourse, LmsPayment, PaymentStatus } from "@/types/lms";
+import noPaymentsImage from "@/assets/empty-states/no-payments.svg";
 
 type StatusFilter = "all" | PaymentStatus;
 
@@ -162,7 +164,7 @@ const AdminPaymentsPage = () => {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+      <section className="animate-fade-in rounded-2xl border border-border bg-card p-5 shadow-sm">
         <h1 className="text-2xl font-bold md:text-3xl">Payment Approvals</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Approve, reject, and audit paid course submissions in real time.
@@ -266,9 +268,7 @@ const AdminPaymentsPage = () => {
             {isLoading ? (
               <p className="text-sm text-muted-foreground">Loading payment submissions...</p>
             ) : filteredPayments.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No submissions match this filter.
-              </p>
+              <EmptyState image={noPaymentsImage} title="No submissions match this filter" />
             ) : (
               <div className="space-y-4">
                 {filteredPayments.map((payment) => {

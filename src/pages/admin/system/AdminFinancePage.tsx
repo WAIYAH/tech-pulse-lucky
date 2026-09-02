@@ -10,8 +10,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import EmptyState from "@/components/student/EmptyState";
 import { lmsProvider } from "@/lib/lms";
 import { paymentStatusBadgeVariant } from "@/lib/statusBadges";
+import noPaymentsImage from "@/assets/empty-states/no-payments.svg";
 import type { LmsPayment } from "@/types/lms";
 
 const formatMoney = (amount: number, currency = "KES") => {
@@ -119,7 +121,7 @@ const AdminFinancePage = () => {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+      <section className="animate-fade-in rounded-2xl border border-border bg-card p-5 shadow-sm">
         <h1 className="text-2xl font-bold md:text-3xl">Finance Operations</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Revenue insights for payment submissions, approvals, and monthly performance.
@@ -192,9 +194,7 @@ const AdminFinancePage = () => {
             {isLoading ? (
               <p className="text-sm text-muted-foreground">Loading finance analytics...</p>
             ) : monthly.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No payment records yet.
-              </p>
+              <EmptyState image={noPaymentsImage} title="No payment records yet" />
             ) : (
               <div className="overflow-x-auto">
                 <Table className="min-w-[720px]">
@@ -236,9 +236,7 @@ const AdminFinancePage = () => {
           </CardHeader>
           <CardContent>
             {recentApprovals.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No approved payments yet.
-              </p>
+              <EmptyState image={noPaymentsImage} title="No approved payments yet" />
             ) : (
               <div className="space-y-3">
                 {recentApprovals.map((payment) => (

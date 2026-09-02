@@ -16,6 +16,25 @@ import { cohortStatusBadgeVariant } from "@/lib/statusBadges";
 import { routes } from "@/routes/routeConfig";
 import type { MasterclassAnnouncement, MasterclassFinalProjectStages } from "@/types/masterclass";
 import { useMasterclassStudent } from "./MasterclassStudentProvider";
+import week1Image from "@/assets/masterclass/week-1-web-fundamentals.svg";
+import week2Image from "@/assets/masterclass/week-2-css-responsive.svg";
+import week3Image from "@/assets/masterclass/week-3-tailwind-frontend.svg";
+import week4Image from "@/assets/masterclass/week-4-javascript-git.svg";
+import week5Image from "@/assets/masterclass/week-5-php-backend.svg";
+import week6Image from "@/assets/masterclass/week-6-mysql-databases.svg";
+import week7Image from "@/assets/masterclass/week-7-deployment-devops.svg";
+import week8Image from "@/assets/masterclass/week-8-capstone-project.svg";
+
+const weekThemeImages: Record<number, string> = {
+  1: week1Image,
+  2: week2Image,
+  3: week3Image,
+  4: week4Image,
+  5: week5Image,
+  6: week6Image,
+  7: week7Image,
+  8: week8Image,
+};
 
 const StudentMasterclassOverviewPage = () => {
   const { user } = useAuth();
@@ -147,7 +166,19 @@ const StudentMasterclassOverviewPage = () => {
             const isWeekComplete = hasAccess && access?.isComplete;
 
             return (
-              <Card key={week.id} className={!hasAccess || isWeekLocked ? "opacity-70" : undefined}>
+              <Card
+                key={week.id}
+                className={`overflow-hidden${!hasAccess || isWeekLocked ? " opacity-70" : ""}`}
+              >
+                {weekThemeImages[week.weekNumber] && (
+                  <div className="flex h-32 items-center justify-center bg-primary/5 p-4">
+                    <img
+                      src={weekThemeImages[week.weekNumber]}
+                      alt=""
+                      className="h-full w-full object-contain"
+                    />
+                  </div>
+                )}
                 <CardHeader className="pb-2">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-semibold uppercase text-muted-foreground">Week {week.weekNumber}</span>

@@ -84,6 +84,10 @@ const StudentMasterclassFinalProjectPage = () => {
     return () => {
       isMounted = false;
     };
+    // Depend on ids rather than the user/cohort objects: those are re-fetched
+    // with new references on every provider refresh, which would refire this
+    // effect even when nothing meaningful changed.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id, cohort?.id, hasAccess]);
 
   const save = async (submit: boolean) => {

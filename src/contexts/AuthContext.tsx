@@ -338,7 +338,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setIsLoading(false);
   }, []);
 
-  const register = async (input: RegisterInput): Promise<AuthActionResult> => {
+  const register = useCallback(async (input: RegisterInput): Promise<AuthActionResult> => {
     const normalizedEmail = normalizeEmail(input.email);
     const role = resolveUserRole("student", normalizedEmail);
 
@@ -417,9 +417,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       message: "Account created successfully.",
       user: profile,
     };
-  };
+  }, []);
 
-  const login = async (input: LoginInput): Promise<AuthActionResult> => {
+  const login = useCallback(async (input: LoginInput): Promise<AuthActionResult> => {
     const normalizedEmail = normalizeEmail(input.email);
 
     if (AUTH_MODE === "supabase") {
@@ -490,9 +490,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       message: "Logged in successfully.",
       user: profile,
     };
-  };
+  }, []);
 
-  const signInWithOAuth = async (
+  const signInWithOAuth = useCallback(async (
     provider: OAuthProvider,
     redirectPath = "/login",
   ): Promise<AuthActionResult> => {
@@ -529,9 +529,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         provider === "google" ? "Google" : "GitHub"
       }...`,
     };
-  };
+  }, []);
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     if (AUTH_MODE === "supabase") {
       await supabase.auth.signOut();
       setUser(null);
@@ -540,9 +540,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     clearLocalSession();
     setUser(null);
-  };
+  }, []);
 
-  const sendPasswordReset = async (email: string): Promise<AuthActionResult> => {
+  const sendPasswordReset = useCallback(async (email: string): Promise<AuthActionResult> => {
     const normalizedEmail = normalizeEmail(email);
 
     if (AUTH_MODE === "supabase") {
@@ -575,7 +575,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       message:
         "Local auth mode does not send automatic reset emails. Contact support to reset your password.",
     };
-  };
+  }, []);
 
   const hasRole = useCallback(
     (...roles: LmsRole[]): boolean => {
@@ -613,6 +613,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
+// eslint-disable-next-line react-refresh/only-export-components -- hook is intentionally co-located with its provider
 export const useAuth = (): AuthContextValue => {
   const context = useContext(AuthContext);
   if (!context) {

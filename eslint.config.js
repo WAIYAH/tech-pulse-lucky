@@ -23,4 +23,13 @@ export default tseslint.config(
       "@typescript-eslint/no-unused-vars": "off",
     },
   },
+  {
+    files: ["src/components/ui/**/*.{ts,tsx}"],
+    rules: {
+      // shadcn/ui vendor components intentionally co-locate variant helpers
+      // and hooks with their components; not worth restructuring to satisfy
+      // Fast Refresh, which only affects dev HMR granularity.
+      "react-refresh/only-export-components": "off",
+    },
+  },
 );

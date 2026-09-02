@@ -160,6 +160,7 @@ export const StudentMasterclassWeekProvider = ({
   return <StudentMasterclassWeekContext.Provider value={value}>{children}</StudentMasterclassWeekContext.Provider>;
 };
 
+// eslint-disable-next-line react-refresh/only-export-components -- hook is intentionally co-located with its provider
 export const useStudentMasterclassWeek = (): StudentMasterclassWeekContextValue => {
   const context = useContext(StudentMasterclassWeekContext);
   if (!context) {

@@ -79,6 +79,7 @@ export const AdminMasterclassProvider = ({ children }: { children: ReactNode }) 
   return <AdminMasterclassContext.Provider value={value}>{children}</AdminMasterclassContext.Provider>;
 };
 
+// eslint-disable-next-line react-refresh/only-export-components -- hook is intentionally co-located with its provider
 export const useAdminMasterclass = (): AdminMasterclassContextValue => {
   const context = useContext(AdminMasterclassContext);
   if (!context) {

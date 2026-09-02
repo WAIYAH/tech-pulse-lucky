@@ -145,6 +145,7 @@ export const MasterclassStudentProvider = ({ children }: { children: ReactNode }
   return <MasterclassStudentContext.Provider value={value}>{children}</MasterclassStudentContext.Provider>;
 };
 
+// eslint-disable-next-line react-refresh/only-export-components -- hook is intentionally co-located with its provider
 export const useMasterclassStudent = (): MasterclassStudentContextValue => {
   const context = useContext(MasterclassStudentContext);
   if (!context) {
@@ -153,6 +154,7 @@ export const useMasterclassStudent = (): MasterclassStudentContextValue => {
   return context;
 };
 
+// eslint-disable-next-line react-refresh/only-export-components -- hook is intentionally co-located with its provider
 export const useMasterclassWeekAccess = (weekNumber: number): MasterclassWeekAccess | null => {
   const { weekAccess } = useMasterclassStudent();
   return weekAccess[weekNumber] ?? null;

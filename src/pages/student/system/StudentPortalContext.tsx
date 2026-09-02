@@ -229,6 +229,7 @@ export const StudentPortalProvider = ({ children }: { children: ReactNode }) => 
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components -- hook is intentionally co-located with its provider
 export const useStudentPortal = (): StudentPortalContextValue => {
   const context = useContext(StudentPortalContext);
   if (!context) {

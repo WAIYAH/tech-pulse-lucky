@@ -5,6 +5,15 @@ import type {
   LmsLesson,
   LessonType,
 } from "@/types/lms";
+import digitalLiteracyImage from "@/assets/courses/basics-of-computers-phones-internet-101.webp";
+import cybersecurityImage from "@/assets/courses/safe-internet-browsing-online-security.webp";
+import aiMlImage from "@/assets/courses/ai-machine-learning-getting-started.webp";
+import digitalMarketingImage from "@/assets/courses/digital-marketing-for-tech-startups.webp";
+import webDevImage from "@/assets/courses/web-development-html-css-javascript.webp";
+import softwareEngineeringImage from "@/assets/courses/advanced-software-engineering-javascript-xampp-mysql.webp";
+import devOpsImage from "@/assets/courses/devops-cloud-computing.webp";
+import gitGithubImage from "@/assets/courses/git-github-developer-portfolio-masterclass.webp";
+import masterclassImage from "@/assets/courses/web-development-masterclass.webp";
 
 const now = new Date().toISOString();
 
@@ -67,7 +76,7 @@ export const allCourses: LmsCourse[] = [
     price: 0,
     currency: "KES",
     isFree: true,
-    imageUrl: "/placeholder.svg",
+    imageUrl: digitalLiteracyImage,
     instructor: "Lucky Nakola",
     learningOutcomes: [
       "Use a computer and smartphone confidently.",
@@ -171,7 +180,7 @@ export const allCourses: LmsCourse[] = [
     price: 0,
     currency: "KES",
     isFree: true,
-    imageUrl: "/placeholder.svg",
+    imageUrl: cybersecurityImage,
     instructor: "Lucky Nakola",
     learningOutcomes: [
       "Recognize phishing and common scam patterns.",
@@ -243,7 +252,7 @@ export const allCourses: LmsCourse[] = [
     price: 0,
     currency: "KES",
     isFree: true,
-    imageUrl: "/placeholder.svg",
+    imageUrl: aiMlImage,
     instructor: "Lucky Nakola",
     learningOutcomes: [
       "Explain AI and ML core concepts clearly.",
@@ -314,7 +323,7 @@ export const allCourses: LmsCourse[] = [
     price: 0,
     currency: "KES",
     isFree: true,
-    imageUrl: "/placeholder.svg",
+    imageUrl: digitalMarketingImage,
     instructor: "Lucky Nakola",
     learningOutcomes: [
       "Build a focused startup marketing plan.",
@@ -385,7 +394,7 @@ export const allCourses: LmsCourse[] = [
     price: 300,
     currency: "KES",
     isFree: false,
-    imageUrl: "/placeholder.svg",
+    imageUrl: webDevImage,
     instructor: "Lucky Nakola",
     learningOutcomes: [
       "Structure semantic HTML documents.",
@@ -454,7 +463,7 @@ export const allCourses: LmsCourse[] = [
     price: 500,
     currency: "KES",
     isFree: false,
-    imageUrl: "/placeholder.svg",
+    imageUrl: softwareEngineeringImage,
     instructor: "Lucky Nakola",
     learningOutcomes: [
       "Design scalable backend architecture.",
@@ -523,7 +532,7 @@ export const allCourses: LmsCourse[] = [
     price: 800,
     currency: "KES",
     isFree: false,
-    imageUrl: "/placeholder.svg",
+    imageUrl: devOpsImage,
     instructor: "Lucky Nakola",
     learningOutcomes: [
       "Understand DevOps culture and workflow design.",
@@ -578,7 +587,7 @@ export const allCourses: LmsCourse[] = [
     price: 600,
     currency: "KES",
     isFree: false,
-    imageUrl: "/placeholder.svg",
+    imageUrl: gitGithubImage,
     instructor: "Lucky Nakola",
     learningOutcomes: [
       "Use Git confidently in solo and team environments.",
@@ -656,7 +665,7 @@ export const allCourses: LmsCourse[] = [
     price: 2000,
     currency: "KES",
     isFree: false,
-    imageUrl: "/placeholder.svg",
+    imageUrl: masterclassImage,
     instructor: "Lucky Nakola",
     learningOutcomes: [
       "Understand how the web, browsers, servers, and HTTP/HTTPS work together.",

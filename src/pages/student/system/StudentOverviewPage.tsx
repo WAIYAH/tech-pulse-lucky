@@ -18,6 +18,7 @@ import { routes } from "@/routes/routeConfig";
 import { enrollmentStatusBadgeVariant } from "@/lib/statusBadges";
 import { useStudentPortal } from "./StudentPortalContext";
 import notEnrolledImage from "@/assets/empty-states/not-enrolled.svg";
+import welcomeHeroImage from "@/assets/dashboard/welcome-hero.svg";
 
 const StudentOverviewPage = () => {
   const {
@@ -122,13 +123,20 @@ const StudentOverviewPage = () => {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-2xl bg-gradient-hero p-5 text-primary-foreground shadow-glow">
-        <h1 className="text-2xl font-bold md:text-3xl">
-          Welcome back, {user?.fullName ?? "Learner"}
-        </h1>
-        <p className="mt-2 text-sm text-primary-foreground/85">
-          Track progress, access status, payments, and study support in one place.
-        </p>
+      <section className="relative overflow-hidden rounded-2xl bg-gradient-hero p-5 text-primary-foreground shadow-glow">
+        <div className="relative z-10 max-w-lg">
+          <h1 className="text-2xl font-bold md:text-3xl">
+            Welcome back, {user?.fullName ?? "Learner"}
+          </h1>
+          <p className="mt-2 text-sm text-primary-foreground/85">
+            Track progress, access status, payments, and study support in one place.
+          </p>
+        </div>
+        <img
+          src={welcomeHeroImage}
+          alt=""
+          className="pointer-events-none absolute -right-6 -top-6 hidden h-40 w-40 opacity-90 sm:block md:h-48 md:w-48"
+        />
       </section>
 
       {nextBestAction && (

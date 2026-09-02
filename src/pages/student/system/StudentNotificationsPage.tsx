@@ -4,6 +4,7 @@ import { Bell, BellRing, CheckCheck, CircleDot, MailOpen } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import EmptyState from "@/components/student/EmptyState";
 import {
   markAllStudentNotificationsRead,
   markStudentNotificationRead,
@@ -11,6 +12,7 @@ import {
 import { notificationTypeBadgeVariant } from "@/lib/statusBadges";
 import { useStudentPortal } from "./StudentPortalContext";
 import { useToast } from "@/hooks/use-toast";
+import noNotificationsImage from "@/assets/empty-states/no-notifications.svg";
 
 type NotificationFilter = "all" | "unread";
 
@@ -144,13 +146,11 @@ const StudentNotificationsPage = () => {
           </CardHeader>
           <CardContent>
             {filtered.length === 0 ? (
-              <div className="rounded-xl border border-border bg-background p-6 text-sm text-muted-foreground">
-                <div className="mb-2 flex items-center gap-2 text-foreground">
-                  <BellRing className="h-4 w-4 text-primary" />
-                  No notifications yet
-                </div>
-                New updates will appear here as you use the LMS.
-              </div>
+              <EmptyState
+                image={noNotificationsImage}
+                title="No notifications yet"
+                description="New updates will appear here as you use the LMS."
+              />
             ) : (
               <div className="space-y-3">
                 {filtered.map((notification) => (

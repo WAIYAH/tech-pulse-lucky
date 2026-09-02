@@ -8,9 +8,11 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { routes } from "@/routes/routeConfig";
 import CourseProgress from "@/components/lms/CourseProgress";
+import EmptyState from "@/components/student/EmptyState";
 import { MASTERCLASS_COURSE_SLUG } from "@/lib/masterclass";
 import { enrollmentStatusBadgeVariant } from "@/lib/statusBadges";
 import { useStudentPortal } from "./StudentPortalContext";
+import noResultsImage from "@/assets/empty-states/no-results.svg";
 
 type AccessFilter = "all" | "accessible" | "locked";
 
@@ -90,14 +92,15 @@ const StudentCoursesPage = () => {
             {isLoading ? (
               <p className="text-sm text-muted-foreground">Loading enrollments...</p>
             ) : filtered.length === 0 ? (
-              <div className="space-y-3">
-                <p className="text-sm text-muted-foreground">
-                  No course records match your current filters.
-                </p>
-                <Button variant="accent" asChild>
-                  <Link to={routes.student.browseCourses}>Browse Courses</Link>
-                </Button>
-              </div>
+              <EmptyState
+                image={noResultsImage}
+                title="No course records match your current filters"
+                action={
+                  <Button variant="accent" asChild>
+                    <Link to={routes.student.browseCourses}>Browse Courses</Link>
+                  </Button>
+                }
+              />
             ) : (
               <div className="space-y-4">
                 {filtered

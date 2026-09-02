@@ -4,8 +4,10 @@ import { CalendarClock, ClipboardCheck, NotebookPen } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import EmptyState from "@/components/student/EmptyState";
 import { routes } from "@/routes/routeConfig";
 import { useStudentPortal } from "./StudentPortalContext";
+import noAssignmentsImage from "@/assets/empty-states/no-assignments.svg";
 
 interface AssignmentItem {
   courseId: string;
@@ -124,9 +126,10 @@ const StudentAssignmentsPage = () => {
             {isLoading ? (
               <p className="text-sm text-muted-foreground">Loading assignments...</p>
             ) : assignments.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No assignment-type lessons found in your current enrollments.
-              </p>
+              <EmptyState
+                image={noAssignmentsImage}
+                title="No assignment-type lessons found in your current enrollments"
+              />
             ) : (
               <div className="space-y-4">
                 {assignments.map((assignment) => (

@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import EmptyState from "@/components/student/EmptyState";
+import noSupportTicketsImage from "@/assets/empty-states/no-support-tickets.svg";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
@@ -263,9 +265,7 @@ const StudentSupportPage = () => {
           </CardHeader>
           <CardContent>
             {sortedTickets.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No support requests yet.
-              </p>
+              <EmptyState image={noSupportTicketsImage} title="No support requests yet" />
             ) : (
               <div className="space-y-3">
                 {sortedTickets.map((ticket) => (

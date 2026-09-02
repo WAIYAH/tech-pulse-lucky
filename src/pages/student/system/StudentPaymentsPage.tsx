@@ -17,6 +17,8 @@ import { lmsConfig } from "@/data/lmsConfig";
 import { routes } from "@/routes/routeConfig";
 import { paymentStatusBadgeVariant } from "@/lib/statusBadges";
 import { useStudentPortal } from "./StudentPortalContext";
+import EmptyState from "@/components/student/EmptyState";
+import noPaymentsImage from "@/assets/empty-states/no-payments.svg";
 
 const formatMoney = (amount: number, currency = "KES") => {
   return new Intl.NumberFormat("en-KE", {
@@ -236,9 +238,7 @@ const StudentPaymentsPage = () => {
             {isLoading ? (
               <p className="text-sm text-muted-foreground">Loading payments...</p>
             ) : payments.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                You have not submitted any payment requests yet.
-              </p>
+              <EmptyState image={noPaymentsImage} title="You have not submitted any payment requests yet" />
             ) : (
               <div className="overflow-x-auto">
                 <Table className="min-w-[760px]">

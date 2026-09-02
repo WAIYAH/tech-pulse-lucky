@@ -3,8 +3,10 @@ import { BookOpenText, Download, ExternalLink, Lightbulb, Search } from "lucide-
 import { Badge, type BadgeProps } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import EmptyState from "@/components/student/EmptyState";
 import { getDidYouKnowOfTheWeek, getWordOfTheDay } from "@/lib/dailyContent";
 import { useStudentPortal } from "./StudentPortalContext";
+import noResourcesImage from "@/assets/empty-states/no-resources.svg";
 
 interface ResourceItem {
   id: string;
@@ -122,9 +124,7 @@ const StudentResourcesPage = () => {
             {isLoading ? (
               <p className="text-sm text-muted-foreground">Loading resources...</p>
             ) : filteredResources.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No resources found for your courses yet.
-              </p>
+              <EmptyState image={noResourcesImage} title="No resources found for your courses yet" />
             ) : (
               <div className="space-y-3">
                 {filteredResources.map((resource) => (

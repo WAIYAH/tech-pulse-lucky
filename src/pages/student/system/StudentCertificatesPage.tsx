@@ -4,6 +4,7 @@ import { Award, BadgeCheck, ListChecks, LockKeyhole, Sparkles, TimerReset } from
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import EmptyState from "@/components/student/EmptyState";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   PROGRAM_SLUG,
@@ -15,6 +16,8 @@ import {
 import { routes } from "@/routes/routeConfig";
 import type { MasterclassCertificate } from "@/types/masterclass";
 import { useStudentPortal } from "./StudentPortalContext";
+import noCertificatesImage from "@/assets/empty-states/no-certificates.svg";
+import allCaughtUpImage from "@/assets/empty-states/all-caught-up.svg";
 
 /**
  * Additive-only: surfaces the real masterclass certificate (if any) alongside the
@@ -189,9 +192,11 @@ const StudentCertificatesPage = () => {
             {isLoading ? (
               <p className="text-sm text-muted-foreground">Loading certificates...</p>
             ) : eligible.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No completed courses yet. Finish a course to unlock certificate readiness.
-              </p>
+              <EmptyState
+                image={noCertificatesImage}
+                title="No completed courses yet"
+                description="Finish a course to unlock certificate readiness."
+              />
             ) : (
               <div className="space-y-3">
                 {eligible.map((enrollment) => {
@@ -238,9 +243,7 @@ const StudentCertificatesPage = () => {
                   Unlock your pending paid courses to continue toward certificate eligibility.
                 </p>
               ) : (
-                <p className="text-sm text-muted-foreground">
-                  You are caught up. All enrolled courses are complete.
-                </p>
+                <EmptyState image={allCaughtUpImage} title="You are caught up" description="All enrolled courses are complete." />
               )
             ) : (
               <div className="space-y-3">

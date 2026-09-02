@@ -19,6 +19,8 @@ import { lmsProvider } from "@/lib/lms";
 import { routes } from "@/routes/routeConfig";
 import type { CourseLevel } from "@/types/lms";
 import { useStudentPortal } from "./StudentPortalContext";
+import EmptyState from "@/components/student/EmptyState";
+import noResultsImage from "@/assets/empty-states/no-results.svg";
 
 type PricingFilter = "all" | "free" | "paid";
 type LevelFilter = "all" | CourseLevel;
@@ -151,12 +153,15 @@ const StudentBrowseCoursesPage = () => {
           {isLoading ? (
             <p className="text-sm text-muted-foreground">Loading courses...</p>
           ) : filtered.length === 0 ? (
-            <div className="space-y-3 py-8 text-center">
-              <p className="text-sm text-muted-foreground">No courses matched your filters.</p>
-              <Button variant="outline" onClick={resetFilters}>
-                Clear Filters
-              </Button>
-            </div>
+            <EmptyState
+              image={noResultsImage}
+              title="No courses matched your filters"
+              action={
+                <Button variant="outline" onClick={resetFilters}>
+                  Clear Filters
+                </Button>
+              }
+            />
           ) : (
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {filtered.map((course) => {
@@ -165,8 +170,15 @@ const StudentBrowseCoursesPage = () => {
                 return (
                   <Card
                     key={course.id}
-                    className="flex flex-col border-2 transition-colors hover:border-accent/60"
+                    className="flex flex-col overflow-hidden border-2 transition-colors hover:border-accent/60"
                   >
+                    <div className="flex h-40 items-center justify-center bg-gradient-to-r from-primary/10 to-accent/20">
+                      <img
+                        src={course.imageUrl}
+                        alt={course.title}
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
                     <CardHeader className="space-y-2">
                       <div className="flex items-center justify-between gap-2">
                         <Badge variant={course.isFree ? "success" : "default"}>

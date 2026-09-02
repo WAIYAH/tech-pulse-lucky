@@ -4,8 +4,10 @@ import { CalendarDays, CalendarPlus, Check, Clock3, MapPin, Video } from "lucide
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import EmptyState from "@/components/student/EmptyState";
 import { useToast } from "@/hooks/use-toast";
 import type { WebinarRecord } from "@/data/webinars";
+import noWebinarsImage from "@/assets/empty-states/no-webinars.svg";
 import { readAdminWebinars, subscribeAdminWebinars } from "@/lib/admin/webinarState";
 import {
   createStudentNotification,
@@ -106,9 +108,7 @@ const StudentWebinarsPage = () => {
           </CardHeader>
           <CardContent className="space-y-3">
             {upcomingWebinars.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No webinars are currently scheduled.
-              </p>
+              <EmptyState image={noWebinarsImage} title="No webinars are currently scheduled" />
             ) : (
               upcomingWebinars.map((webinar) => {
                 const isInterested = interestedIds.includes(String(webinar.id));

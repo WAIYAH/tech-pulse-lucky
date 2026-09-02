@@ -4,10 +4,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import CourseProgress from "@/components/lms/CourseProgress";
+import EmptyState from "@/components/student/EmptyState";
 import { MASTERCLASS_COURSE_SLUG } from "@/lib/masterclass";
 import { routes } from "@/routes/routeConfig";
 import { enrollmentStatusBadgeVariant } from "@/lib/statusBadges";
 import { useStudentPortal } from "./StudentPortalContext";
+import notEnrolledImage from "@/assets/empty-states/not-enrolled.svg";
 
 const StudentProgressPage = () => {
   const { isLoading, enrollments, courseById, progressByCourseId, averageProgress } =
@@ -75,15 +77,16 @@ const StudentProgressPage = () => {
             {isLoading ? (
               <p className="text-sm text-muted-foreground">Loading progress data...</p>
             ) : enrollments.length === 0 ? (
-              <div className="space-y-3">
-                <p className="text-sm text-muted-foreground">
-                  No enrolled courses yet. Once enrolled, your learning milestones appear
-                  here.
-                </p>
-                <Button variant="accent" asChild>
-                  <Link to={routes.student.browseCourses}>Browse Courses</Link>
-                </Button>
-              </div>
+              <EmptyState
+                image={notEnrolledImage}
+                title="No enrolled courses yet"
+                description="Once enrolled, your learning milestones appear here."
+                action={
+                  <Button variant="accent" asChild>
+                    <Link to={routes.student.browseCourses}>Browse Courses</Link>
+                  </Button>
+                }
+              />
             ) : (
               <div className="space-y-4">
                 {enrollments

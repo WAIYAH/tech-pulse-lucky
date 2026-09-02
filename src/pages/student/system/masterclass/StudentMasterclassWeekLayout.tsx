@@ -119,6 +119,8 @@ const StudentMasterclassWeekLayout = () => {
 
   const activeSegment = tabs.find((tab) => location.pathname.endsWith(`/${tab.segment}`))?.segment ?? "lessons";
   const nextAccess = nextWeekNumber ? weekAccess[nextWeekNumber]?.isUnlocked ?? false : false;
+  const isFinalWeek = week.weekNumber === weeks.length;
+  const visibleTabs = tabs.filter((tab) => tab.segment !== "assignment" || !isFinalWeek);
 
   return (
     <div className="space-y-6">
@@ -191,7 +193,7 @@ const StudentMasterclassWeekLayout = () => {
       <Tabs value={activeSegment} onValueChange={(segment) => navigate(`../${segment}`, { relative: "path" })}>
         <div className="overflow-x-auto">
           <TabsList>
-            {tabs.map((tab) => (
+            {visibleTabs.map((tab) => (
               <TabsTrigger key={tab.segment} value={tab.segment} className="gap-1.5">
                 <tab.icon className="h-4 w-4" />
                 {tab.label}

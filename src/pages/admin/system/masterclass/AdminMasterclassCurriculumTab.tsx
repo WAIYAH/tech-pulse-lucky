@@ -44,7 +44,16 @@ const AdminMasterclassCurriculumTab = () => {
           <AdminMasterclassLessonsPanel week={week} />
           <AdminMasterclassTerminologyPanel week={week} />
           <AdminMasterclassResourcesPanel week={week} program={program} />
-          <AdminMasterclassAssignmentPanel week={week} />
+          {week.weekNumber === weeks.length ? (
+            <Card>
+              <CardContent className="pt-6 text-sm text-muted-foreground">
+                The final week has no weekly assignment &mdash; it is reserved for the capstone
+                final project, managed from the Final Projects tab.
+              </CardContent>
+            </Card>
+          ) : (
+            <AdminMasterclassAssignmentPanel week={week} />
+          )}
           <AdminMasterclassQuizPanel week={week} />
         </>
       )}

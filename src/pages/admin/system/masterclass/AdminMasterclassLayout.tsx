@@ -1,8 +1,9 @@
-import { Award, CalendarCheck, FolderGit2, GraduationCap, Megaphone, NotebookText, Users } from "lucide-react";
+import { Award, CalendarCheck, FolderGit2, Github, GraduationCap, Megaphone, NotebookText, Users } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AdminMasterclassProvider, useAdminMasterclass } from "./AdminMasterclassProvider";
 import AdminMasterclassCohortsTab from "./AdminMasterclassCohortsTab";
 import AdminMasterclassCurriculumTab from "./AdminMasterclassCurriculumTab";
+import AdminMasterclassAssignmentsTab from "./AdminMasterclassAssignmentsTab";
 import AdminMasterclassFinalProjectsTab from "./AdminMasterclassFinalProjectsTab";
 import AdminMasterclassCertificatesTab from "./AdminMasterclassCertificatesTab";
 import AdminMasterclassAnnouncementsTab from "./AdminMasterclassAnnouncementsTab";
@@ -46,6 +47,10 @@ const AdminMasterclassContent = () => {
                 <NotebookText className="h-4 w-4" />
                 Curriculum
               </TabsTrigger>
+              <TabsTrigger value="assignments" className="gap-1.5">
+                <Github className="h-4 w-4" />
+                Assignments
+              </TabsTrigger>
               <TabsTrigger value="final-projects" className="gap-1.5">
                 <FolderGit2 className="h-4 w-4" />
                 Final Projects
@@ -69,6 +74,9 @@ const AdminMasterclassContent = () => {
           </TabsContent>
           <TabsContent value="curriculum">
             <AdminMasterclassCurriculumTab />
+          </TabsContent>
+          <TabsContent value="assignments">
+            <AdminMasterclassAssignmentsTab />
           </TabsContent>
           <TabsContent value="final-projects">
             <AdminMasterclassFinalProjectsTab />

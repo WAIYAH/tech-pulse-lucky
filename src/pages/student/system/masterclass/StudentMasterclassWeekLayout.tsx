@@ -15,6 +15,14 @@ const tabs = [
   { segment: "quiz", label: "Quiz", icon: ListChecks },
 ] as const;
 
+const tabPathBuilders: Record<(typeof tabs)[number]["segment"], (weekNumber: number) => string> = {
+  lessons: routes.student.masterclassWeekLessons,
+  terminology: routes.student.masterclassWeekTerminology,
+  live: routes.student.masterclassWeekLive,
+  assignment: routes.student.masterclassWeekAssignment,
+  quiz: routes.student.masterclassWeekQuiz,
+};
+
 const formatUnlockDate = (isoDate: string): string => {
   return new Date(isoDate).toLocaleDateString("en-KE", { month: "long", day: "numeric", year: "numeric" });
 };
@@ -190,7 +198,12 @@ const StudentMasterclassWeekLayout = () => {
         </Button>
       </div>
 
-      <Tabs value={activeSegment} onValueChange={(segment) => navigate(`../${segment}`, { relative: "path" })}>
+      <Tabs
+        value={activeSegment}
+        onValueChange={(segment) =>
+          navigate(tabPathBuilders[segment as (typeof tabs)[number]["segment"]](week.weekNumber))
+        }
+      >
         <div className="overflow-x-auto">
           <TabsList>
             {visibleTabs.map((tab) => (

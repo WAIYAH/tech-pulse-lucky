@@ -130,6 +130,12 @@ const StudentMasterclassWeekLayout = () => {
   const isFinalWeek = week.weekNumber === weeks.length;
   const visibleTabs = tabs.filter((tab) => tab.segment !== "assignment" || !isFinalWeek);
 
+  const goToTab = (segment: (typeof tabs)[number]["segment"]) => navigate(tabPathBuilders[segment](week.weekNumber));
+
+  const activeTabIndex = visibleTabs.findIndex((tab) => tab.segment === activeSegment);
+  const previousTab = activeTabIndex > 0 ? visibleTabs[activeTabIndex - 1] : null;
+  const nextTab = activeTabIndex >= 0 && activeTabIndex < visibleTabs.length - 1 ? visibleTabs[activeTabIndex + 1] : null;
+
   return (
     <div className="space-y-6">
       <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
@@ -198,12 +204,7 @@ const StudentMasterclassWeekLayout = () => {
         </Button>
       </div>
 
-      <Tabs
-        value={activeSegment}
-        onValueChange={(segment) =>
-          navigate(tabPathBuilders[segment as (typeof tabs)[number]["segment"]](week.weekNumber))
-        }
-      >
+      <Tabs value={activeSegment} onValueChange={(segment) => goToTab(segment as (typeof tabs)[number]["segment"])}>
         <div className="overflow-x-auto">
           <TabsList>
             {visibleTabs.map((tab) => (
@@ -219,6 +220,20 @@ const StudentMasterclassWeekLayout = () => {
       <StudentMasterclassWeekProvider week={week}>
         <Outlet />
       </StudentMasterclassWeekProvider>
+
+      <div className="flex flex-wrap justify-between gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={!previousTab}
+          onClick={() => previousTab && goToTab(previousTab.segment)}
+        >
+          <ChevronLeft className="mr-1 h-4 w-4" /> {previousTab ? previousTab.label : "Previous"}
+        </Button>
+        <Button variant="outline" size="sm" disabled={!nextTab} onClick={() => nextTab && goToTab(nextTab.segment)}>
+          {nextTab ? nextTab.label : "Next"} <ChevronRight className="ml-1 h-4 w-4" />
+        </Button>
+      </div>
     </div>
   );
 };

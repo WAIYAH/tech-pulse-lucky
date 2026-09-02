@@ -47,6 +47,7 @@ import AdminCoursesPage from "./pages/admin/system/AdminCoursesPage";
 import AdminPaymentsPage from "./pages/admin/system/AdminPaymentsPage";
 import AdminNotificationsPage from "./pages/admin/system/AdminNotificationsPage";
 import AdminFinancePage from "./pages/admin/system/AdminFinancePage";
+import AdminReportsPage from "./pages/admin/system/reports/AdminReportsPage";
 import AdminContentPage from "./pages/admin/system/AdminContentPage";
 import AdminLmsControlPage from "./pages/admin/system/AdminLmsControlPage";
 import AdminSettingsPage from "./pages/admin/system/AdminSettingsPage";
@@ -215,6 +216,7 @@ const AppRoutes = () => (
       <Route path="support" element={<AdminSupportPage />} />
       <Route path="masterclass" element={<AdminMasterclassLayout />} />
       <Route path="finance" element={<AdminFinancePage />} />
+      <Route path="reports" element={<AdminReportsPage />} />
       <Route path="webinars" element={<AdminWebinarsPage />} />
       <Route path="articles" element={<AdminArticlesPage />} />
       <Route path="content" element={<AdminContentPage />} />

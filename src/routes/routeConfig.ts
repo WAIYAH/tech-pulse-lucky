@@ -66,6 +66,7 @@ export const routes = {
     notifications: "/admin/notifications",
     support: "/admin/support",
     finance: "/admin/finance",
+    reports: "/admin/reports",
     webinars: "/admin/webinars",
     articles: "/admin/articles",
     settings: "/admin/settings",

@@ -21,6 +21,7 @@ export interface LmsDataProvider {
   getCourseCategories(): Promise<string[]>;
 
   getEnrollments(userId: string): Promise<LmsEnrollment[]>;
+  getAllEnrollments(): Promise<LmsEnrollment[]>;
   enrollInFreeCourse(userId: string, courseSlug: string): Promise<LmsEnrollment>;
 
   submitPaymentRequest(input: PaymentSubmissionInput): Promise<LmsPayment>;

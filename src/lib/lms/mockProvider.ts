@@ -109,6 +109,14 @@ export class MockLmsProvider implements LmsDataProvider {
       .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
   }
 
+  async getAllEnrollments(): Promise<LmsEnrollment[]> {
+    const enrollments = this.readArrayFromStorage<LmsEnrollment>(
+      STORAGE_KEYS.enrollments,
+      this.memoryState.enrollments,
+    );
+    return enrollments.slice().sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+  }
+
   async enrollInFreeCourse(
     userId: string,
     courseSlug: string,

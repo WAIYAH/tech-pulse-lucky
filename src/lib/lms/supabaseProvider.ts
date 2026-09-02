@@ -452,6 +452,21 @@ export class SupabaseLmsProvider implements LmsDataProvider {
     );
   }
 
+  async getAllEnrollments(): Promise<LmsEnrollment[]> {
+    return this.withFallback(
+      "getAllEnrollments",
+      async () => {
+        const { data, error } = await supabase
+          .from("enrollments")
+          .select("*")
+          .order("updated_at", { ascending: false });
+        if (error) throw error;
+        return (data ?? []).map(mapEnrollmentRow);
+      },
+      () => this.fallback.getAllEnrollments(),
+    );
+  }
+
   async enrollInFreeCourse(userId: string, courseSlug: string): Promise<LmsEnrollment> {
     return this.withFallback(
       "enrollInFreeCourse",

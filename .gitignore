@@ -38,3 +38,10 @@ supabase/.temp/
 
 # Wrangler (Cloudflare) local state
 .wrangler/
+
+# Python bytecode from the document generator in tools/
+__pycache__/
+*.py[cod]
+
+# Scratch output from local doc generation
+build/

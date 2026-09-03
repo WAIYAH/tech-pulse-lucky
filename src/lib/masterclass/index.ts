@@ -1,5 +1,6 @@
 export * from "./client";
 export * from "./curriculum";
+export * from "./resourceStorage";
 export * from "./cohorts";
 export * from "./quizzes";
 export * from "./progress";

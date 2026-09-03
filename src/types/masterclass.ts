@@ -5,13 +5,32 @@ export type MasterclassResourceType =
   | "pdf"
   | "doc"
   | "ppt"
+  | "sheet"
   | "image"
   | "zip"
   | "code"
+  | "audio"
   | "link"
   | "github"
   | "video";
 export type MasterclassResourceVisibility = "public" | "enrolled";
+
+/**
+ * Where a resource sits in the weekly learning journey. Mirrors the folder
+ * layout under resources/week-NN/<category>/ so a file on disk and its database
+ * row can always be traced to each other.
+ */
+export type MasterclassResourceCategory =
+  | "notes"
+  | "presentation"
+  | "practical"
+  | "assignment"
+  | "quiz"
+  | "reference"
+  | "project"
+  | "template"
+  | "recording"
+  | "link";
 export type MasterclassFinalProjectStatus = "not_started" | "in_progress" | "submitted" | "approved";
 export type MasterclassCertificateStatus = "not_eligible" | "eligible" | "issued" | "revoked";
 export type MasterclassAttendanceStatus = "present" | "absent";
@@ -144,10 +163,30 @@ export interface MasterclassResource {
   title: string;
   description: string;
   resourceType: MasterclassResourceType;
+  category: MasterclassResourceCategory;
+  /** External URL. Empty for stored files, which are served via a signed URL instead. */
   url: string;
+  /** Object key inside the private `course-resources` bucket. Absent for link resources. */
+  storagePath?: string;
+  fileName?: string;
+  fileSize?: number;
+  mimeType?: string;
   visibility: MasterclassResourceVisibility;
   resourceOrder: number;
   isLiveLink: boolean;
+  isRequired: boolean;
+  isPublished: boolean;
+  learningObjective: string;
+  version: number;
+  /** The earlier resource this one replaces, when content has been re-issued. */
+  supersedesId?: string;
+}
+
+/** A stored file plus the metadata needed to validate and name it. */
+export interface MasterclassResourceUpload {
+  file: File;
+  weekNumber?: number;
+  category: MasterclassResourceCategory;
 }
 
 export interface MasterclassLessonProgress {

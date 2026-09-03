@@ -143,6 +143,33 @@ Key points:
 - New Supabase objects live in `supabase/migrations/20260901090000_phase9_masterclass_schema_and_rls.sql` (schema + RLS + the quiz-grading RPC) and `supabase/migrations/20260901091500_phase9_masterclass_seed_content.sql` (seed data) — **these must be applied manually** to a live Supabase project (they are not run automatically); see `PLAN.md` section 29.
 - Until those migrations are applied, the app does not break: every masterclass read falls back to the public-safe content in `src/data/masterclassContent.ts` (program + week metadata only — no gated content ever ships in the client bundle).
 
+## Course Resource Library
+
+Learning materials (PDF, Word, PowerPoint, spreadsheets, images, code, archives, media and links) are file-backed resources stored in a **private** Supabase Storage bucket, catalogued in `masterclass_resources`, and grouped for students by category — notes, presentations, practicals, assignments, quizzes, references and more.
+
+- **Source of truth on disk:** `resources/week-NN/<category>/`, with `resources/manifest.json` supplying the teaching metadata. The folder a file sits in decides its week and category.
+- **Storage security:** the bucket is private and reads are one-hour signed URLs. The storage policy re-derives access from the owning catalogue row, so unpublishing a resource makes its file unreachable in the same instant. Uploads are admin-only, size-capped at 50 MB, and restricted to an extension allow-list with no executable formats.
+- **Versioning:** replacing a file publishes a new version and retires the old row rather than overwriting it. Student progress is tracked against lessons, quizzes and assignments — never resources — so re-issuing material never disturbs a completion record.
+- **Adding a resource:** either upload it in `/admin/masterclass` → week → Resources, or drop the file in the right folder, add a manifest entry, and run the sync.
+
+```bash
+npm run resources:check      # validate the manifest against the files (no credentials needed)
+npm run resources:sync       # upload to Storage and upsert the catalogue rows
+npm run resources:generate   # regenerate the weekly Word guides from source, with PDFs
+```
+
+The sync needs a service-role key in your shell (never in `.env`, never committed):
+
+```bash
+export VITE_SUPABASE_URL="https://<project>.supabase.co"
+export SUPABASE_SERVICE_ROLE_KEY="<service-role-key>"
+```
+
+Weekly learning documents are **generated from source** rather than hand-formatted, so the Tech Pulse Insider document standard (header, footer with `Page X of Y`, watermark, Arial type scale, brand colours) is applied identically to every one. The generator lives in `tools/docgen/`; content modules describe what a document says, `builder.py` owns how it looks.
+
+Full detail: [docs/course/resource-architecture.md](docs/course/resource-architecture.md).
+Audit of what exists and what is missing: [docs/course/content-gap-report.md](docs/course/content-gap-report.md).
+
 ## Project Structure
 
 ```txt
@@ -361,7 +388,10 @@ Web Development Masterclass:
 - `supabase/migrations/20260901090000_phase9_masterclass_schema_and_rls.sql`
 - `supabase/migrations/20260901091500_phase9_masterclass_seed_content.sql`
 
-All four are applied to the current live project (see "Supabase Setup Status" above). To reproduce on a new project, `supabase link --project-ref <ref>` then `supabase db push` applies all of them in filename order in one step.
+Course resource library (private storage bucket, resource metadata, versioning):
+- `supabase/migrations/20260903090000_phase16_course_resource_library.sql` — **not yet applied to the live project.** Apply it before uploading resources; until then the admin Resources panel and the student resource view fall back to link-only behaviour.
+
+To reproduce on a new project, `supabase link --project-ref <ref>` then `supabase db push` applies all of them in filename order in one step.
 
 Deployment checklist:
 - `supabase/DEPLOYMENT_CHECKLIST.md`

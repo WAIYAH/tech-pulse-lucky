@@ -9,7 +9,10 @@
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
-    "cf:deploy": "npm run build && wrangler deploy"
+    "cf:deploy": "npm run build && wrangler deploy",
+    "resources:generate": "python -m tools.docgen.generate --pdf",
+    "resources:check": "node tools/sync-resources.mjs --dry-run",
+    "resources:sync": "node tools/sync-resources.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

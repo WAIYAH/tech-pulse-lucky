@@ -1,4 +1,5 @@
 import { emitMasterclassExperienceEvent, supabase, withMasterclassFallback } from "./client";
+import { deleteResourceFile } from "./resourceStorage";
 import { masterclassProgram, masterclassWeeks } from "@/data/masterclassContent";
 import type {
   MasterclassLesson,
@@ -64,10 +65,20 @@ interface ResourceRow extends Record<string, unknown> {
   title: string;
   description: string;
   resource_type: MasterclassResource["resourceType"];
+  category?: MasterclassResource["category"] | null;
   url: string;
+  storage_path?: string | null;
+  file_name?: string | null;
+  file_size?: number | null;
+  mime_type?: string | null;
   visibility: MasterclassResource["visibility"];
   resource_order: number;
   is_live_link: boolean;
+  is_required?: boolean | null;
+  is_published?: boolean | null;
+  learning_objective?: string | null;
+  version?: number | null;
+  supersedes_id?: string | null;
 }
 
 const mapProgramRow = (row: ProgramRow): MasterclassProgram => ({
@@ -126,10 +137,22 @@ const mapResourceRow = (row: ResourceRow): MasterclassResource => ({
   title: row.title,
   description: row.description,
   resourceType: row.resource_type,
-  url: row.url,
+  category: row.category ?? "reference",
+  url: row.url ?? "",
+  storagePath: row.storage_path ?? undefined,
+  fileName: row.file_name ?? undefined,
+  fileSize: row.file_size ?? undefined,
+  mimeType: row.mime_type ?? undefined,
   visibility: row.visibility,
   resourceOrder: row.resource_order,
   isLiveLink: row.is_live_link ?? false,
+  isRequired: row.is_required ?? false,
+  // Rows written before the library migration have no flag and were visible, so
+  // treat a missing value as published rather than hiding existing content.
+  isPublished: row.is_published ?? true,
+  learningObjective: row.learning_objective ?? "",
+  version: row.version ?? 1,
+  supersedesId: row.supersedes_id ?? undefined,
 });
 
 export const PROGRAM_SLUG = "web-development-masterclass";
@@ -371,10 +394,20 @@ export interface ResourceInput {
   title: string;
   description: string;
   resourceType: MasterclassResource["resourceType"];
+  category?: MasterclassResource["category"];
   url: string;
+  storagePath?: string;
+  fileName?: string;
+  fileSize?: number;
+  mimeType?: string;
   visibility: MasterclassResource["visibility"];
   resourceOrder: number;
   isLiveLink?: boolean;
+  isRequired?: boolean;
+  isPublished?: boolean;
+  learningObjective?: string;
+  version?: number;
+  supersedesId?: string;
 }
 
 export const createMasterclassResource = async (input: ResourceInput): Promise<MasterclassResource> => {
@@ -386,10 +419,20 @@ export const createMasterclassResource = async (input: ResourceInput): Promise<M
       title: input.title,
       description: input.description,
       resource_type: input.resourceType,
+      category: input.category ?? "reference",
       url: input.url,
+      storage_path: input.storagePath ?? null,
+      file_name: input.fileName ?? null,
+      file_size: input.fileSize ?? null,
+      mime_type: input.mimeType ?? null,
       visibility: input.visibility,
       resource_order: input.resourceOrder,
       is_live_link: input.isLiveLink ?? false,
+      is_required: input.isRequired ?? false,
+      is_published: input.isPublished ?? true,
+      learning_objective: input.learningObjective ?? "",
+      version: input.version ?? 1,
+      supersedes_id: input.supersedesId ?? null,
     })
     .select("*")
     .single();
@@ -400,16 +443,27 @@ export const createMasterclassResource = async (input: ResourceInput): Promise<M
 
 export const updateMasterclassResource = async (
   resourceId: string,
-  input: Partial<Omit<ResourceInput, "programId" | "weekId">>,
+  input: Partial<Omit<ResourceInput, "programId">>,
 ): Promise<MasterclassResource> => {
   const payload: Record<string, unknown> = {};
   if (input.title !== undefined) payload.title = input.title;
   if (input.description !== undefined) payload.description = input.description;
   if (input.resourceType !== undefined) payload.resource_type = input.resourceType;
+  if (input.category !== undefined) payload.category = input.category;
   if (input.url !== undefined) payload.url = input.url;
+  if (input.weekId !== undefined) payload.week_id = input.weekId ?? null;
+  if (input.storagePath !== undefined) payload.storage_path = input.storagePath ?? null;
+  if (input.fileName !== undefined) payload.file_name = input.fileName ?? null;
+  if (input.fileSize !== undefined) payload.file_size = input.fileSize ?? null;
+  if (input.mimeType !== undefined) payload.mime_type = input.mimeType ?? null;
   if (input.visibility !== undefined) payload.visibility = input.visibility;
   if (input.resourceOrder !== undefined) payload.resource_order = input.resourceOrder;
   if (input.isLiveLink !== undefined) payload.is_live_link = input.isLiveLink;
+  if (input.isRequired !== undefined) payload.is_required = input.isRequired;
+  if (input.isPublished !== undefined) payload.is_published = input.isPublished;
+  if (input.learningObjective !== undefined) payload.learning_objective = input.learningObjective;
+  if (input.version !== undefined) payload.version = input.version;
+  if (input.supersedesId !== undefined) payload.supersedes_id = input.supersedesId ?? null;
 
   const { data, error } = await supabase
     .from<ResourceRow>("masterclass_resources")
@@ -422,8 +476,47 @@ export const updateMasterclassResource = async (
   return mapResourceRow(data);
 };
 
-export const deleteMasterclassResource = async (resourceId: string): Promise<void> => {
+export const deleteMasterclassResource = async (
+  resourceId: string,
+  options: { storagePath?: string } = {},
+): Promise<void> => {
   const { error } = await supabase.from("masterclass_resources").delete().eq("id", resourceId);
   if (error) throw new Error(error.message ?? "Unable to delete this resource.");
+
+  // Remove the file too, so deleting a resource does not leave an orphan paying
+  // for storage. A failure here is not worth failing the whole delete over: the
+  // catalogue row is already gone, which is what students see.
+  if (options.storagePath) {
+    try {
+      await deleteResourceFile(options.storagePath);
+    } catch {
+      // Intentionally swallowed - the row is deleted and the file is unreachable
+      // anyway, since storage reads are gated on the row existing.
+    }
+  }
+
   emitMasterclassExperienceEvent();
+};
+
+/**
+ * Publish a new version of an existing resource.
+ *
+ * The previous row is retained and unpublished rather than overwritten, so any
+ * historical reference to it still resolves and nothing a student has already
+ * seen disappears from the record. The new row points back with supersedes_id.
+ */
+export const replaceMasterclassResource = async (
+  previous: MasterclassResource,
+  input: Omit<ResourceInput, "programId" | "version" | "supersedesId">,
+): Promise<MasterclassResource> => {
+  const created = await createMasterclassResource({
+    ...input,
+    programId: previous.programId,
+    version: previous.version + 1,
+    supersedesId: previous.id,
+  });
+
+  await updateMasterclassResource(previous.id, { isPublished: false });
+  emitMasterclassExperienceEvent();
+  return created;
 };

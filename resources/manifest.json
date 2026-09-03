@@ -1,0 +1,195 @@
+{
+  "$comment": [
+    "Single source of truth mapping the files in this folder to rows in masterclass_resources.",
+    "Adding a resource is three steps: drop the file into the right week/category folder,",
+    "add an entry here, then run `node tools/sync-resources.mjs`.",
+    "",
+    "Each entry:",
+    "  file        path relative to resources/ (its folder decides week and category)",
+    "  title       what students see in the LMS",
+    "  description one line explaining what it is",
+    "  objective   what a student should be able to do after using it",
+    "  required    true if the week cannot be completed without it",
+    "  order       sort position within its category",
+    "  published   false keeps it hidden from students while you prepare it",
+    "  visibility  'enrolled' (default) or 'public'"
+  ],
+  "programSlug": "web-development-masterclass",
+  "resources": [
+    {
+      "file": "week-01/notes/week-01-web-fundamentals-training-manual.pdf",
+      "title": "Web Fundamentals Training Manual",
+      "description": "The 71-page foundation manual: how the internet works, frontend vs backend, website anatomy, design principles, and a preview of every technology in the course.",
+      "objective": "Explain how the web works end to end, and place every later week in the context of the whole stack.",
+      "required": true,
+      "order": 1
+    },
+    {
+      "file": "week-01/notes/week-01-web-fundamentals-training-manual.docx",
+      "title": "Web Fundamentals Training Manual (editable)",
+      "description": "The same manual in Word format, for annotating and note-taking.",
+      "objective": "Take your own notes directly inside the course manual.",
+      "required": false,
+      "order": 2
+    },
+    {
+      "file": "week-01/notes/week-01-html-semantic-html-master-guide.pdf",
+      "title": "HTML & Semantic HTML Master Guide",
+      "description": "Complete HTML reference: foundations, core elements, attributes, semantic structure, accessibility and a full quiz.",
+      "objective": "Structure any page with correct, meaningful HTML rather than a pile of divs.",
+      "required": true,
+      "order": 3
+    },
+    {
+      "file": "week-01/notes/week-01-html-semantic-html-master-guide.docx",
+      "title": "HTML & Semantic HTML Master Guide (editable)",
+      "description": "The Word version of the HTML master guide.",
+      "objective": "Annotate the HTML guide as you work through it.",
+      "required": false,
+      "order": 4
+    },
+    {
+      "file": "week-01/references/week-01-html-quick-reference-notes.docx",
+      "title": "HTML Quick Reference Notes",
+      "description": "A condensed revision sheet covering the HTML essentials in a few pages. Use it for revision, not as a replacement for the master guide.",
+      "objective": "Recall HTML syntax quickly while building, without re-reading the full guide.",
+      "required": false,
+      "order": 1
+    },
+
+    {
+      "file": "week-02/notes/week-02-css-foundations-responsive-design-notes.pdf",
+      "title": "CSS Foundations & Responsive Design",
+      "description": "Selectors, the cascade, specificity, the box model, Flexbox, CSS Grid and mobile-first responsive design, with 48 key terms, a quiz and the weekly assignment.",
+      "objective": "Turn semantic HTML into a professional, responsive interface using hand-written CSS.",
+      "required": true,
+      "order": 1
+    },
+    {
+      "file": "week-02/notes/week-02-css-foundations-responsive-design-notes.docx",
+      "title": "CSS Foundations & Responsive Design (editable)",
+      "description": "The Word version of the Week 2 guide.",
+      "objective": "Annotate the CSS guide as you work through it.",
+      "required": false,
+      "order": 2
+    },
+
+    {
+      "file": "week-03/notes/week-03-tailwind-css-modern-frontend-notes.pdf",
+      "title": "Tailwind CSS & Modern Frontend Development",
+      "description": "Why frameworks exist, utility-first styling, configuring a brand design system, component thinking, plus terminology, a quiz and the weekly assignment.",
+      "objective": "Build and configure a Tailwind project, and know when to extract a repeated pattern into a component.",
+      "required": true,
+      "order": 1
+    },
+    {
+      "file": "week-03/notes/week-03-tailwind-css-modern-frontend-notes.docx",
+      "title": "Tailwind CSS & Modern Frontend Development (editable)",
+      "description": "The Word version of the Week 3 guide.",
+      "objective": "Annotate the Tailwind guide as you work through it.",
+      "required": false,
+      "order": 2
+    },
+
+    {
+      "file": "week-04/notes/week-04-javascript-complete-master-guide.docx",
+      "title": "JavaScript Complete Master Guide",
+      "description": "Sixteen chapters from variables through the DOM, events, forms, ES6+, async JavaScript, error handling and modules, ending in a comprehensive quiz.",
+      "objective": "Make a page interactive: manipulate the DOM, respond to events, and work with data.",
+      "required": true,
+      "order": 1
+    },
+    {
+      "file": "week-04/notes/week-04-git-and-github-workflow-notes.pdf",
+      "title": "Git & GitHub Workflow",
+      "description": "Version control from first principles: Git's snapshot model, the three areas, branching, merge conflicts, pull requests, and the files every repository needs.",
+      "objective": "Work confidently with branches and pull requests, and recover safely when something goes wrong.",
+      "required": true,
+      "order": 2
+    },
+    {
+      "file": "week-04/notes/week-04-git-and-github-workflow-notes.docx",
+      "title": "Git & GitHub Workflow (editable)",
+      "description": "The Word version of the Git and GitHub guide.",
+      "objective": "Annotate the Git guide as you work through it.",
+      "required": false,
+      "order": 3
+    },
+    {
+      "file": "week-04/practicals/week-04-single-page-application-build-guide.docx",
+      "title": "Single-Page Application Build Guide",
+      "description": "A guided build: the HTML skeleton, the CSS switch logic, a vanilla JavaScript router and a hamburger menu, with a quiz, project brief and marking rubric.",
+      "objective": "Build a working single-page application with a JavaScript router, without a framework.",
+      "required": true,
+      "order": 1
+    },
+    {
+      "file": "week-04/references/week-04-forms-authentication-http-methods-guide.pdf",
+      "title": "Forms, Authentication & HTTP Methods",
+      "description": "HTML forms, login and registration pages, authentication versus authorization, HTTP methods, JavaScript validation and security fundamentals. Sets up the backend auth work in Weeks 5 and 6.",
+      "objective": "Build and validate a form, and explain what happens between the browser and the server when a user logs in.",
+      "required": false,
+      "order": 1
+    },
+    {
+      "file": "week-04/references/week-04-forms-authentication-http-methods-guide.docx",
+      "title": "Forms, Authentication & HTTP Methods (editable)",
+      "description": "The Word version of the forms and authentication guide.",
+      "objective": "Annotate the forms and authentication guide as you work through it.",
+      "required": false,
+      "order": 2
+    },
+
+    {
+      "file": "week-05/notes/week-05-php-complete-master-guide.docx",
+      "title": "PHP Complete Master Guide",
+      "description": "Sixteen chapters covering PHP syntax, control flow, functions, arrays, strings, form handling, superglobals, file handling, object-oriented PHP, sessions and authentication, security and MVC structure.",
+      "objective": "Write server-side PHP that handles form data, manages sessions and authenticates users safely.",
+      "required": true,
+      "order": 1
+    },
+
+    {
+      "file": "week-06/notes/week-06-mysql-database-management-master-guide.docx",
+      "title": "MySQL & Database Management Master Guide",
+      "description": "Eighteen chapters from relational theory through DDL, DML, joins, subqueries, constraints, indexes, transactions, normalization, security and PHP integration with PDO.",
+      "objective": "Design a normalised database and query it safely from PHP using prepared statements.",
+      "required": true,
+      "order": 1
+    },
+
+    {
+      "file": "week-07/notes/week-07-deployment-docker-devops-notes.pdf",
+      "title": "Deployment, Docker & DevOps",
+      "description": "SDLC and Agile, environments and environment variables, DNS and SSL, deploying static and PHP applications, containers and Docker Compose, CI/CD, monitoring and production security.",
+      "objective": "Take a project from your laptop to a live, secured, documented deployment.",
+      "required": true,
+      "order": 1
+    },
+    {
+      "file": "week-07/notes/week-07-deployment-docker-devops-notes.docx",
+      "title": "Deployment, Docker & DevOps (editable)",
+      "description": "The Word version of the Week 7 guide.",
+      "objective": "Annotate the deployment guide as you work through it.",
+      "required": false,
+      "order": 2
+    },
+
+    {
+      "file": "week-08/notes/week-08-capstone-project-guide.pdf",
+      "title": "Capstone Project Guide & Brief",
+      "description": "The full capstone specification: choosing a scope you can finish, the seven stages, database design, the security checklist, the marking rubric and the presentation guide.",
+      "objective": "Plan, build, test, deploy, document and defend a complete full-stack application.",
+      "required": true,
+      "order": 1
+    },
+    {
+      "file": "week-08/notes/week-08-capstone-project-guide.docx",
+      "title": "Capstone Project Guide & Brief (editable)",
+      "description": "The Word version of the capstone guide.",
+      "objective": "Annotate the capstone guide and use its templates as you plan.",
+      "required": false,
+      "order": 2
+    }
+  ]
+}

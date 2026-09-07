@@ -8,6 +8,7 @@ import ResourceViewerDialog from "@/components/lms/ResourceViewerDialog";
 import { createResourceSignedUrl, formatFileSize } from "@/lib/masterclass";
 import {
   groupResourcesByCategory,
+  hideWordCopiesWithAPdf,
   isStoredFile,
   RESOURCE_TYPE_LABELS,
 } from "@/lib/masterclass/resourceDisplay";
@@ -19,10 +20,14 @@ const StudentMasterclassLiveAndResourcesPage = () => {
   const [activeResource, setActiveResource] = useState<MasterclassResource | null>(null);
   const [isViewerOpen, setIsViewerOpen] = useState(false);
 
-  const groups = useMemo(() => groupResourcesByCategory(resources), [resources]);
+  // Students see one copy of each document: the PDF where there is one, and the
+  // Word file only where it is the sole version. Admins still see both.
+  const visibleResources = useMemo(() => hideWordCopiesWithAPdf(resources), [resources]);
+
+  const groups = useMemo(() => groupResourcesByCategory(visibleResources), [visibleResources]);
   const requiredCount = useMemo(
-    () => resources.filter((resource) => resource.isRequired).length,
-    [resources],
+    () => visibleResources.filter((resource) => resource.isRequired).length,
+    [visibleResources],
   );
 
   const openResource = (resource: MasterclassResource) => {

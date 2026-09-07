@@ -95,6 +95,39 @@ export const groupResourcesByCategory = (resources: MasterclassResource[]): Reso
   }));
 };
 
+/**
+ * The library carries a Word copy of most guides so students can annotate them,
+ * but next to its own PDF the pair just reads as the same document twice. Hide
+ * the Word copy wherever the identical document is also published as a PDF.
+ *
+ * The pairing is decided by filename stem rather than by title, so it holds even
+ * if a title is reworded, and a Word file that is the ONLY version of its
+ * document stays visible - Weeks 5 and 6 have no PDF yet, and dropping their
+ * guides outright would leave those weeks with nothing at all.
+ */
+const fileStem = (fileName?: string): string => {
+  if (!fileName) return "";
+  const dot = fileName.lastIndexOf(".");
+  return (dot === -1 ? fileName : fileName.slice(0, dot)).toLowerCase();
+};
+
+export const hideWordCopiesWithAPdf = (
+  resources: MasterclassResource[],
+): MasterclassResource[] => {
+  const pdfStems = new Set(
+    resources
+      .filter((resource) => resource.resourceType === "pdf")
+      .map((resource) => fileStem(resource.fileName))
+      .filter(Boolean),
+  );
+
+  if (pdfStems.size === 0) return resources;
+
+  return resources.filter(
+    (resource) => resource.resourceType !== "doc" || !pdfStems.has(fileStem(resource.fileName)),
+  );
+};
+
 /** A stored file is served from storage; everything else follows its URL. */
 export const isStoredFile = (resource: MasterclassResource): boolean => Boolean(resource.storagePath);
 

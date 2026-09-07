@@ -49,6 +49,23 @@
       "order": 4
     },
     {
+      "file": "week-01/presentations/week-01-welcome-to-web-development.pptx",
+      "title": "Welcome to Web Development",
+      "description": "The opening session deck: what web development is, what a developer actually does day to day, how the course is structured and what you will have built by Week 8.",
+      "objective": "Describe what web development involves and how the eight weeks fit together.",
+      "required": false,
+      "order": 1
+    },
+    {
+      "file": "week-01/presentations/week-01-how-the-internet-and-the-web-actually-work.pptx",
+      "title": "How the Internet and the Web Actually Work",
+      "description": "The live session deck walking through clients and servers, DNS, HTTP requests and responses, and what happens between typing a URL and seeing a page.",
+      "objective": "Trace a page load end to end, from the address bar to the rendered result.",
+      "required": false,
+      "order": 2
+    },
+
+    {
       "file": "week-01/references/week-01-html-quick-reference-notes.docx",
       "title": "HTML Quick Reference Notes",
       "description": "A condensed revision sheet covering the HTML essentials in a few pages. Use it for revision, not as a replacement for the master guide.",

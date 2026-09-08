@@ -25,6 +25,7 @@ import {
 } from "@/lib/masterclass";
 import {
   groupResourcesByCategory,
+  isHiddenFromStudentsByFormat,
   RESOURCE_CATEGORY_LABELS,
   RESOURCE_CATEGORY_ORDER,
   RESOURCE_TYPE_LABELS,
@@ -341,6 +342,11 @@ const AdminMasterclassResourcesPanel = ({
                           <Badge variant="outline" className="text-[10px]">
                             {RESOURCE_TYPE_LABELS[resource.resourceType]}
                           </Badge>
+                          {isHiddenFromStudentsByFormat(resource) && (
+                            <Badge variant="destructive" className="text-[10px]">
+                              Not shown to students
+                            </Badge>
+                          )}
                           {resource.isLiveLink && (
                             <Badge variant="accent" className="text-[10px]">
                               Live
@@ -439,8 +445,9 @@ const AdminMasterclassResourcesPanel = ({
                 onChange={(event) => onFileChosen(event.target.files?.[0] ?? null)}
               />
               <p className="text-xs text-muted-foreground">
-                Up to {formatFileSize(MAX_RESOURCE_BYTES)}. PDF, Word, PowerPoint, spreadsheets,
-                images, code, archives, audio and video.
+                Up to {formatFileSize(MAX_RESOURCE_BYTES)}. PDF, PowerPoint, spreadsheets, images,
+                code, archives, audio and video. Word files upload but are never shown to students -
+                export the PDF and upload that instead.
               </p>
 
               {selectedFile && (

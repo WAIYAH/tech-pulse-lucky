@@ -10,6 +10,10 @@
  *
  * and resources/manifest.json supplies the teaching metadata for each file.
  *
+ * resources/ is the published tree: it holds only what students may receive, and
+ * it is generated, not edited. Word sources live in active-word-notes/ and reach
+ * this tree as PDFs via tools/docx-to-pdf.ps1 - listing a .docx here is an error.
+ *
  * Usage
  * -----
  *   node tools/sync-resources.mjs --dry-run     show what would change
@@ -28,7 +32,7 @@
 
 import { createClient } from "@supabase/supabase-js";
 import { createHash } from "node:crypto";
-import { readFile } from "node:fs/promises";
+import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -45,8 +49,6 @@ const PRUNE = args.has("--prune");
 
 const EXTENSION_TYPES = {
   pdf: ["pdf", "application/pdf"],
-  doc: ["doc", "application/msword"],
-  docx: ["doc", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"],
   ppt: ["ppt", "application/vnd.ms-powerpoint"],
   pptx: ["ppt", "application/vnd.openxmlformats-officedocument.presentationml.presentation"],
   xls: ["sheet", "application/vnd.ms-excel"],
@@ -91,6 +93,15 @@ const CATEGORY_FROM_FOLDER = {
   references: "reference",
 };
 
+/** Every category the table accepts, including the ones with no folder. */
+const ALL_CATEGORIES = new Set([
+  ...Object.values(CATEGORY_FROM_FOLDER),
+  "project",
+  "template",
+  "recording",
+  "link",
+]);
+
 // ------------------------------------------------------------------- helpers
 
 const fail = (message) => {
@@ -127,11 +138,99 @@ const parseLocation = (relativePath) => {
   };
 };
 
+/**
+ * Word is an editing format, not a delivery format. Students get PDFs, which
+ * open in the in-app viewer on any device and cannot be half-rendered by
+ * whatever word processor the student happens to have. The .docx sources live
+ * in active-word-notes/ and are converted by tools/docx-to-pdf.ps1, so a Word
+ * file reaching this point means a step was skipped rather than a format choice
+ * being made - hence a hard error rather than an upload.
+ */
+const EDITING_ONLY_EXTENSIONS = new Set(["doc", "docx", "rtf", "odt", "pages"]);
+
 const typeOf = (fileName) => {
   const extension = path.extname(fileName).slice(1).toLowerCase();
+
+  if (EDITING_ONLY_EXTENSIONS.has(extension)) {
+    return {
+      error:
+        `.${extension} is an editing format and is never published to students.\n` +
+        `         Keep the source in active-word-notes/, run\n` +
+        `           pwsh -File tools/docx-to-pdf.ps1\n` +
+        `         and list the exported .pdf here instead.`,
+    };
+  }
+
   const entry = EXTENSION_TYPES[extension];
   if (!entry) return { error: `.${extension} is not an accepted resource format.` };
   return { resourceType: entry[0], mimeType: entry[1] };
+};
+
+/**
+ * The manifest decides what is uploaded, so a stray Word file in resources/ is
+ * harmless in itself - but it means someone edited the published tree by hand
+ * and their next edit will be lost the next time the PDF is exported. Say so
+ * while it is still cheap to fix.
+ */
+const warnAboutStrayEditingFiles = async () => {
+  const strays = [];
+
+  const walk = async (directory) => {
+    const entries = await readdir(directory, { withFileTypes: true });
+    for (const entry of entries) {
+      const full = path.join(directory, entry.name);
+      if (entry.isDirectory()) {
+        await walk(full);
+      } else if (EDITING_ONLY_EXTENSIONS.has(path.extname(entry.name).slice(1).toLowerCase())) {
+        strays.push(path.relative(RESOURCES_DIR, full).split(path.sep).join("/"));
+      }
+    }
+  };
+
+  await walk(RESOURCES_DIR);
+
+  if (strays.length > 0) {
+    console.log(
+      `\n  WARN  resources/ is the published tree and should hold no editable sources.\n` +
+        strays.map((stray) => `          ${stray}\n`).join("") +
+        `        Move them to active-word-notes/ and export with tools/docx-to-pdf.ps1.\n`,
+    );
+  }
+};
+
+/**
+ * Not every resource is a file. A live class link has nothing to upload, so it
+ * carries its week and category in the manifest entry rather than inheriting
+ * them from a folder it does not sit in.
+ */
+const LINK_TYPES = new Set(["link", "github", "video"]);
+
+const parseLinkEntry = (entry) => {
+  if (!Number.isInteger(entry.week) || entry.week < 1) {
+    return { error: `"${entry.title}" is a link, so it needs a "week" number.` };
+  }
+
+  let parsed;
+  try {
+    parsed = new URL(entry.url);
+  } catch {
+    return { error: `"${entry.title}" has a url that is not a valid URL: ${entry.url}` };
+  }
+  if (parsed.protocol !== "https:") {
+    return { error: `"${entry.title}" must use https, not ${parsed.protocol}` };
+  }
+
+  const resourceType = entry.type ?? "link";
+  if (!LINK_TYPES.has(resourceType)) {
+    return { error: `"${entry.title}" has type "${resourceType}"; use one of ${[...LINK_TYPES].join(", ")}.` };
+  }
+
+  const category = entry.category ?? "link";
+  if (!ALL_CATEGORIES.has(category)) {
+    return { error: `"${entry.title}" has category "${category}", which is not a known category.` };
+  }
+
+  return { weekNumber: entry.week, category, resourceType };
 };
 
 /**
@@ -143,6 +242,54 @@ const storageKey = (programSlug, weekNumber, category, fileName, bytes) => {
   const digest = createHash("sha256").update(bytes).digest("hex").slice(0, 8);
   const week = `week-${String(weekNumber).padStart(2, "0")}`;
   return `${programSlug}/${week}/${category}/${digest}-${fileName}`;
+};
+
+/**
+ * Write a link row.
+ *
+ * Files upsert on storage_path, but a link has none, and a null never conflicts
+ * in Postgres - upserting one would insert a fresh duplicate on every run. So a
+ * link is matched to its existing row first and updated in place.
+ *
+ * A live link is matched on the week rather than on the title, because the
+ * database allows only one per week: when the meeting link changes, or the
+ * session is renamed, the intent is to replace that week's live link rather
+ * than to add a second one that the unique index would reject anyway.
+ */
+const syncLink = async (supabase, programId, weekId, item) => {
+  const row = {
+    program_id: programId,
+    week_id: weekId,
+    title: item.title,
+    description: item.description ?? "",
+    learning_objective: item.objective ?? "",
+    category: item.category,
+    resource_type: item.resourceType,
+    url: item.url,
+    storage_path: null,
+    file_name: null,
+    file_size: null,
+    mime_type: null,
+    visibility: item.visibility ?? "enrolled",
+    resource_order: item.order ?? 1,
+    is_required: item.required ?? false,
+    is_published: item.published ?? true,
+    is_live_link: item.liveLink ?? false,
+    version: 1,
+  };
+
+  const query = supabase.from("masterclass_resources").select("id").eq("week_id", weekId);
+  const { data: existing, error: findError } = item.liveLink
+    ? await query.eq("is_live_link", true).maybeSingle()
+    : await query.eq("title", item.title).eq("version", 1).maybeSingle();
+
+  if (findError) fail(`Looking up "${item.title}": ${findError.message}`);
+
+  const { error: writeError } = existing
+    ? await supabase.from("masterclass_resources").update(row).eq("id", existing.id)
+    : await supabase.from("masterclass_resources").insert(row);
+
+  if (writeError) fail(`Saving "${item.title}": ${writeError.message}`);
 };
 
 // ---------------------------------------------------------------------- main
@@ -171,10 +318,19 @@ const main = async () => {
   console.log(`\nSyncing ${entries.length} resource(s) for "${programSlug}"`);
   console.log(DRY_RUN ? "Mode: DRY RUN - nothing will be written\n" : "Mode: LIVE\n");
 
+  await warnAboutStrayEditingFiles();
+
   // Validate everything before writing anything, so a bad entry cannot leave
   // the library half-synced.
   const planned = [];
   for (const entry of entries) {
+    if (entry.url) {
+      const link = parseLinkEntry(entry);
+      if (link.error) fail(link.error);
+      planned.push({ ...entry, ...link, isLink: true });
+      continue;
+    }
+
     const location = parseLocation(entry.file);
     if (location.error) fail(location.error);
 
@@ -193,16 +349,30 @@ const main = async () => {
       ...location,
       ...kind,
       bytes,
+      isLink: false,
       storagePath: storageKey(programSlug, location.weekNumber, location.category, location.fileName, bytes),
     });
   }
 
+  // One live link per week is a database constraint, so catching a duplicate
+  // here gives a readable error instead of a unique-violation from Postgres.
+  const liveWeeks = new Set();
+  for (const item of planned.filter((candidate) => candidate.liveLink)) {
+    if (liveWeeks.has(item.weekNumber)) {
+      fail(`Week ${item.weekNumber} has more than one live link in the manifest.`);
+    }
+    liveWeeks.add(item.weekNumber);
+  }
+
   if (DRY_RUN) {
     for (const item of planned) {
+      const extent = item.isLink
+        ? `${item.liveLink ? "LIVE" : "link"}`.padStart(8)
+        : `${(item.bytes.length / 1024).toFixed(0).padStart(5)} KB`;
       log(
         "PLAN",
         `week ${String(item.weekNumber).padStart(2, "0")} / ${item.category.padEnd(12)} ` +
-          `${(item.bytes.length / 1024).toFixed(0).padStart(5)} KB  ${item.title}`,
+          `${extent}  ${item.title}`,
       );
     }
     console.log(`\n  ${planned.length} resource(s) validated. Nothing was written.\n`);
@@ -235,6 +405,13 @@ const main = async () => {
   for (const item of planned) {
     const weekId = weekIdByNumber.get(item.weekNumber);
     if (!weekId) fail(`No week ${item.weekNumber} exists for this program.`);
+
+    if (item.isLink) {
+      await syncLink(supabase, program.id, weekId, item);
+      upserted += 1;
+      log("OK", `week ${String(item.weekNumber).padStart(2, "0")} / ${item.category.padEnd(12)} ${item.title}`);
+      continue;
+    }
 
     seenPaths.add(item.storagePath);
 

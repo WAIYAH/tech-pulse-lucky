@@ -11,8 +11,9 @@ classified from its filename.
 ## 1. What was audited
 
 Eleven files were supplied, representing **eight distinct documents**. Three of them shipped as
-both `.docx` and `.pdf`; those pairs were confirmed to be the same content, so the PDF is now the
-student-facing viewable copy and the DOCX is the editable download.
+both `.docx` and `.pdf`; those pairs were confirmed to be the same content, so the PDF became the
+student-facing copy. (Superseded on 8 September 2026 — see the addendum: every document now has a
+PDF, and the Word sources have moved out of the published tree entirely.)
 
 | Document | Extent | Actual content | Assigned to |
 |---|---|---|---|
@@ -122,3 +123,44 @@ teaching document. No week is empty.
 2. **Starter repositories for Weeks 2, 3 and 8**, added as GitHub links rather than uploads.
 3. **Slide decks**, generated once the first cohort's sessions settle into a shape worth capturing.
 4. **Recordings**, uploaded per cohort into the `recording` category as sessions run.
+
+---
+
+## Addendum — 8 September 2026: the format split is now structural
+
+The audit above left five documents with no PDF, which meant the student library still had to fall
+back to serving Word files for the Week 4 JavaScript guide and SPA practical and for the whole of
+Weeks 5 and 6. That fallback is gone.
+
+**What changed**
+
+- All fifteen Word documents were exported to PDF through the installed Word
+  (`tools/docx-to-pdf.ps1`), including the seven that had none: the Week 1 HTML quick reference,
+  the Week 4 JavaScript guide and SPA build guide, the Week 5 PHP guide, the Week 6 MySQL guide,
+  and the two Week 1 internet-and-web documents that had not yet been catalogued.
+- Every `.docx` moved out of `resources/` into `active-word-notes/`, which keeps the same week and
+  category folders. `resources/` is now a generated tree containing only what students may receive.
+- The two previously uncatalogued Week 1 documents were named to the course convention and added to
+  the manifest: the **student guide** as published Week 1 notes, and the **masterclass notes** —
+  which are instructor delivery notes, with hooks, activities and per-module timings — as
+  `published: false`.
+
+**Catalogue after this work**
+
+| Week | Notes | Presentations | Practical | Reference | Total |
+|---|---|---|---|---|---|
+| 1 | 4 (1 unpublished) | 2 | — | 1 | 7 |
+| 2 | 1 | — | — | — | 1 |
+| 3 | 1 | — | — | — | 1 |
+| 4 | 2 | — | 1 | 1 | 4 |
+| 5 | 1 | — | — | — | 1 |
+| 6 | 1 | — | — | — | 1 |
+| 7 | 1 | — | — | — | 1 |
+| 8 | 1 | — | — | — | 1 |
+
+Seventeen catalogue entries, sixteen of them published, and **every one a PDF or a slide deck**.
+No week depends on a Word file any more.
+
+**What this closes.** The Week 5 and Week 6 exception noted in section 5 — that those weeks were
+served as reference manuals in an editable format — is resolved as a delivery problem. It remains
+open as a *content* problem: both weeks would still benefit from a taught practical sheet.

@@ -96,37 +96,39 @@ export const groupResourcesByCategory = (resources: MasterclassResource[]): Reso
 };
 
 /**
- * The library carries a Word copy of most guides so students can annotate them,
- * but next to its own PDF the pair just reads as the same document twice. Hide
- * the Word copy wherever the identical document is also published as a PDF.
+ * Students are never shown a Word document.
  *
- * The pairing is decided by filename stem rather than by title, so it holds even
- * if a title is reworded, and a Word file that is the ONLY version of its
- * document stays visible - Weeks 5 and 6 have no PDF yet, and dropping their
- * guides outright would leave those weeks with nothing at all.
+ * Word is the format the course material is written in, not the format it is
+ * delivered in: every guide in active-word-notes/ is exported to a PDF by
+ * tools/docx-to-pdf.ps1, and the PDF is what reaches the library. A PDF renders
+ * identically for every student, opens in the in-app viewer instead of forcing a
+ * download into whatever word processor they happen to have, and cannot be
+ * edited into a version that disagrees with the one being taught.
+ *
+ * This is deliberately unconditional. An earlier version hid a Word file only
+ * when the same document also existed as a PDF, which meant a missing export
+ * silently put a .docx in front of students. The pipeline now guarantees the PDF
+ * exists - `npm run resources:check` fails on a Word entry - so the display rule
+ * no longer needs to make exceptions, and a Word file that somehow reaches the
+ * catalogue is a mistake to hide rather than a fallback to serve.
+ *
+ * Admins still see every format in the resource panel; this filters the student
+ * view only.
  */
-const fileStem = (fileName?: string): string => {
-  if (!fileName) return "";
-  const dot = fileName.lastIndexOf(".");
-  return (dot === -1 ? fileName : fileName.slice(0, dot)).toLowerCase();
-};
+const STUDENT_HIDDEN_TYPES: ReadonlySet<MasterclassResourceType> = new Set(["doc"]);
 
-export const hideWordCopiesWithAPdf = (
+export const hideEditableDocuments = (
   resources: MasterclassResource[],
-): MasterclassResource[] => {
-  const pdfStems = new Set(
-    resources
-      .filter((resource) => resource.resourceType === "pdf")
-      .map((resource) => fileStem(resource.fileName))
-      .filter(Boolean),
-  );
+): MasterclassResource[] =>
+  resources.filter((resource) => !STUDENT_HIDDEN_TYPES.has(resource.resourceType));
 
-  if (pdfStems.size === 0) return resources;
-
-  return resources.filter(
-    (resource) => resource.resourceType !== "doc" || !pdfStems.has(fileStem(resource.fileName)),
-  );
-};
+/**
+ * True when a published resource still will not reach students because of its
+ * format. The admin panel says so on the row, so uploading a Word file cannot
+ * look like it worked while the student library stays empty.
+ */
+export const isHiddenFromStudentsByFormat = (resource: MasterclassResource): boolean =>
+  STUDENT_HIDDEN_TYPES.has(resource.resourceType);
 
 /** A stored file is served from storage; everything else follows its URL. */
 export const isStoredFile = (resource: MasterclassResource): boolean => Boolean(resource.storagePath);

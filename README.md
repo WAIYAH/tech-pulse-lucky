@@ -145,14 +145,18 @@ Key points:
 
 ## Course Resource Library
 
-Learning materials (PDF, Word, PowerPoint, spreadsheets, images, code, archives, media and links) are file-backed resources stored in a **private** Supabase Storage bucket, catalogued in `masterclass_resources`, and grouped for students by category — notes, presentations, practicals, assignments, quizzes, references and more.
+Learning materials (PDF, PowerPoint, spreadsheets, images, code, archives, media and links) are file-backed resources stored in a **private** Supabase Storage bucket, catalogued in `masterclass_resources`, and grouped for students by category — notes, presentations, practicals, assignments, quizzes, references and more.
 
+- **Two trees, one direction of travel.** `active-word-notes/week-NN/<category>/` holds the editable Word sources and is where all writing happens. `resources/week-NN/<category>/` is the published tree that gets uploaded, and it is generated — never edited by hand. `tools/docx-to-pdf.ps1` is the only bridge between them.
+- **Students never receive a Word document.** A PDF renders identically for everyone and opens in the in-app viewer instead of downloading into whatever word processor a student happens to have. The rule is enforced in three places, so no single mistake can put a `.docx` in front of a student: the student view filters Word out unconditionally, `resources:check` fails on a Word manifest entry, and the admin panel flags any Word resource as *Not shown to students*.
 - **Source of truth on disk:** `resources/week-NN/<category>/`, with `resources/manifest.json` supplying the teaching metadata. The folder a file sits in decides its week and category.
 - **Storage security:** the bucket is private and reads are one-hour signed URLs. The storage policy re-derives access from the owning catalogue row, so unpublishing a resource makes its file unreachable in the same instant. Uploads are admin-only, size-capped at 50 MB, and restricted to an extension allow-list with no executable formats.
 - **Versioning:** replacing a file publishes a new version and retires the old row rather than overwriting it. Student progress is tracked against lessons, quizzes and assignments — never resources — so re-issuing material never disturbs a completion record.
-- **Adding a resource:** either upload it in `/admin/masterclass` → week → Resources, or drop the file in the right folder, add a manifest entry, and run the sync.
+- **Adding a resource:** for a Word guide, edit or drop the `.docx` in `active-word-notes/`, run `npm run resources:pdf`, add a manifest entry for the exported PDF, and sync. Anything with no Word source (slide decks, images, code) goes straight into `resources/`. Or upload it in `/admin/masterclass` → week → Resources.
+- **Live class links:** a manifest entry can carry a `url` instead of a `file`, with its own `week` and `category`. `liveLink: true` makes it that week's *Join Live Class* button — one per week, and re-syncing replaces it rather than adding another.
 
 ```bash
+npm run resources:pdf        # export every Word note in active-word-notes/ to a PDF in resources/
 npm run resources:check      # validate the manifest against the files (no credentials needed)
 npm run resources:sync       # upload to Storage and upsert the catalogue rows
 npm run resources:generate   # regenerate the weekly Word guides from source, with PDFs

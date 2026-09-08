@@ -145,26 +145,82 @@ rather than sanitised, so path traversal and double extensions cannot survive.
 
 ### Option B — the repository and sync script (bulk, reproducible)
 
-Files live under `resources/`, organised by week and category:
+Two trees hold course material, and material only ever moves one way between them:
 
 ```
-resources/
+active-word-notes/          the editing tree - Word sources, never uploaded
+  week-01/{notes,presentations,practicals,assignments,quizzes,references}/
+  ...
+  week-08/...
+
+resources/                  the published tree - generated, never hand-edited
   manifest.json
   week-01/{notes,presentations,practicals,assignments,quizzes,references}/
-  week-02/...
   ...
   week-08/...
 ```
 
-The folder a file sits in **decides** its week and category — a file cannot disagree with where it
-is filed. `resources/manifest.json` supplies the teaching metadata.
+Both trees use the same week and category folders, and `tools/docx-to-pdf.ps1` mirrors a document
+from one to the other as it exports. The folder a file sits in **decides** its week and category —
+a file cannot disagree with where it is filed. `resources/manifest.json` supplies the teaching
+metadata.
 
 To add "Week 4 JavaScript notes":
 
-1. Drop the file into `resources/week-04/notes/`.
-2. Add an entry to `manifest.json` with title, description, objective, required and order.
-3. `npm run resources:check` — validates the manifest against the files, no credentials needed.
-4. `npm run resources:sync` — uploads and upserts.
+1. Put the `.docx` in `active-word-notes/week-04/notes/`.
+2. `npm run resources:pdf` — exports it to `resources/week-04/notes/` as a PDF.
+3. Add an entry to `manifest.json` for the **PDF**, with title, description, objective, required
+   and order.
+4. `npm run resources:check` — validates the manifest against the files, no credentials needed.
+5. `npm run resources:sync` — uploads and upserts.
+
+A file with no Word source — a slide deck, an image, a code sample — skips steps 1 and 2 and goes
+straight into `resources/week-NN/<category>/`.
+
+### Links, and the weekly live class
+
+A resource can be a link instead of a file. A link has no folder to be filed in, so its manifest
+entry states its own `week` and `category`:
+
+```json
+{
+  "url": "https://meet.google.com/xxx-xxxx-xxx",
+  "week": 1,
+  "category": "link",
+  "liveLink": true,
+  "title": "Week 1 Live Class - Get Techy With Lucky",
+  "description": "Tuesday 8 September, 7:30-9:30pm UTC on Google Meet.",
+  "required": false,
+  "order": 1
+}
+```
+
+`liveLink: true` marks it as **the** live class for that week. Students see it as the *Join Live
+Class* button at the top of the week rather than as another row in the resource list, and the
+database allows only one per week.
+
+Links are written differently from files: files upsert on `storage_path`, but a link has none, and
+a null never conflicts in Postgres — upserting one would insert a fresh duplicate on every sync. So
+a link is matched to its existing row and updated in place, and a live link is matched **on the
+week** rather than on the title. Changing the meeting URL or renaming the session therefore replaces
+that week's link instead of adding a second one.
+
+### Why students never receive a Word file
+
+Word is how the material is written; PDF is how it is delivered. A PDF paginates identically for
+every student, renders in the in-app viewer rather than downloading into whatever word processor
+they happen to have, and cannot quietly become a different document from the one being taught.
+
+The rule holds in three independent places, so no single mistake can put a `.docx` in front of a
+student:
+
+| Where | What it does |
+| --- | --- |
+| `hideEditableDocuments` in `resourceDisplay.ts` | Filters Word out of the student view unconditionally — not only when a PDF also exists. |
+| `tools/sync-resources.mjs` | Fails the check if a Word file is listed in the manifest, and warns about any Word file sitting in `resources/`. |
+| Admin resource panel | Badges any Word resource *Not shown to students*, so an upload cannot look like it worked while the student library stays empty. |
+
+Admins still see and manage every format; only the student view is filtered.
 
 The sync is idempotent: re-running it re-uploads nothing and leaves rows unchanged. `--prune`
 additionally unpublishes rows whose file has left the manifest, rather than deleting them.
@@ -192,6 +248,7 @@ identical across every document and a correction is one command away.
 python -m tools.docgen.generate              # every document, .docx only
 python -m tools.docgen.generate --only week02
 npm run resources:generate                   # every document, with PDF export
+npm run resources:pdf                        # export existing Word notes, no regeneration
 ```
 
 ```
@@ -203,10 +260,14 @@ tools/docgen/
   generate.py    the CLI
 ```
 
-Documents are written straight into `resources/week-NN/notes/`, which is where the manifest expects
-them, so generate then sync is the whole loop.
+Documents are written into `active-word-notes/week-NN/notes/` — the editing tree — and reach
+`resources/` only as PDFs. `--pdf` delegates that step to `tools/docx-to-pdf.ps1` rather than
+converting on its own, so there is exactly one place that decides how a document becomes a PDF.
 
-PDF export needs Microsoft Word on Windows (via `docx2pdf`). The `.docx` files generate anywhere.
+That export drives the installed Microsoft Word through COM, because these documents rely on Word
+features a generic renderer drops: the branded header, the `Page X of Y` footer fields and the table
+of contents. Fields are refreshed before export, so the page numbers in the PDF's contents describe
+the PDF. It needs Word on Windows; the `.docx` files themselves generate anywhere.
 
 ### The document standard
 

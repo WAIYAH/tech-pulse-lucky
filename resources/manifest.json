@@ -1,11 +1,29 @@
 {
   "$comment": [
     "Single source of truth mapping the files in this folder to rows in masterclass_resources.",
-    "Adding a resource is three steps: drop the file into the right week/category folder,",
-    "add an entry here, then run `node tools/sync-resources.mjs`.",
+    "",
+    "resources/ holds PUBLISHED files only, and students only ever receive PDFs.",
+    "Word documents are the editing format and live in active-word-notes/; they are",
+    "never listed here and never uploaded. Adding or updating a resource is:",
+    "",
+    "  1. edit (or drop) the .docx in active-word-notes/week-NN/<category>/",
+    "  2. pwsh -File tools/docx-to-pdf.ps1      exports the PDF into resources/",
+    "  3. add an entry below, then `npm run resources:sync`",
+    "",
+    "Files that have no Word source (slide decks, images, code) go straight into",
+    "resources/week-NN/<category>/ and are listed here as normal.",
+    "",
+    "An entry is either a file or a link. A link has no folder to be filed in, so",
+    "it states its own week and category, and `liveLink: true` marks it as the",
+    "week's live class - the button students see at the top of the week. Only one",
+    "live link per week; syncing again replaces that week's link rather than",
+    "adding a second.",
     "",
     "Each entry:",
     "  file        path relative to resources/ (its folder decides week and category)",
+    "  url         an https link, instead of `file` - then `week` and `category` are required",
+    "  liveLink    true if this is the week's live class link (links only)",
+    "  type        for links: 'link' (default), 'github' or 'video'",
     "  title       what students see in the LMS",
     "  description one line explaining what it is",
     "  objective   what a student should be able to do after using it",
@@ -17,6 +35,17 @@
   "programSlug": "web-development-masterclass",
   "resources": [
     {
+      "url": "https://meet.google.com/zmx-skcb-nxj",
+      "week": 1,
+      "category": "link",
+      "liveLink": true,
+      "title": "Week 1 Live Class - Get Techy With Lucky",
+      "description": "Tuesday 8 September, 7:30-9:30pm UTC on Google Meet. Bring the Week 1 student guide.",
+      "objective": "Join the live session and work through the Week 1 material with the group.",
+      "required": false,
+      "order": 1
+    },
+    {
       "file": "week-01/notes/week-01-web-fundamentals-training-manual.pdf",
       "title": "Web Fundamentals Training Manual",
       "description": "The 71-page foundation manual: how the internet works, frontend vs backend, website anatomy, design principles, and a preview of every technology in the course.",
@@ -25,10 +54,10 @@
       "order": 1
     },
     {
-      "file": "week-01/notes/week-01-web-fundamentals-training-manual.docx",
-      "title": "Web Fundamentals Training Manual (editable)",
-      "description": "The same manual in Word format, for annotating and note-taking.",
-      "objective": "Take your own notes directly inside the course manual.",
+      "file": "week-01/notes/week-01-how-the-internet-and-the-web-work-student-guide.pdf",
+      "title": "How the Internet & the Web Work - Student Guide",
+      "description": "Your written companion to the live session: the physical internet and packets, IP addresses and DNS, HTTP and HTTPS requests, and how a browser turns code into a rendered page.",
+      "objective": "Follow the live session with notes in hand, and trace a page load from the address bar to the screen.",
       "required": false,
       "order": 2
     },
@@ -41,12 +70,13 @@
       "order": 3
     },
     {
-      "file": "week-01/notes/week-01-html-semantic-html-master-guide.docx",
-      "title": "HTML & Semantic HTML Master Guide (editable)",
-      "description": "The Word version of the HTML master guide.",
-      "objective": "Annotate the HTML guide as you work through it.",
+      "file": "week-01/notes/week-01-how-the-internet-and-the-web-actually-work-masterclass-notes.pdf",
+      "title": "How the Internet & the Web Actually Work - Masterclass Notes",
+      "description": "Instructor delivery notes for the Week 1 masterclass: the four-module arc, the no-code hooks, the technical deconstruction and the timed activities.",
+      "objective": "Deliver the Week 1 masterclass with the hooks, activities and timings prepared.",
       "required": false,
-      "order": 4
+      "order": 4,
+      "published": false
     },
     {
       "file": "week-01/presentations/week-01-welcome-to-web-development.pptx",
@@ -66,7 +96,7 @@
     },
 
     {
-      "file": "week-01/references/week-01-html-quick-reference-notes.docx",
+      "file": "week-01/references/week-01-html-quick-reference-notes.pdf",
       "title": "HTML Quick Reference Notes",
       "description": "A condensed revision sheet covering the HTML essentials in a few pages. Use it for revision, not as a replacement for the master guide.",
       "objective": "Recall HTML syntax quickly while building, without re-reading the full guide.",
@@ -82,14 +112,6 @@
       "required": true,
       "order": 1
     },
-    {
-      "file": "week-02/notes/week-02-css-foundations-responsive-design-notes.docx",
-      "title": "CSS Foundations & Responsive Design (editable)",
-      "description": "The Word version of the Week 2 guide.",
-      "objective": "Annotate the CSS guide as you work through it.",
-      "required": false,
-      "order": 2
-    },
 
     {
       "file": "week-03/notes/week-03-tailwind-css-modern-frontend-notes.pdf",
@@ -99,17 +121,9 @@
       "required": true,
       "order": 1
     },
-    {
-      "file": "week-03/notes/week-03-tailwind-css-modern-frontend-notes.docx",
-      "title": "Tailwind CSS & Modern Frontend Development (editable)",
-      "description": "The Word version of the Week 3 guide.",
-      "objective": "Annotate the Tailwind guide as you work through it.",
-      "required": false,
-      "order": 2
-    },
 
     {
-      "file": "week-04/notes/week-04-javascript-complete-master-guide.docx",
+      "file": "week-04/notes/week-04-javascript-complete-master-guide.pdf",
       "title": "JavaScript Complete Master Guide",
       "description": "Sixteen chapters from variables through the DOM, events, forms, ES6+, async JavaScript, error handling and modules, ending in a comprehensive quiz.",
       "objective": "Make a page interactive: manipulate the DOM, respond to events, and work with data.",
@@ -119,21 +133,13 @@
     {
       "file": "week-04/notes/week-04-git-and-github-workflow-notes.pdf",
       "title": "Git & GitHub Workflow",
-      "description": "Version control from first principles: Git's snapshot model, the three areas, branching, merge conflicts, pull requests, and the files every repository needs.",
+      "description": "Version control from first principles: the snapshot model, the three areas, branching, merge conflicts, pull requests, and the files every repository needs.",
       "objective": "Work confidently with branches and pull requests, and recover safely when something goes wrong.",
       "required": true,
       "order": 2
     },
     {
-      "file": "week-04/notes/week-04-git-and-github-workflow-notes.docx",
-      "title": "Git & GitHub Workflow (editable)",
-      "description": "The Word version of the Git and GitHub guide.",
-      "objective": "Annotate the Git guide as you work through it.",
-      "required": false,
-      "order": 3
-    },
-    {
-      "file": "week-04/practicals/week-04-single-page-application-build-guide.docx",
+      "file": "week-04/practicals/week-04-single-page-application-build-guide.pdf",
       "title": "Single-Page Application Build Guide",
       "description": "A guided build: the HTML skeleton, the CSS switch logic, a vanilla JavaScript router and a hamburger menu, with a quiz, project brief and marking rubric.",
       "objective": "Build a working single-page application with a JavaScript router, without a framework.",
@@ -148,17 +154,9 @@
       "required": false,
       "order": 1
     },
-    {
-      "file": "week-04/references/week-04-forms-authentication-http-methods-guide.docx",
-      "title": "Forms, Authentication & HTTP Methods (editable)",
-      "description": "The Word version of the forms and authentication guide.",
-      "objective": "Annotate the forms and authentication guide as you work through it.",
-      "required": false,
-      "order": 2
-    },
 
     {
-      "file": "week-05/notes/week-05-php-complete-master-guide.docx",
+      "file": "week-05/notes/week-05-php-complete-master-guide.pdf",
       "title": "PHP Complete Master Guide",
       "description": "Sixteen chapters covering PHP syntax, control flow, functions, arrays, strings, form handling, superglobals, file handling, object-oriented PHP, sessions and authentication, security and MVC structure.",
       "objective": "Write server-side PHP that handles form data, manages sessions and authenticates users safely.",
@@ -167,7 +165,7 @@
     },
 
     {
-      "file": "week-06/notes/week-06-mysql-database-management-master-guide.docx",
+      "file": "week-06/notes/week-06-mysql-database-management-master-guide.pdf",
       "title": "MySQL & Database Management Master Guide",
       "description": "Eighteen chapters from relational theory through DDL, DML, joins, subqueries, constraints, indexes, transactions, normalization, security and PHP integration with PDO.",
       "objective": "Design a normalised database and query it safely from PHP using prepared statements.",
@@ -183,14 +181,6 @@
       "required": true,
       "order": 1
     },
-    {
-      "file": "week-07/notes/week-07-deployment-docker-devops-notes.docx",
-      "title": "Deployment, Docker & DevOps (editable)",
-      "description": "The Word version of the Week 7 guide.",
-      "objective": "Annotate the deployment guide as you work through it.",
-      "required": false,
-      "order": 2
-    },
 
     {
       "file": "week-08/notes/week-08-capstone-project-guide.pdf",
@@ -199,14 +189,6 @@
       "objective": "Plan, build, test, deploy, document and defend a complete full-stack application.",
       "required": true,
       "order": 1
-    },
-    {
-      "file": "week-08/notes/week-08-capstone-project-guide.docx",
-      "title": "Capstone Project Guide & Brief (editable)",
-      "description": "The Word version of the capstone guide.",
-      "objective": "Annotate the capstone guide and use its templates as you plan.",
-      "required": false,
-      "order": 2
     }
   ]
 }

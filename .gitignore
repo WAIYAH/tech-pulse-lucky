@@ -45,3 +45,6 @@ __pycache__/
 
 # Scratch output from local doc generation
 build/
+
+# Office lock files, written while a document is open in Word or PowerPoint
+~$*

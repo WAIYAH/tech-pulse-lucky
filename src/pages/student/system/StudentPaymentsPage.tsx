@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
 import { lmsConfig } from "@/data/lmsConfig";
+import { PAYMENT_OPTION_LABELS } from "@/lib/lms/paymentPlan";
 import { routes } from "@/routes/routeConfig";
 import { paymentStatusBadgeVariant } from "@/lib/statusBadges";
 import { useStudentPortal } from "./StudentPortalContext";
@@ -262,7 +263,14 @@ const StudentPaymentsPage = () => {
                           <TableCell className="font-medium">
                             {courseById[payment.courseId]?.title ?? "Course"}
                           </TableCell>
-                          <TableCell>{formatMoney(payment.amount, payment.currency)}</TableCell>
+                          <TableCell>
+                            {formatMoney(payment.amount, payment.currency)}
+                            {payment.paymentOption !== "full" && (
+                              <span className="block text-xs text-muted-foreground">
+                                {PAYMENT_OPTION_LABELS[payment.paymentOption]}
+                              </span>
+                            )}
+                          </TableCell>
                           <TableCell className="break-all">{payment.transactionCode}</TableCell>
                           <TableCell>
                             <Badge variant={paymentStatusBadgeVariant[payment.status]}>

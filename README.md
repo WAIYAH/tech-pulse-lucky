@@ -143,6 +143,16 @@ Key points:
 - New Supabase objects live in `supabase/migrations/20260901090000_phase9_masterclass_schema_and_rls.sql` (schema + RLS + the quiz-grading RPC) and `supabase/migrations/20260901091500_phase9_masterclass_seed_content.sql` (seed data) — **these must be applied manually** to a live Supabase project (they are not run automatically); see `PLAN.md` section 29.
 - Until those migrations are applied, the app does not break: every masterclass read falls back to the public-safe content in `src/data/masterclassContent.ts` (program + week metadata only — no gated content ever ships in the client bundle).
 
+## Paying for a Course
+
+A student settles a course fee in one payment, or puts down a **50% deposit** and clears the balance later.
+
+- **A deposit buys the same access as paying in full.** Approving one sets access exactly as a full payment always has; the balance is chased, never used to gate teaching. Nothing in the course locks behind an unpaid balance.
+- **Two exact amounts, never a free-text figure.** A student picks *Pay in full* or *Pay 50% deposit*, and the amount is fixed by the choice. Once a deposit is approved the only remaining option is the balance — there is no second deposit. This matters because the student types the figure into M-Pesa and an admin matches it against a transaction code by eye.
+- **The balance is derived, never stored.** It is the course price minus the payments already approved against it. A stored balance is a second source of truth that drifts the first time a payment is corrected or refunded; the payment rows are the record that matters.
+- **`src/lib/lms/paymentPlan.ts` is the single rule.** The payment page, both data providers and the admin views all read the plan from it, so the rule cannot be stated one way in the UI and another in the provider. Both providers validate the submitted amount through it, so the page is not the only thing enforcing it.
+- **Approval is still manual and still admin-only.** Students insert their own payment rows and only admins can update them, so a claimed amount buys nothing until an admin has matched it against the M-Pesa transaction. The admin list badges a deposit or balance payment, so a part payment cannot be mistaken for an underpayment.
+
 ## Course Resource Library
 
 Learning materials (PDF, PowerPoint, spreadsheets, images, code, archives, media and links) are file-backed resources stored in a **private** Supabase Storage bucket, catalogued in `masterclass_resources`, and grouped for students by category — notes, presentations, practicals, assignments, quizzes, references and more.
@@ -284,9 +294,10 @@ This project's own Supabase project (not a demo/placeholder) is live and migrate
 - Real Supabase auth is enabled (`VITE_ENABLE_SUPABASE_AUTH=true`); local mock accounts no longer work.
 
 To set this up again from scratch (a new environment, a staging project, disaster recovery):
-1. Create a project at [supabase.com/dashboard](https://supabase.com/dashboard) (or `supabase projects create <name> --org-id <id> --region <region>` if the CLI is authenticated).
+1. Create a project at [supabase.com/dashboard](https://supabase.com/dashboard) (or `npx supabase projects create <name> --org-id <id> --region <region>` if the CLI is authenticated).
 2. Copy the Project URL and the publishable (anon) key into `.env` (Project Settings > API > "Framework" tab gives you both, formatted for a client library like `@supabase/supabase-js`, which is what this app uses).
-3. Link and push migrations: `supabase link --project-ref <ref>` then `supabase db push` — this applies every file in `supabase/migrations/` in filename order.
+3. Link and push migrations: `npx supabase link --project-ref <ref>` then `npx supabase db push` — this applies every file in `supabase/migrations/` in filename order.
+   The Supabase CLI is deliberately not a project dependency — it is a machine tool, not a build input — so every invocation goes through `npx`.
 4. Set `VITE_ENABLE_SUPABASE_AUTH=true` and `VITE_ADMIN_EMAILS` to your real admin email(s).
 5. Create your admin account by registering normally at `/register`, then promote it: `update public.profiles set role = 'admin' where email = 'you@example.com';` in the Supabase SQL editor (or pass `user_metadata: { role: "admin" }` when creating the user via the Admin API, which the signup trigger reads automatically).
 6. Restart the dev server (`npm run dev`) — Vite only reads `.env` at startup, not on hot reload.
@@ -375,7 +386,7 @@ This is a static single-page app (Vite build output = plain HTML/CSS/JS) talking
 
 - **Real KCB Paybill details**: confirm `src/data/lmsConfig.ts`'s `paybillNumber`/`accountNumber`/`accountName` are the real business ones, not placeholders, before advertising paid enrollment.
 - **Domain/DNS/SSL**: only relevant if `gettechy.nakolaexpertsystems.com` isn't already pointed at the Cloudflare Pages deployment — not something this repo controls.
-- **Regenerate `src/integrations/supabase/types.ts`**: currently stale/empty (`supabase gen types typescript --project-id <ref> > src/integrations/supabase/types.ts`); every provider in this codebase already works around this with hand-rolled types, so it's a nice-to-have for stronger type safety, not a blocker.
+- **Regenerate `src/integrations/supabase/types.ts`**: currently stale/empty (`npx supabase gen types typescript --project-id <ref> > src/integrations/supabase/types.ts`); every provider in this codebase already works around this with hand-rolled types, so it's a nice-to-have for stronger type safety, not a blocker.
 - **A second admin, if wanted**: add more emails (comma-separated) to `VITE_ADMIN_EMAILS`, or set `role: "admin"` in a user's metadata the same way the first admin account was created.
 - **Automated tests**: none exist in this repo today (no vitest/jest); verification has been manual + scripted-browser (Playwright) checks. Optional to add, not required to ship.
 - **Not needed**: Docker, a separate backend/API server, an ORM (Supabase's client library is used directly), or a message queue/cache layer — this platform's whole backend surface is Supabase (Postgres + Auth + RLS + PostgREST).
@@ -394,8 +405,9 @@ Web Development Masterclass:
 
 Course resource library (private storage bucket, resource metadata, versioning):
 - `supabase/migrations/20260903090000_phase16_course_resource_library.sql` — **not yet applied to the live project.** Apply it before uploading resources; until then the admin Resources panel and the student resource view fall back to link-only behaviour.
+- `supabase/migrations/20260908120000_phase17_part_payment_deposits.sql` — **not yet applied to the live project.** Adds `payments.payment_option`. Until it is applied, every payment reads as a full payment and the 50% deposit option cannot be recorded correctly.
 
-To reproduce on a new project, `supabase link --project-ref <ref>` then `supabase db push` applies all of them in filename order in one step.
+To reproduce on a new project, `npx supabase link --project-ref <ref>` then `npx supabase db push` applies all of them in filename order in one step.
 
 Deployment checklist:
 - `supabase/DEPLOYMENT_CHECKLIST.md`

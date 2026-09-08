@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { z } from "zod";
@@ -12,10 +12,16 @@ import { useAuth } from "@/contexts/AuthContext";
 import { getCourseBySlug } from "@/data/courses";
 import { formatKesAmount, lmsConfig } from "@/data/lmsConfig";
 import { lmsProvider } from "@/lib/lms";
+import { paymentPlanFor } from "@/lib/lms/paymentPlan";
 import { isCourseLocked, lockedCourseNotice } from "@/lib/lms/enrollmentFocus";
 import { createStudentNotification } from "@/lib/student/studentPortalState";
 import { routes } from "@/routes/routeConfig";
-import type { EnrollmentAccessStatus, LmsCourse, LmsPayment } from "@/types/lms";
+import type {
+  EnrollmentAccessStatus,
+  LmsCourse,
+  LmsPayment,
+  PaymentOption,
+} from "@/types/lms";
 import {
   createSafeTextSchema,
   dateNotFutureSchema,
@@ -48,6 +54,8 @@ const PaymentPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [accessStatus, setAccessStatus] = useState<EnrollmentAccessStatus | null>(null);
   const [latestPayment, setLatestPayment] = useState<LmsPayment | null>(null);
+  const [coursePayments, setCoursePayments] = useState<LmsPayment[]>([]);
+  const [selectedOption, setSelectedOption] = useState<PaymentOption>("full");
   const [isStatusLoading, setIsStatusLoading] = useState(true);
   const maxPaymentDate = new Date().toISOString().split("T")[0];
   const courseId = course?.id ?? null;
@@ -119,16 +127,39 @@ const PaymentPage = () => {
       const enrollment = enrollments.find((row) => row.courseId === courseId);
       setAccessStatus(enrollment?.accessStatus ?? null);
 
-      const latestCoursePayment =
-        payments
-          .filter((row) => row.courseId === courseId)
-          .sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0] ?? null;
-      setLatestPayment(latestCoursePayment);
+      // Keep every payment for this course, not just the newest: an approved
+      // deposit plus a pending balance is a normal state, and the plan is
+      // derived from the whole set.
+      const forThisCourse = payments
+        .filter((row) => row.courseId === courseId)
+        .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+      setCoursePayments(forThisCourse);
+      setLatestPayment(forThisCourse[0] ?? null);
       setIsStatusLoading(false);
     };
 
     loadStatus();
   }, [courseId, userId]);
+
+  // What the student may pay is derived from the payments themselves rather
+  // than stored anywhere, so it cannot drift out of step with what has actually
+  // been approved.
+  const plan = useMemo(
+    () => (course ? paymentPlanFor(course, coursePayments) : null),
+    [course, coursePayments],
+  );
+
+  // Keep the selection on something the plan actually offers: once a deposit is
+  // approved the only remaining choice is the balance, so a stale "full"
+  // selection must not survive the refresh.
+  useEffect(() => {
+    if (!plan || plan.choices.length === 0) return;
+    setSelectedOption((current) =>
+      plan.choices.some((choice) => choice.option === current)
+        ? current
+        : plan.choices[0].option,
+    );
+  }, [plan]);
 
   if (isCourseLoading) {
     return (
@@ -166,19 +197,41 @@ const PaymentPage = () => {
     );
   }
 
-  if (!user) {
+  if (!user || !plan) {
     return null;
   }
+
+  const selectedChoice =
+    plan.choices.find((choice) => choice.option === selectedOption) ?? plan.choices[0] ?? null;
+  const amountDue = selectedChoice?.amount ?? plan.outstanding;
 
   // New payments are refused while the masterclass cohort has the floor, but a
   // student whose access is already approved is never blocked out of their course.
   const isEnrollmentPaused =
     isCourseLocked(course.slug) && accessStatus !== "approved";
 
-  const isFormLocked =
-    accessStatus === "approved" ||
-    accessStatus === "pending_payment" ||
-    isEnrollmentPaused;
+  // A payment awaiting review blocks another one, and a settled fee blocks
+  // everything. An approved deposit does neither: the balance is still owed, so
+  // approved access is no longer on its own a reason to close the form.
+  const hasPaymentUnderReview =
+    coursePayments.some((payment) => payment.status === "pending") ||
+    accessStatus === "pending_payment";
+
+  const isFormLocked = plan.isSettled || hasPaymentUnderReview || isEnrollmentPaused;
+
+  // Say which of the three reasons closed the form - "Submission Locked" tells a
+  // student nothing about whether to wait, pay, or come back next cohort.
+  const submitLabel = isSubmitting
+    ? "Submitting..."
+    : plan.isSettled
+      ? "Fee fully paid"
+      : hasPaymentUnderReview
+        ? "Awaiting review"
+        : isEnrollmentPaused
+          ? "Enrollment paused"
+          : plan.hasBalance
+            ? "Submit Balance Payment"
+            : "Submit Payment Confirmation";
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -202,6 +255,15 @@ const PaymentPage = () => {
       return;
     }
 
+    if (!selectedChoice) {
+      toast({
+        title: "Nothing left to pay",
+        description: "This course fee is already fully paid for your account.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (isCourseLocked(course.slug)) {
       toast({
         title: "Enrollment paused",
@@ -219,7 +281,8 @@ const PaymentPage = () => {
         fullName: validation.data.fullName,
         email: validation.data.email,
         phone: validation.data.phone,
-        amount: course.price,
+        amount: selectedChoice.amount,
+        paymentOption: selectedChoice.option,
         transactionCode: validation.data.transactionCode,
         paymentDate: validation.data.paymentDate,
         screenshotUrl: validation.data.screenshotUrl || undefined,
@@ -273,7 +336,23 @@ const PaymentPage = () => {
               </CardHeader>
               <CardContent className="space-y-4 text-sm">
                 <p>
-                  Amount: <span className="font-semibold">{formatKesAmount(course.price)}</span>
+                  Course fee: <span className="font-semibold">{formatKesAmount(plan.price)}</span>
+                </p>
+                {plan.hasBalance && (
+                  <p className="text-muted-foreground">
+                    Already paid:{" "}
+                    <span className="font-semibold text-foreground">
+                      {formatKesAmount(plan.approvedTotal)}
+                    </span>{" "}
+                    &middot; Balance:{" "}
+                    <span className="font-semibold text-foreground">
+                      {formatKesAmount(plan.outstanding)}
+                    </span>
+                  </p>
+                )}
+                <p>
+                  Pay now:{" "}
+                  <span className="font-semibold text-primary">{formatKesAmount(amountDue)}</span>
                 </p>
                 <p>
                   Payment Method:{" "}
@@ -295,7 +374,7 @@ const PaymentPage = () => {
                   {lmsConfig.payment.instructionSteps.map((step, index) => (
                     <p key={step} className="text-muted-foreground">
                       {index + 1}.{" "}
-                      {step.replace("[COURSE_PRICE]", formatKesAmount(course.price))}
+                      {step.replace("[COURSE_PRICE]", formatKesAmount(amountDue))}
                     </p>
                   ))}
                 </div>
@@ -317,7 +396,9 @@ const PaymentPage = () => {
                     </div>
                     {accessStatus === "approved" && (
                       <p className="text-xs text-muted-foreground mt-2">
-                        Access approved. Continue learning.
+                        {plan.hasBalance
+                          ? `Access approved. A balance of ${formatKesAmount(plan.outstanding)} is still payable.`
+                          : "Access approved. Continue learning."}
                       </p>
                     )}
                     {accessStatus === "pending_payment" && (
@@ -414,15 +495,62 @@ const PaymentPage = () => {
                     </div>
                   </div>
 
+                  {plan.choices.length > 1 && (
+                    <fieldset className="space-y-2" disabled={isFormLocked}>
+                      <legend className="text-sm font-medium">How much are you paying?</legend>
+                      <div className="grid sm:grid-cols-2 gap-3">
+                        {plan.choices.map((choice) => {
+                          const isSelected = choice.option === selectedOption;
+                          return (
+                            <button
+                              key={choice.option}
+                              type="button"
+                              onClick={() => setSelectedOption(choice.option)}
+                              aria-pressed={isSelected}
+                              disabled={isFormLocked}
+                              className={`rounded-xl border p-3 text-left transition-colors disabled:opacity-60 ${
+                                isSelected
+                                  ? "border-primary bg-primary/5 ring-1 ring-primary"
+                                  : "border-border hover:border-primary/50"
+                              }`}
+                            >
+                              <span className="block text-sm font-semibold">{choice.label}</span>
+                              <span className="mt-0.5 block text-lg font-bold text-primary">
+                                {formatKesAmount(choice.amount)}
+                              </span>
+                              <span className="mt-1 block text-xs text-muted-foreground">
+                                {choice.hint}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        A deposit gives you the same access as paying in full - the balance stays
+                        payable and you can clear it from this page at any time.
+                      </p>
+                    </fieldset>
+                  )}
+
+                  {plan.hasBalance && (
+                    <div className="rounded-xl border border-accent/40 bg-accent/10 p-3 text-sm">
+                      <p className="font-semibold">Clearing your balance</p>
+                      <p className="mt-1 text-muted-foreground">
+                        You have paid {formatKesAmount(plan.approvedTotal)} of the{" "}
+                        {formatKesAmount(plan.price)} fee. Pay the remaining{" "}
+                        {formatKesAmount(plan.outstanding)} using the details on the left, then
+                        confirm it below.
+                      </p>
+                    </div>
+                  )}
+
                   <div className="grid md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="amount">Amount Paid</Label>
-                      <Input
-                        id="amount"
-                        type="number"
-                        value={course.price}
-                        disabled
-                      />
+                      <Input id="amount" type="number" value={amountDue} disabled />
+                      <p className="text-xs text-muted-foreground">
+                        Pay exactly this amount so it can be matched to your M-Pesa code.
+                      </p>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="paymentDate">Payment Date</Label>
@@ -480,11 +608,7 @@ const PaymentPage = () => {
                     className="w-full"
                     disabled={isSubmitting || isFormLocked}
                   >
-                    {isSubmitting
-                      ? "Submitting..."
-                      : isFormLocked
-                        ? "Submission Locked"
-                        : "Submit Payment Confirmation"}
+                    {submitLabel}
                   </Button>
                 </form>
                 <p className="mt-3 text-xs text-muted-foreground">

@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { readAdminSettings } from "@/lib/admin/adminState";
 import { lmsProvider } from "@/lib/lms";
 import { createStudentNotification } from "@/lib/student/studentPortalState";
+import { PAYMENT_OPTION_LABELS } from "@/lib/lms/paymentPlan";
 import { paymentStatusBadgeVariant } from "@/lib/statusBadges";
 import { routes } from "@/routes/routeConfig";
 import type { LmsCourse, LmsPayment, PaymentStatus } from "@/types/lms";
@@ -299,6 +300,12 @@ const AdminPaymentsPage = () => {
                           </p>
                         </div>
                         <div className="flex items-center gap-2">
+                          {/* A part payment reads as an underpayment without this. */}
+                          {payment.paymentOption !== "full" && (
+                            <Badge variant="secondary">
+                              {PAYMENT_OPTION_LABELS[payment.paymentOption]}
+                            </Badge>
+                          )}
                           <Badge variant={paymentStatusBadgeVariant[payment.status]} className="capitalize">
                             {payment.status}
                           </Badge>

@@ -14,6 +14,9 @@ export type EnrollmentAccessStatus =
 
 export type PaymentStatus = "pending" | "approved" | "rejected";
 
+/** A fee is settled in one payment, or as a deposit followed by its balance. */
+export type PaymentOption = "full" | "deposit" | "balance";
+
 export interface LmsCourseFaq {
   question: string;
   answer: string;
@@ -107,6 +110,8 @@ export interface LmsPayment {
   transactionCode: string;
   paymentDate: string;
   status: PaymentStatus;
+  /** What this payment was submitted as - the whole fee, a deposit, or a balance. */
+  paymentOption: PaymentOption;
   adminNote?: string;
   screenshotUrl?: string;
   createdAt: string;
@@ -147,6 +152,7 @@ export interface PaymentSubmissionInput {
   email: string;
   phone: string;
   amount: number;
+  paymentOption: PaymentOption;
   transactionCode: string;
   paymentDate: string;
   screenshotUrl?: string;

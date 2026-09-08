@@ -13,6 +13,7 @@ import type {
   LmsPayment,
   PaymentSubmissionInput,
 } from "@/types/lms";
+import { validatePaymentAmount } from "./paymentPlan";
 import type { LmsDataProvider } from "./service";
 
 const STORAGE_KEYS = {
@@ -169,12 +170,6 @@ export class MockLmsProvider implements LmsDataProvider {
     if (course.isFree) {
       throw new Error("Free courses do not require payment submission.");
     }
-    if (input.amount < course.price) {
-      throw new Error(
-        `Paid amount must be at least ${course.currency} ${course.price}.`,
-      );
-    }
-
     const now = new Date().toISOString();
 
     const payments = this.readArrayFromStorage<LmsPayment>(
@@ -189,17 +184,22 @@ export class MockLmsProvider implements LmsDataProvider {
       )
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 
-    const latestPayment = existingCoursePayments[0];
-
-    if (latestPayment?.status === "pending") {
+    if (existingCoursePayments.some((payment) => payment.status === "pending")) {
       throw new Error(
         "You already have a pending payment request for this course. Please wait for admin review.",
       );
     }
 
-    if (latestPayment?.status === "approved") {
-      throw new Error("This course payment is already approved for your account.");
-    }
+    // An approved deposit is not a reason to refuse: the balance is still owed.
+    // The shared plan decides what may be paid, so the mock and Supabase paths
+    // cannot drift apart on the rule.
+    const amountError = validatePaymentAmount(
+      input.paymentOption,
+      input.amount,
+      course,
+      existingCoursePayments,
+    );
+    if (amountError) throw new Error(amountError);
 
     const payment: LmsPayment = {
       id: generateId(),
@@ -213,6 +213,7 @@ export class MockLmsProvider implements LmsDataProvider {
       transactionCode: input.transactionCode,
       paymentDate: input.paymentDate,
       status: "pending",
+      paymentOption: input.paymentOption,
       screenshotUrl: input.screenshotUrl,
       createdAt: now,
       updatedAt: now,

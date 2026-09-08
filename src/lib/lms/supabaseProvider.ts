@@ -15,10 +15,12 @@ import type {
   LmsLessonProgress,
   LmsPayment,
   LmsRole,
+  PaymentOption,
   PaymentStatus,
   PaymentSubmissionInput,
 } from "@/types/lms";
 import { MockLmsProvider } from "./mockProvider";
+import { validatePaymentAmount } from "./paymentPlan";
 import type { LmsDataProvider } from "./service";
 
 interface QueryError {
@@ -109,6 +111,7 @@ interface PaymentRow extends Record<string, unknown> {
   transaction_code: string;
   payment_date: string;
   status: PaymentStatus;
+  payment_option?: PaymentOption | null;
   admin_note?: string | null;
   screenshot_url?: string | null;
   created_at: string;
@@ -236,6 +239,7 @@ const mapPaymentRow = (row: PaymentRow): LmsPayment => ({
   transactionCode: row.transaction_code,
   paymentDate: row.payment_date,
   status: row.status,
+  paymentOption: row.payment_option ?? "full",
   adminNote: row.admin_note ?? undefined,
   screenshotUrl: row.screenshot_url ?? undefined,
   createdAt: row.created_at,
@@ -505,30 +509,32 @@ export class SupabaseLmsProvider implements LmsDataProvider {
         const course = await this.getCourseBySlug(input.courseSlug);
         if (!course) throw new Error("Course not found.");
         if (course.isFree) throw new Error("Free courses do not require payment.");
-        if (input.amount < course.price) {
-          throw new Error(
-            `Paid amount must be at least ${course.currency} ${course.price}.`,
-          );
-        }
 
-        const { data: latestRows, error: latestError } = await supabase
+        // Every payment against this course, not just the newest: a student may
+        // legitimately hold an approved deposit and be paying the balance.
+        const { data: existingRows, error: existingError } = await supabase
           .from("payments")
           .select("*")
           .eq("user_id", input.userId)
           .eq("course_id", course.id)
-          .order("created_at", { ascending: false })
-          .limit(1);
-        if (latestError) throw latestError;
+          .order("created_at", { ascending: false });
+        if (existingError) throw existingError;
 
-        const latest = latestRows?.[0];
-        if (latest?.status === "pending") {
+        const existingPayments = (existingRows ?? []).map(mapPaymentRow);
+
+        if (existingPayments.some((payment) => payment.status === "pending")) {
           throw new Error(
             "You already have a pending payment request for this course. Please wait for admin review.",
           );
         }
-        if (latest?.status === "approved") {
-          throw new Error("This course payment is already approved for your account.");
-        }
+
+        const amountError = validatePaymentAmount(
+          input.paymentOption,
+          input.amount,
+          course,
+          existingPayments,
+        );
+        if (amountError) throw new Error(amountError);
 
         const { data: paymentRow, error: paymentError } = await supabase
           .from("payments")
@@ -540,6 +546,7 @@ export class SupabaseLmsProvider implements LmsDataProvider {
             phone: input.phone,
             amount: input.amount,
             currency: course.currency,
+            payment_option: input.paymentOption,
             transaction_code: input.transactionCode,
             payment_date: input.paymentDate,
             status: "pending",

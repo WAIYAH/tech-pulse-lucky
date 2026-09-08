@@ -234,6 +234,49 @@ const parseLinkEntry = (entry) => {
 };
 
 /**
+ * Retry an operation that failed for a reason worth retrying.
+ *
+ * The library is tens of megabytes across a couple of dozen files, and a single
+ * dropped connection used to abort the whole run - leaving the catalogue half
+ * written and the operator re-running by hand until it happened to get through.
+ * A transport failure surfaces as `fetch failed` with no status code, which is
+ * exactly the case worth another attempt; a 4xx from the API is a real answer
+ * and is returned immediately rather than hammered.
+ */
+const withRetry = async (what, operation, attempts = 4) => {
+  let lastResult;
+
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    let result;
+    try {
+      result = await operation();
+    } catch (thrown) {
+      result = { error: { message: thrown?.message ?? String(thrown) } };
+    }
+
+    if (!result?.error) return result;
+    lastResult = result;
+
+    const message = String(result.error.message ?? "").toLowerCase();
+    const isTransport =
+      !result.error.statusCode &&
+      (message.includes("fetch failed") ||
+        message.includes("timeout") ||
+        message.includes("econnreset") ||
+        message.includes("socket") ||
+        message.includes("network"));
+
+    if (!isTransport || attempt === attempts) return result;
+
+    const waitMs = 1000 * 2 ** (attempt - 1);
+    log("RETRY", `${what} failed (${result.error.message}); retrying in ${waitMs / 1000}s`);
+    await new Promise((resolve) => setTimeout(resolve, waitMs));
+  }
+
+  return lastResult;
+};
+
+/**
  * A content hash keeps the object key stable across runs, so re-syncing an
  * unchanged file is a no-op and a changed file gets a genuinely new key rather
  * than silently overwriting what students already hold links to.
@@ -301,12 +344,21 @@ const main = async () => {
   // A dry run only validates the manifest against the files on disk, so it
   // deliberately needs no credentials and no network.
   if (!DRY_RUN) {
-    if (!url) fail("Set VITE_SUPABASE_URL (or SUPABASE_URL) before running this script.");
+    if (!url) {
+      fail(
+        "VITE_SUPABASE_URL is not set.\n" +
+          "         It lives in .env, but plain `node` does not read .env - only Vite\n" +
+          "         does. Run this through `npm run resources:sync`, which loads .env,\n" +
+          "         or: node --env-file-if-exists=.env tools/sync-resources.mjs",
+      );
+    }
     if (!serviceKey) {
       fail(
-        "Set SUPABASE_SERVICE_ROLE_KEY before running this script.\n" +
+        "SUPABASE_SERVICE_ROLE_KEY is not set.\n" +
           "         Find it in the Supabase dashboard under Project Settings > API.\n" +
-          "         Run with --dry-run to validate without it.",
+          "         Prefer a shell variable over putting it in .env: it bypasses RLS\n" +
+          "         entirely, and .env sits beside config that publishes VITE_* to the\n" +
+          "         browser. Run with --dry-run to validate without it.",
       );
     }
   }
@@ -400,6 +452,7 @@ const main = async () => {
   let uploaded = 0;
   let skipped = 0;
   let upserted = 0;
+  let replaced = 0;
   const seenPaths = new Set();
 
   for (const item of planned) {
@@ -415,22 +468,42 @@ const main = async () => {
 
     seenPaths.add(item.storagePath);
 
-    // Upload only when this exact content is not already stored.
-    const { error: uploadError } = await supabase.storage
-      .from(BUCKET)
-      .upload(item.storagePath, item.bytes, {
-        contentType: item.mimeType,
-        cacheControl: "3600",
-        upsert: false,
-      });
+    // Ask before sending.
+    //
+    // The object key carries a hash of the file's content, so an object already
+    // sitting at this key IS this file - there is nothing to replace. Uploading
+    // regardless and treating the "already exists" error as a skip meant every
+    // run pushed the whole library over the wire again, tens of megabytes of it,
+    // and on an unreliable connection the large files are precisely what drops.
+    const objectDirectory = item.storagePath.split("/").slice(0, -1).join("/");
+    const objectName = item.storagePath.split("/").pop();
 
-    if (uploadError) {
-      const alreadyThere =
-        uploadError.message?.toLowerCase().includes("exists") || uploadError.statusCode === "409";
-      if (!alreadyThere) fail(`Uploading ${item.file}: ${uploadError.message}`);
+    const { data: storedObjects, error: listError } = await withRetry(
+      `checking for ${item.fileName}`,
+      () => supabase.storage.from(BUCKET).list(objectDirectory, { search: objectName }),
+    );
+    if (listError) fail(`Checking ${item.file}: ${listError.message}`);
+
+    if ((storedObjects ?? []).some((object) => object.name === objectName)) {
       skipped += 1;
     } else {
-      uploaded += 1;
+      const { error: uploadError } = await withRetry(`uploading ${item.fileName}`, () =>
+        supabase.storage.from(BUCKET).upload(item.storagePath, item.bytes, {
+          contentType: item.mimeType,
+          cacheControl: "3600",
+          upsert: false,
+        }),
+      );
+
+      if (uploadError) {
+        // A concurrent run may have stored it between the check and the upload.
+        const alreadyThere =
+          uploadError.message?.toLowerCase().includes("exists") || uploadError.statusCode === "409";
+        if (!alreadyThere) fail(`Uploading ${item.file}: ${uploadError.message}`);
+        skipped += 1;
+      } else {
+        uploaded += 1;
+      }
     }
 
     const row = {
@@ -454,13 +527,56 @@ const main = async () => {
       version: 1,
     };
 
-    // storage_path is unique, which makes it the natural conflict target: the
-    // same file always lands on the same row rather than accumulating copies.
-    const { error: upsertError } = await supabase
-      .from("masterclass_resources")
-      .upsert(row, { onConflict: "storage_path" });
+    // A row is identified two ways, and both have to be honoured.
+    //
+    // storage_path is unique, so re-syncing an unchanged file must land on the
+    // same row rather than accumulating copies. But the catalogue ALSO enforces
+    // one row per (program, week, title, version) - so when the file behind a
+    // title changes, as it does when a Word guide is replaced by its PDF, the
+    // new content hash yields a new storage_path and a blind upsert would try to
+    // INSERT a second row under a title that is already taken.
+    //
+    // So find the row this entry refers to - by file first, then by identity -
+    // and update it in place. Only a genuinely new resource is inserted, which
+    // makes replacing a document a content change rather than a duplicate.
+    const { data: byPath, error: byPathError } = await withRetry(
+      `looking up ${item.fileName}`,
+      () =>
+        supabase
+          .from("masterclass_resources")
+          .select("id")
+          .eq("storage_path", item.storagePath)
+          .maybeSingle(),
+    );
+    if (byPathError) fail(`Looking up "${item.title}": ${byPathError.message}`);
 
-    if (upsertError) fail(`Saving "${item.title}": ${upsertError.message}`);
+    let existingId = byPath?.id ?? null;
+
+    if (!existingId) {
+      const { data: byIdentity, error: byIdentityError } = await withRetry(
+        `looking up "${item.title}"`,
+        () =>
+          supabase
+            .from("masterclass_resources")
+            .select("id")
+            .eq("program_id", program.id)
+            .eq("week_id", weekId)
+            .eq("title", item.title)
+            .eq("version", 1)
+            .maybeSingle(),
+      );
+      if (byIdentityError) fail(`Looking up "${item.title}": ${byIdentityError.message}`);
+      existingId = byIdentity?.id ?? null;
+      if (existingId) replaced += 1;
+    }
+
+    const { error: writeError } = await withRetry(`saving "${item.title}"`, () =>
+      existingId
+        ? supabase.from("masterclass_resources").update(row).eq("id", existingId)
+        : supabase.from("masterclass_resources").insert(row),
+    );
+
+    if (writeError) fail(`Saving "${item.title}": ${writeError.message}`);
     upserted += 1;
 
     log("OK", `week ${String(item.weekNumber).padStart(2, "0")} / ${item.category.padEnd(12)} ${item.title}`);
@@ -491,7 +607,8 @@ const main = async () => {
   }
 
   console.log(
-    `\n  Done. ${uploaded} file(s) uploaded, ${skipped} already stored, ${upserted} catalogue row(s) saved.\n`,
+    `\n  Done. ${uploaded} file(s) uploaded, ${skipped} already stored, ${upserted} catalogue row(s) saved` +
+      `${replaced ? `, ${replaced} repointed to a new file` : ""}.\n`,
   );
 };
 

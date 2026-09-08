@@ -12,8 +12,8 @@
     "cf:deploy": "npm run build && wrangler deploy",
     "resources:pdf": "pwsh -File tools/docx-to-pdf.ps1",
     "resources:generate": "python -m tools.docgen.generate --pdf",
-    "resources:check": "node tools/sync-resources.mjs --dry-run",
-    "resources:sync": "node tools/sync-resources.mjs"
+    "resources:check": "node --env-file-if-exists=.env tools/sync-resources.mjs --dry-run",
+    "resources:sync": "node --env-file-if-exists=.env tools/sync-resources.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

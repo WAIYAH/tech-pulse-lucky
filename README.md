@@ -404,10 +404,14 @@ Web Development Masterclass:
 - `supabase/migrations/20260901091500_phase9_masterclass_seed_content.sql`
 
 Course resource library (private storage bucket, resource metadata, versioning):
-- `supabase/migrations/20260903090000_phase16_course_resource_library.sql` — **not yet applied to the live project.** Apply it before uploading resources; until then the admin Resources panel and the student resource view fall back to link-only behaviour.
-- `supabase/migrations/20260908120000_phase17_part_payment_deposits.sql` — **not yet applied to the live project.** Adds `payments.payment_option`. Until it is applied, every payment reads as a full payment and the 50% deposit option cannot be recorded correctly.
+- `supabase/migrations/20260903090000_phase16_course_resource_library.sql` — applied 8 September 2026.
+- `supabase/migrations/20260908120000_phase17_part_payment_deposits.sql` — applied 8 September 2026. Adds `payments.payment_option`.
 
-To reproduce on a new project, `npx supabase link --project-ref <ref>` then `npx supabase db push` applies all of them in filename order in one step.
+Every migration above is recorded in the linked project's remote history, so `npx supabase db push` applies only what is genuinely new — verify with `npx supabase migration list` first, and `--dry-run` before any push.
+
+That check matters: the phase 9 seed contains inserts into `masterclass_lessons`, `masterclass_terminology` and `masterclass_quiz_questions` with no `ON CONFLICT` guard. If a project's remote history were ever empty or reset, a push would replay them and duplicate every lesson, term and quiz question in the live course. The history is intact today; confirm it is before pushing to any project you have not pushed to before.
+
+To reproduce on a *new* project, `npx supabase link --project-ref <ref>` then `npx supabase db push` applies all of them in filename order in one step.
 
 Deployment checklist:
 - `supabase/DEPLOYMENT_CHECKLIST.md`
